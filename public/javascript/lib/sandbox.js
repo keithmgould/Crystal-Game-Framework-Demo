@@ -1,5 +1,5 @@
 define(["ext/jquery"],function ($) {
-  console.log("loading sandbox");
+  console.log("loading sandbox module");
   return function (core, moduleID) {
     return {
       dom : function () {

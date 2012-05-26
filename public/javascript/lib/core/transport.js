@@ -1,10 +1,10 @@
 define(["lib/constants", "/socket.io/socket.io.js"], function (Constants, xx) {
-  console.log("loading core.transport");
+  console.log("loading core.transport module");
   var socket = io.connect(Constants.server),
       sendables = ["new-message"];
 
   return {
-    listen : function (callback) {
+    on : function (callback) {
       socket.on("new-message", function (msg) {
         callback({ type : "receive-message", data : msg});
       });

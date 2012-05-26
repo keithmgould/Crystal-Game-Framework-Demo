@@ -1,4 +1,5 @@
 define(function () {
+  console.log("loading radar widget module");
   return function (sb) {
     return {
       init : function () {
