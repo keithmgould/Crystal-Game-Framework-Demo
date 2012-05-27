@@ -1,4 +1,4 @@
-define(["lib/constants", "/socket.io/socket.io.js"], function (Constants, xx) {
+define(["lib/app/constants", "/socket.io/socket.io.js"], function (Constants, xx) {
   console.log("loading core.transport module");
   var socket = io.connect(Constants.server),
       sendables = ["new-message"];

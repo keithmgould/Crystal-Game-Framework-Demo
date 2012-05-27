@@ -1,11 +1,9 @@
-define(["ext/Box2dWeb-2.1.a.3.min"], function (xx) {
+define(["lib/app/constants", "ext/Box2dWeb-2.1.a.3.min"], function (Constants,xx) {
   console.log("loading Physics module");
 
 
   // not sure where else to place this?
-  // Once this works see if we can move it into the object below (Physics object)
   // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-  // later update this to just block out sucky browsers
   window.requestAnimFrame = (function(){
         return  window.requestAnimationFrame       || 
                 window.webkitRequestAnimationFrame || 
@@ -18,11 +16,30 @@ define(["ext/Box2dWeb-2.1.a.3.min"], function (xx) {
   })();
 
 
+  var world;
 
+  function update () {
+    console.log(".");
+    requestAnimFrame(update);
+
+      world.Step(
+        1 / 60   //frame-rate: 60Hz
+        ,  10    //velocity iterations
+        ,  10    //position iterations
+      );
+
+     // learn about this....
+     world.ClearForces();
+
+     //updateEntities();
+     //drawEntities();
+
+
+  }
 
   return {
-
     init : function () {
+
       // Prep our Box2D variables
       this.b2Vec2 = Box2D.Common.Math.b2Vec2;
       this.b2AABB = Box2D.Collision.b2AABB;
@@ -38,11 +55,13 @@ define(["ext/Box2dWeb-2.1.a.3.min"], function (xx) {
       this.b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
       this.b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef;
 
-      // todo: move these values into constants
-      this.scale = 30;
-      this.height = 600;
-      this.width = 1000;
-      this.world = new this.b2World(
+      // Prep the size of our space
+      this.scale = Constants.physics.scale;
+      this.height = Constants.physics.height;
+      this.width = Constants.physics.width;
+
+      // Prep our world
+      world = new this.b2World(
         new this.b2Vec2(0, 0),  //zero gravity
         true                    //allow sleep
       );
@@ -51,17 +70,17 @@ define(["ext/Box2dWeb-2.1.a.3.min"], function (xx) {
       this.fixDef.density = 1.0;
       this.fixDef.friction = 0.5;
       this.fixDef.restitution = 0.2;
-      requestAnimFrame(this.update);
+      requestAnimFrame(update);
     },
 
     // Places an array of entities.
     placeEntities : function(entities){
       that = this;
       $.each(entities, function(i, entity){
-      var body = that.buildBody(entity);
-      entity.body = body;
-      that.fixDef.shape = that.registerShape(entity);
-      body.CreateFixture(that.fixDef);
+        var body = that.buildBody(entity);
+        entity.body = body;
+        that.fixDef.shape = that.registerShape(entity);
+        body.CreateFixture(that.fixDef);
       });
     },
 
@@ -82,20 +101,8 @@ define(["ext/Box2dWeb-2.1.a.3.min"], function (xx) {
       // replace constants below with halfWidth etc..
       shape.SetAsBox(1, 1);
       return shape;
-    },
-    update : function () {
-      this.world.Step(
-        1 / 60   //frame-rate: 60Hz
-        ,  10    //velocity iterations
-        ,  10    //position iterations
-      );
- 
-     // learn about this....
-     this.world.ClearForces();
-
-     //updateEntities();
-     //drawEntities();
-     requestAnimFrame(this.update);
     }
+
   };
+
 });
