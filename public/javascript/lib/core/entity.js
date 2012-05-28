@@ -8,14 +8,9 @@ define(["ext/class"], function (Class) {
       this.angle = 0;
     },
     update: function(){
-
-    },
-    draw: function(ctx){
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
-      ctx.drawImage(this.img,-(this.width / 2),-(this.height / 2));
-      ctx.restore();
+      this.x = this.body.GetPosition().x;
+      this.y = this.body.GetPosition().y;
+      this.angle = this.body.GetAngle();
     }
   });
 

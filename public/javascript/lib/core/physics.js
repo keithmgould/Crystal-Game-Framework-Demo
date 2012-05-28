@@ -1,7 +1,6 @@
 define(["lib/app/constants", "ext/Box2dWeb-2.1.a.3.min"], function (Constants,xx) {
   console.log("loading Physics module");
 
-
   // not sure where else to place this?
   // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
   window.requestAnimFrame = (function(){
@@ -15,94 +14,77 @@ define(["lib/app/constants", "ext/Box2dWeb-2.1.a.3.min"], function (Constants,xx
                 };
   })();
 
+  function physics () {
 
-  var world;
+    // Prep our Box2D variables
+    var b2Vec2 = Box2D.Common.Math.b2Vec2;
+    var b2AABB = Box2D.Collision.b2AABB;
+    var b2BodyDef = Box2D.Dynamics.b2BodyDef;
+    var b2Body = Box2D.Dynamics.b2Body;
+    var b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
+    var b2Fixture = Box2D.Dynamics.b2Fixture;
+    var b2World = Box2D.Dynamics.b2World;
+    var b2MassData = Box2D.Collision.Shapes.b2MassData;
+    var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
+    var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
+    var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+    var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
+    var b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef;
 
-  function update () {
-    console.log(".");
-    requestAnimFrame(update);
+    // Prep the size of our space
+    var scale = Constants.physics.scale;
+    var height = Constants.physics.height;
+    var width = Constants.physics.width;
 
-      world.Step(
-        1 / 60   //frame-rate: 60Hz
-        ,  10    //velocity iterations
-        ,  10    //position iterations
+    var fixDef = new b2FixtureDef;
+    fixDef.density = 1.0;
+    fixDef.friction = 0.5;
+    fixDef.restitution = 0.2;
+
+    // create a world
+    this.generateWorld = function () {
+      world = new b2World(
+        new b2Vec2(1, 0),  //zero gravity
+        true               //allow sleep
       );
-
-     // learn about this....
-     world.ClearForces();
-
-     //updateEntities();
-     //drawEntities();
-
-
-  }
-
-  return {
-    init : function () {
-
-      // Prep our Box2D variables
-      this.b2Vec2 = Box2D.Common.Math.b2Vec2;
-      this.b2AABB = Box2D.Collision.b2AABB;
-      this.b2BodyDef = Box2D.Dynamics.b2BodyDef;
-      this.b2Body = Box2D.Dynamics.b2Body;
-      this.b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
-      this.b2Fixture = Box2D.Dynamics.b2Fixture;
-      this.b2World = Box2D.Dynamics.b2World;
-      this.b2MassData = Box2D.Collision.Shapes.b2MassData;
-      this.b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
-      this.b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
-      this.b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
-      this.b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
-      this.b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef;
-
-      // Prep the size of our space
-      this.scale = Constants.physics.scale;
-      this.height = Constants.physics.height;
-      this.width = Constants.physics.width;
-
-      // Prep our world
-      world = new this.b2World(
-        new this.b2Vec2(0, 0),  //zero gravity
-        true                    //allow sleep
-      );
-
-      this.fixDef = new this.b2FixtureDef;
-      this.fixDef.density = 1.0;
-      this.fixDef.friction = 0.5;
-      this.fixDef.restitution = 0.2;
-      requestAnimFrame(update);
-    },
+      return world;
+    }
 
     // Places an array of entities.
-    placeEntities : function(entities){
+    this.placeEntities = function (entities, world) {
+      var b = fixDef;
       that = this;
       $.each(entities, function(i, entity){
-        var body = that.buildBody(entity);
+        var body = that.buildBody(entity, world);
         entity.body = body;
-        that.fixDef.shape = that.registerShape(entity);
-        body.CreateFixture(that.fixDef);
+        fixDef.shape = that.registerShape(entity);
+        body.CreateFixture(fixDef);
       });
-    },
+    }
 
     // Register the positon and dynamics
-    buildBody : function(entity){
-      var bodyDef = new this.b2BodyDef;
-      bodyDef.type = box.b2Body.b2_dynamicBody;
+    this.buildBody = function (entity, world) {
+      var bodyDef = new b2BodyDef;
+      bodyDef.type = b2Body.b2_dynamicBody;
       bodyDef.position.x = entity.x;
       bodyDef.position.y = entity.y;
-      var body = this.world.CreateBody(bodyDef);
+      var body = world.CreateBody(bodyDef);
       return body;
-    },
+    }
 
     // Register the geometry
-    registerShape : function(entity){
-      var shape = new this.b2PolygonShape;
+    this.registerShape = function (entity) {
+      var shape = new b2PolygonShape;
       // todo: investigate halfWidth and halfHeight
       // replace constants below with halfWidth etc..
       shape.SetAsBox(1, 1);
       return shape;
     }
 
-  };
+    // kick off the loop
+    //requestAnimFrame(update);
+  }
 
+  return physics;
 });
+

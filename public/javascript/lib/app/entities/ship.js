@@ -1,4 +1,4 @@
-define(["lib/entity"], function (Entity) {
+define(["lib/core/entity"], function (Entity) {
   var Ship = Entity.extend({
     init: function(x,y){
       this._super(x,y);
@@ -23,4 +23,5 @@ define(["lib/entity"], function (Entity) {
       this.body.ApplyTorque(-50);
     }
   });
+  return Ship;
 });

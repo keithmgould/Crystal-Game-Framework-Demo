@@ -1,10 +1,5 @@
-require(["lib/core/widgets", "lib/core/physics"], function (widgets, physics) {
+require(["lib/core/widgets"], function (widgets) {
   console.log("loading main module");
-  
-  // initialize the physics engine
-  physics.init();
-
-  // initialize the interface
   widgets.init();
 });
 

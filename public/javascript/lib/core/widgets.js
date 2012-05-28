@@ -19,23 +19,14 @@ define(["lib/core/sandbox", "lib/core/transport", "lib/app/widgetLoader"], funct
       }
     },
     create_widget : function (widgetID, widget) {
-      // store widget
-      widgets[widgetID] = {
-        create : widget["creator"],
-        instance : null
-      };
-      // place widget template
+      sb = new Sandbox(this, widgetID);
+      widgets[widgetID] = new widget["code"](sb);
       $("#" + widgetID).html(widget["template"]());
-    },
-    place_template : function (widgetID) {
-    
     },
     start_widget : function(widgetID) {
       var widget = widgets[widgetID];
       if (widget) {
-        sb = new Sandbox(this, widgetID);
-        widget.instance = widget.create(sb);
-        widget.instance.init();
+        widget.init();
       }
     },
     start_all_widgets : function () {
