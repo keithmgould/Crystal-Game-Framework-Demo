@@ -1,8 +1,5 @@
 var app = require('http').createServer(handler),
-    io = require('socket.io').listen(app),
-    fs = require('fs'),
-    static = require('node-static'),
-    b2d = require("box2d");
+    static = require('node-static')
 
 app.listen(3000);
 
@@ -14,12 +11,3 @@ function handler (req, res) {
   });
 }
 
-// Handle socket connections
-io.sockets.on('connection', function (socket) {
-
-  // Handle new messages from a client
-  socket.on('new-message', function (data) {
-    console.log(data + ". BROADCASTING");
-    socket.broadcast.emit("new-message",data);
-  });
-});
