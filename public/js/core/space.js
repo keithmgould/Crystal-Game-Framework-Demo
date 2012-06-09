@@ -60,11 +60,11 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
     addToLoopCallbacks : function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});
     },
+    getWorld : function () { return world },
     getAllEntities : function () { return allEntities; },
     getOtherEntities : function () { return otherEntities; },
     getSelfShip : function () { return selfShip; },
     pubsub : function () {
-      console.log("hi from pubsub");
       mediator.Subscribe("pilotControl", function ( data ) {
         switch(data.keystroke)
         {
@@ -85,6 +85,9 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
       world = Physics.generateWorld();
       this.pubsub();
       requestAnimFrame(update);
+    },
+    enableDebugDraw : function (context) {
+      Physics.enableDebugDraw(world, context);
     },
     addSelfShip : function (name, xPos, yPos) {
       addShip(name, true, xPos, yPos);

@@ -6,7 +6,6 @@ define(['app/constants', 'backbone', 'core/space'], function (Constants, Backbon
       this.listen();
     },
     listen : function () {
-      console.log("listening...");
       // todo: there needs to be a centralized way to register keystroke 
       // listeners...
       $("body").keydown(function(e){

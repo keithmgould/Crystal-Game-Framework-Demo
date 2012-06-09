@@ -4,7 +4,7 @@ define({
 
   // Physics
   physics : {
-    scale  : 30,
+    scale  : 10,
     height : 400,
     width  : 400
   },

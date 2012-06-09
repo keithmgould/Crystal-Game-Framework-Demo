@@ -29,11 +29,23 @@ define(["app/constants", "box2d"], function (Constants,xx) {
 
       // create a world
       generateWorld : function () {
+        
         world = new b2World(
           new b2Vec2(0, 0),  //zero gravity (x,y)
           true               //allow sleep
         );
+
         return world;
+      },
+
+      enableDebugDraw : function (world, context) {
+        var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(context);
+        debugDraw.SetDrawScale(Constants.physics.scale);
+        debugDraw.SetFillAlpha(0.3);
+        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        world.SetDebugDraw(debugDraw);
       },
 
       // Places an array of entities.
@@ -56,6 +68,23 @@ define(["app/constants", "box2d"], function (Constants,xx) {
         var body = world.CreateBody(bodyDef);
         a = 1;
         return body;
+      },
+
+      registerShipShape : function (entity) {
+        var height  = entity.get('height'),
+            halfWidth   = entity.get('width') / 2,
+            vec = b2Vec2(),
+            points = [],
+            shape       = new b2PolygonShape;
+        
+        // nose
+        //points.push();
+        //shape.SetAsArray
+
+        //shape.vertices[0].Set(0,height);      // nose
+        //shape.vertices[1].Set(-halfWidth,0);  // rear left
+        //shape.vertices[2].Set(0,halfWidth);   // rear right
+        return shape;
       },
 
       // Register the geometry

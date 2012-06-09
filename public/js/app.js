@@ -5,9 +5,13 @@ require.config({
     underscore : 'lib/underscore_1.3.3-min',
     box2d : 'lib/Box2dWeb-2.1.a.3.min',
     text : 'lib/text_2.0.0.requirejs',
-    mediator : 'lib/mediator_0.7.0'
+    mediator : 'lib/mediator_0.7.0',
+    kinetic : 'lib/kinetic_3.9.8-min'
   },
   shim : {
+    'kinetic' : {
+      exports : 'Kinetic'
+    },
     'mediator' : {
       exports : 'Mediator'
     },
@@ -21,10 +25,12 @@ require.config({
   }
 });
 
-require(['core/space', 'core/transport', 'app/widgets/radar/view', 'app/widgets/pilot/view'], function (Space, Transport, Radar, Pilot) {
-  Space.generateSpace();
-  Space.addSelfShip("keith", 4, 4);
+require(['core/space', 'core/transport', 'app/widgets/radar/view', 'app/widgets/pilot/view', 'app/widgets/map/view'], function (Space, Transport, Radar, Pilot, Map) {
+  var enableDebugDraw = true;
+  Space.generateSpace(enableDebugDraw);
+  Space.addSelfShip("keith", 20, 20);
   Space.addEnemy("bill", 4, 6);
-  radar = new Radar();
+  //radar = new Radar();
+  map = new Map();
   pilot = new Pilot();
 });

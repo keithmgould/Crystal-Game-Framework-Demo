@@ -1,7 +1,6 @@
-define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templates/screen.html'], function (Constants, Space, Backbone, Screen) {
+define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templates/screen.html', 'kinetic'], function (Constants, Space, Backbone, Screen, Kinetic) {
 
-   var canvas,
-       ctx,
+   var stage,
        canvasWidth,
        canvasHeight,
        scale;
@@ -10,11 +9,16 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
     el : $("#radarWidget"),
     initialize : function () {
       scale = Constants.physics.scale;
-      this.render();
-      canvas = this.$el.find("#radarCanvas")[0];
-      ctx = canvas.getContext("2d");
-      canvasWidth = ctx.canvas.width;
-      canvasHeight = ctx.canvas.height;
+      //this.render();
+      //canvas = this.$el.find("#radarCanvas")[0];
+      //ctx = canvas.getContext("2d");
+      stage = new Kinetic.Stage({
+        container : "radarWidget",
+        width: Constants.physics.width,
+        height: Constants.physics.height
+      });
+      //canvasWidth = ctx.canvas.width;
+      //canvasHeight = ctx.canvas.height;
       Space.addToLoopCallbacks(this, this.drawElements);
     },
     render : function (event) {
@@ -35,34 +39,55 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       this.$el.html(compiled_template);
     },
     drawElements : function () {
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      stage.clear();
       this.drawSelfShip();
-      this.drawOthers();
+      //this.drawOtherEntities();
     },
     drawSelfShip : function () {
-      var selfShip, xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded;
+      var selfShip,
+          xPos,
+          yPos,
+          height,
+          width,
+          halfWidth,
+          halfHeight
+          angle,
+          rounded;
+
       selfShip = Space.getSelfShip();
-      xPos = selfShip.get('xPos');
-      yPos = selfShip.get('yPos');
       angle = selfShip.get('angle');
-      height = selfShip.get('height');
-      width = selfShip.get('width');
-      halfHeight = height / 2;
-      halfWidth = width / 2;
-      ctx.save();
-      rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100;
-      ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
-      ctx.translate(xPos * scale, yPos * scale);
-      ctx.rotate(angle);
-      ctx.translate(-xPos * scale, -yPos * scale);
-      ctx.fillStyle = selfShip.get('color');
-      ctx.fillRect((xPos - halfWidth) * scale,
-                   (yPos - halfHeight) * scale,
-                   (halfWidth*2) * scale,
-                   (halfHeight*2) * scale);
-      ctx.restore();
+
+      var layer = new Kinetic.Layer();
+      var poly = new Kinetic.Polygon({
+          points: [73, 192, 73, 160, 340, 23],
+          fill: "#00D2FF",
+          stroke: "black",
+          strokeWidth: 1
+      });
+      layer.add(poly);
+      stage.add(layer);
+
+
+      //xPos = selfShip.get('xPos');
+      //yPos = selfShip.get('yPos');
+      //height = selfShip.get('height');
+      //width = selfShip.get('width');
+      //halfHeight = height / 2;
+      //halfWidth = width / 2;
+      //ctx.save();
+      //rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100 + "," + Math.round(angle);
+      //ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
+      ////ctx.translate(canvasWidth / 2, canvasHeight / 2);
+      ////ctx.rotate(angle);
+      ////ctx.translate(-x, -yPos * scale);
+      //ctx.fillStyle = selfShip.get('color');
+      //ctx.fillRect( (canvasWidth / 2) - halfWidth,
+                    //(canvasHeight / 2) - halfHeight,
+                   //(halfWidth*2) * scale,
+                   //(halfHeight*2) * scale);
+      //ctx.restore();
     },
-    drawOthers : function () {
+    drawOtherEntitiess : function () {
       var that = this;
       $.each(Space.getOtherEntities(), function (i, other) {
         that.drawOther(other);
@@ -70,7 +95,9 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
     },
     drawOther : function (entity)
     {
-      var xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded;
+      var xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded, selfShip, selfShipAngle;
+      selfShip = Space.getSelfShip();
+      selfShipAngle = selfShip.get('angle');
       xPos = entity.get('xPos');
       yPos = entity.get('yPos');
       angle = entity.get('angle');
