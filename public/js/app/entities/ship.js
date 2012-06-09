@@ -6,10 +6,10 @@ define(['core/entity'], function (Entity) {
     },
     accelerate : {
       rotateRight : function () {
-        this.get('body').ApplyTorque(50);
+        this.get('body').ApplyTorque(25);
       },
       rotateLeft : function () {
-        this.get('body').ApplyTorque(-50);
+        this.get('body').ApplyTorque(-25);
       },
       foreward : function () {}
     }

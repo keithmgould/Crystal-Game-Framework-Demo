@@ -30,7 +30,7 @@ define(["app/constants", "box2d"], function (Constants,xx) {
       // create a world
       generateWorld : function () {
         world = new b2World(
-          new b2Vec2(0, 0),  //zero gravity
+          new b2Vec2(0, 0),  //zero gravity (x,y)
           true               //allow sleep
         );
         return world;
@@ -60,10 +60,10 @@ define(["app/constants", "box2d"], function (Constants,xx) {
 
       // Register the geometry
       registerShape : function (entity) {
-        var shape = new b2PolygonShape;
-        // todo: investigate halfWidth and halfHeight
-        // replace constants below with halfWidth etc..
-        shape.SetAsBox(1, 1);
+        var halfHeight  = entity.get('height') / 2,
+            halfWidth   = entity.get('width') / 2,
+            shape       = new b2PolygonShape;
+        shape.SetAsBox(halfWidth, halfHeight);
         return shape;
       }
 
