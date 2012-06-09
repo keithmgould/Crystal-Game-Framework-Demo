@@ -1,5 +1,4 @@
 define(["app/constants", "box2d"], function (Constants,xx) {
-  console.log("loading Physics module");
 
     // Prep our Box2D variables
     var b2Vec2 = Box2D.Common.Math.b2Vec2;
@@ -31,7 +30,7 @@ define(["app/constants", "box2d"], function (Constants,xx) {
       // create a world
       generateWorld : function () {
         world = new b2World(
-          new b2Vec2(1, 1),  //zero gravity
+          new b2Vec2(0, 0),  //zero gravity
           true               //allow sleep
         );
         return world;

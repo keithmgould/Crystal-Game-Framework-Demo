@@ -1,4 +1,4 @@
-define(['core/physics', 'app/entities/box'], function (Physics, Box) {
+define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Ship, Mediator) {
   // not sure where else to place this?
   // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
   window.requestAnimFrame = (function(){
@@ -11,21 +11,24 @@ define(['core/physics', 'app/entities/box'], function (Physics, Box) {
                   window.setTimeout(callback, 1000 / 60);
                 };
   })();
+  // todo: use single var syntax...
   
+  var mediator = new Mediator();
   var world;
-  var entities = [];
-  var loopCallbacks = [];
+  var allEntities = [];
+  var otherEntities = [];
   var selfShip; // holds the Self (Ship) entity
+  var loopCallbacks = [];
   var update = function () {
     requestAnimFrame(update);
     world.Step(1/60, 10, 10);
     world.ClearForces();
-    updateEntities();
+    updateAllEntities();
     runLoopCallbacks();
   };
 
-  var updateEntities = function () {
-    $.each(entities, function(i, entity){
+  var updateAllEntities = function () {
+    $.each(allEntities, function(i, entity){
       entity.update();
     });
   };
@@ -38,28 +41,45 @@ define(['core/physics', 'app/entities/box'], function (Physics, Box) {
     });
   };
 
+  var addShip = function (name, isSelfShip, xPos, yPos) {
+      var ship = new Ship({ xPos: xPos, yPos : yPos});
+      ship.set({name : name});
+      if(isSelfShip) {
+        ship.set({ selfShip : true, color : "blue"});
+        selfShip = ship;
+      }else{
+        ship.set({ color : "red" });
+        otherEntities.push(ship);
+      }
+      allEntities.push(ship);
+      Physics.placeEntities([ship], world);
+  };
 
   return {
+    mediator : mediator,
     addToLoopCallbacks : function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});
     },
-    setSelfShip : function (ship) {
-      selfShip = ship;
+    getAllEntities : function () { return allEntities; },
+    getOtherEntities : function () { return otherEntities; },
+    getSelfShip : function () { return selfShip; },
+    pubsub : function () {
+      console.log("hi from pubsub");
+      mediator.Subscribe("pilotControl", function (data ) {
+        console.log("I heard a keystroke!");
+      });
     },
-    getSelfShip : function () { return selfShip },
     generateSpace : function () {
       world = Physics.generateWorld();
+      this.pubsub();
       requestAnimFrame(update);
     },
-    addBox : function (name, isSelfShip, xPos, yPos) {
-      var box = new Box({ xPos: xPos, yPos : yPos});
-      box.set({name : name});
-      if(isSelfShip) {
-        box.set({ selfShip : true});
-        this.setSelfShip(box);
-      }
-      entities.push(box);
-      Physics.placeEntities([box], world);
+    addSelfShip : function (name, xPos, yPos) {
+      addShip(name, true, xPos, yPos);
+    },
+    addEnemy : function (name, xPos, yPos) {
+      addShip(name, false, xPos, yPos);
     }
+
   };
 });
