@@ -65,8 +65,20 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
     getSelfShip : function () { return selfShip; },
     pubsub : function () {
       console.log("hi from pubsub");
-      mediator.Subscribe("pilotControl", function (data ) {
-        console.log("I heard a keystroke!");
+      mediator.Subscribe("pilotControl", function ( data ) {
+        switch(data.keystroke)
+        {
+          case "left":
+            selfShip.accelerate.rotateLeft.call(selfShip);
+            break;
+          case "right":
+            selfShip.accelerate.rotateRight.call(selfShip);
+            break;
+          case "up":
+            break;
+        }
+
+
       });
     },
     generateSpace : function () {

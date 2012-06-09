@@ -40,7 +40,7 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       this.drawOthers();
     },
     drawSelfShip : function () {
-      var selfShip, xPos, yPos, height, width, halfWidth, halfHeight, angle;
+      var selfShip, xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded;
       selfShip = Space.getSelfShip();
       xPos = selfShip.get('xPos');
       yPos = selfShip.get('yPos');
@@ -50,6 +50,8 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       halfHeight = height / 2;
       halfWidth = width / 2;
       ctx.save();
+      rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100;
+      ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
       ctx.translate(xPos * scale, yPos * scale);
       ctx.rotate(angle);
       ctx.translate(-xPos * scale, -yPos * scale);
@@ -68,7 +70,7 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
     },
     drawOther : function (entity)
     {
-      var xPos, yPos, height, width, halfWidth, halfHeight, angle;
+      var xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded;
       xPos = entity.get('xPos');
       yPos = entity.get('yPos');
       angle = entity.get('angle');
@@ -77,6 +79,8 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       halfHeight = height / 2;
       halfWidth = width / 2;
       ctx.save();
+      rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100;
+      ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
       ctx.translate(xPos * scale, yPos * scale);
       ctx.rotate(angle);
       ctx.translate(-xPos * scale, -yPos * scale);
