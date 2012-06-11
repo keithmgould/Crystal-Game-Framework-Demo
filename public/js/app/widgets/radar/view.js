@@ -93,10 +93,12 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
     updateOtherShip : function (kineticObj) {
       var coordsRel = this.calculateRelativeOffsets(kineticObj.entity),
           screenWidth = Constants.physics.width,
-          screenHeight = Constants.physics.height;
+          screenHeight = Constants.physics.height,
+          selfShip = Space.getSelfShip();
 
       kineticObj.knode.setX( (screenWidth / 2) + scale * coordsRel[0] );
       kineticObj.knode.setY( (screenHeight / 2) + scale * coordsRel[1] );
+      kineticObj.knode.setRotation(0 - selfShip.get('angle'));
     },
 
     calculateRelativeOffsets : function (entity) {
