@@ -45,6 +45,8 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
           console.log('trying to update an unknown entity in Radar View updateElements');
         }
       });
+      selfShipLayer.draw();
+      otherEntitiesLayer.draw();
     },
     placeShip : function (entity, x, y, rotation, color, layer) {
       var nose      = { x : 0, y : -20},
@@ -85,6 +87,19 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       });
     },
     placeOtherShip : function (entity) {
+      var coordsRel = this.calculateRelativeOffsets(entity);
+      this.placeShip(entity, coordsRel[0], coordsRel[1], entity.get('angle'), "red", otherEntitiesLayer);
+    },
+    updateOtherShip : function (kineticObj) {
+      var coordsRel = this.calculateRelativeOffsets(kineticObj.entity),
+          screenWidth = Constants.physics.width,
+          screenHeight = Constants.physics.height;
+
+      kineticObj.knode.setX( (screenWidth / 2) + scale * coordsRel[0] );
+      kineticObj.knode.setY( (screenHeight / 2) + scale * coordsRel[1] );
+    },
+
+    calculateRelativeOffsets : function (entity) {
       var selfShip,
           xOther,
           yOther,
@@ -97,6 +112,7 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
           geoAngle,
           comboAngle,
           distance;
+
       selfShip = Space.getSelfShip();
       xSelf = selfShip.get('xPos');
       ySelf = selfShip.get('yPos');
@@ -107,15 +123,10 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       geoAngle = Math.atan2(xDif, yDif);
       comboAngle = geoAngle + selfShip.get('angle');
       distance = Math.sqrt(xDif * xDif + yDif * yDif);
-      xRel = distance * Math.sin(comboAngle);
+      xRel = 0 - distance * Math.sin(comboAngle);
       yRel = distance * Math.cos(comboAngle);
-      if(xDif > 0) { xRel = 0 - xRel; }
       if(yDif > 0) { yRel = 0 - yRel; }
-
-      this.placeShip(entity, xRel, yRel, entity.get('angle'), "red", otherEntitiesLayer);
-    },
-    updateOtherShip : function (kineticObj) {
-      
+      return [xRel, yRel];
     }
   });
   return radarView;
