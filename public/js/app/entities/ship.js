@@ -11,10 +11,10 @@ define(['core/entity', 'core/physics'], function (Entity, Physics) {
     },
     accelerate : {
       rotateRight : function () {
-        this.get('body').ApplyTorque(10);
+        this.get('body').ApplyTorque(5);
       },
       rotateLeft : function () {
-        this.get('body').ApplyTorque(-10);
+        this.get('body').ApplyTorque(-5);
       },
       foreward : function () {
         var power = 1,

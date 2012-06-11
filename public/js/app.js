@@ -35,9 +35,9 @@ require(['core/space',
          'app/widgets/pilot/view', 
          'app/widgets/map/view',
          'app/widgets/stats/view'], function (Space, Transport, Radar, Pilot, Map, Stats) {
-  var enableDebugDraw = true;
-  Space.generateSpace(enableDebugDraw);
-  Space.addSelfShip("keith", 20, 20);
+
+  Space.generateSpace();
+  Space.addSelfShip("keith", 20, 30);
   Space.addEnemy("bill", 20, 10);
   radar = new Radar();
   map   = new Map();
