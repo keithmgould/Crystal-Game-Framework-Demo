@@ -88,7 +88,7 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
     },
     placeOtherShip : function (entity) {
       var coordsRel = this.calculateRelativeOffsets(entity);
-      this.placeShip(entity, coordsRel[0], coordsRel[1], entity.get('angle'), "red", otherEntitiesLayer);
+      this.placeShip(entity, coordsRel.x, coordsRel.y, entity.get('angle'), "red", otherEntitiesLayer);
     },
     updateOtherShip : function (kineticObj) {
       var coordsRel = this.calculateRelativeOffsets(kineticObj.entity),
@@ -96,9 +96,9 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
           screenHeight = Constants.physics.height,
           selfShip = Space.getSelfShip();
 
-      kineticObj.knode.setX( (screenWidth / 2) + scale * coordsRel[0] );
-      kineticObj.knode.setY( (screenHeight / 2) + scale * coordsRel[1] );
-      kineticObj.knode.setRotation(0 - selfShip.get('angle'));
+      kineticObj.knode.setX( (screenWidth / 2) + scale * coordsRel.x );
+      kineticObj.knode.setY( (screenHeight / 2) + scale * coordsRel.y );
+      kineticObj.knode.setRotation(kineticObj.entity.get('angle') - selfShip.get('angle'));
     },
 
     calculateRelativeOffsets : function (entity) {
@@ -126,9 +126,8 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       comboAngle = geoAngle + selfShip.get('angle');
       distance = Math.sqrt(xDif * xDif + yDif * yDif);
       xRel = 0 - distance * Math.sin(comboAngle);
-      yRel = distance * Math.cos(comboAngle);
-      if(yDif > 0) { yRel = 0 - yRel; }
-      return [xRel, yRel];
+      yRel = 0 - distance * Math.cos(comboAngle);
+      return { x : xRel, y : yRel};
     }
   });
   return radarView;
