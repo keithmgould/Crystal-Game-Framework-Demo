@@ -1,122 +1,121 @@
 define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templates/screen.html', 'kinetic'], function (Constants, Space, Backbone, Screen, Kinetic) {
 
    var stage,
-       canvasWidth,
-       canvasHeight,
+       otherEntitiesLayer,
+       selfShipLayer,
+       kineticObjs = [],
        scale;
 
   var radarView = Backbone.View.extend({
     el : $("#radarWidget"),
     initialize : function () {
+      this.render();
       scale = Constants.physics.scale;
-      //this.render();
-      //canvas = this.$el.find("#radarCanvas")[0];
-      //ctx = canvas.getContext("2d");
       stage = new Kinetic.Stage({
-        container : "radarWidget",
+        container : "radarScreen",
         width: Constants.physics.width,
         height: Constants.physics.height
       });
-      //canvasWidth = ctx.canvas.width;
-      //canvasHeight = ctx.canvas.height;
-      Space.addToLoopCallbacks(this, this.drawElements);
+      selfShipLayer = new Kinetic.Layer();
+      otherEntitiesLayer = new Kinetic.Layer();
+      this.placeEntities();
+      stage.add(selfShipLayer);
+      stage.add(otherEntitiesLayer);
+      Space.addToLoopCallbacks(this, this.updateElements);
     },
-    render : function (event) {
-      var coords, data, compiled_template;
-      if( typeof Space.getSelfShip() == "object"){
-        coords = Space.getSelfShip().get('body').GetPosition();
-        data = { xpos : coords.x, ypos : coords.y};
-      } else {
-        data = { 
-          xpos : -1, 
-          ypos : -1
-        };
-      }
-      data['canvasHeight'] = Constants.physics.height;
-      data['canvasWidth'] = Constants.physics.width;
+    placeEntities : function () {
+     this.placeSelfShip();
+     this.placeOtherEntities();
+    },
 
-      compiled_template = _.template(Screen, data);
+    render : function (event) {
+      var compiled_template = _.template(Screen);
       this.$el.html(compiled_template);
     },
-    drawElements : function () {
-      stage.clear();
-      this.drawSelfShip();
-      //this.drawOtherEntities();
-    },
-    drawSelfShip : function () {
-      var selfShip,
-          xPos,
-          yPos,
-          height,
-          width,
-          halfWidth,
-          halfHeight
-          angle,
-          rounded;
-
-      selfShip = Space.getSelfShip();
-      angle = selfShip.get('angle');
-
-      var layer = new Kinetic.Layer();
-      var poly = new Kinetic.Polygon({
-          points: [73, 192, 73, 160, 340, 23],
-          fill: "#00D2FF",
-          stroke: "black",
-          strokeWidth: 1
+    updateElements : function () {
+      var that = this;
+      $.each(kineticObjs, function (i, obj) {
+        if(obj.entity.get('entityType') === "Ship"){
+          if(obj.entity.get('selfShip') === true){
+          
+          }else{
+            that.updateOtherShip(obj);
+          }
+        }else{
+          console.log('trying to update an unknown entity in Radar View updateElements');
+        }
       });
-      layer.add(poly);
-      stage.add(layer);
-
-
-      //xPos = selfShip.get('xPos');
-      //yPos = selfShip.get('yPos');
-      //height = selfShip.get('height');
-      //width = selfShip.get('width');
-      //halfHeight = height / 2;
-      //halfWidth = width / 2;
-      //ctx.save();
-      //rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100 + "," + Math.round(angle);
-      //ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
-      ////ctx.translate(canvasWidth / 2, canvasHeight / 2);
-      ////ctx.rotate(angle);
-      ////ctx.translate(-x, -yPos * scale);
-      //ctx.fillStyle = selfShip.get('color');
-      //ctx.fillRect( (canvasWidth / 2) - halfWidth,
-                    //(canvasHeight / 2) - halfHeight,
-                   //(halfWidth*2) * scale,
-                   //(halfHeight*2) * scale);
-      //ctx.restore();
     },
-    drawOtherEntitiess : function () {
+    placeShip : function (entity, x, y, rotation, color, layer) {
+      var nose      = { x : 0, y : -20},
+          rearLeft  = { x : -5, y : 0},
+          rearRight = { x : 5, y : 0},
+          screenWidth = Constants.physics.width,
+          screenHeight = Constants.physics.height,
+          poly;
+
+      poly = new Kinetic.Polygon({
+          x: (screenWidth / 2) + ( scale * x ),
+          y: (screenHeight / 2) + ( scale * y ),
+          fill: color,
+          stroke: "black",
+          strokeWidth: 1,
+          rotationDeg: 0,
+          draggable: true
+      });
+      poly.setPoints([nose, rearLeft, rearRight]);
+      kineticObjs.push({'entity' : entity, knode : poly, layer : layer});
+      layer.add(poly);
+    },
+    placeSelfShip : function () {
+      this.placeShip(Space.getSelfShip(), 0, 0, 0, "blue", selfShipLayer);
+    },
+    placeOtherEntities : function () {
       var that = this;
       $.each(Space.getOtherEntities(), function (i, other) {
-        that.drawOther(other);
+        switch(other.get('entityType')) {
+          case 'Ship':
+            that.placeOtherShip(other);
+            break;
+          default:
+            console.log("unknown entity type in Radar View placeOtherEntities");
+            break;
+        }
+
       });
     },
-    drawOther : function (entity)
-    {
-      var xPos, yPos, height, width, halfWidth, halfHeight, angle, rounded, selfShip, selfShipAngle;
+    placeOtherShip : function (entity) {
+      var selfShip,
+          xOther,
+          yOther,
+          xDif,
+          yDif,
+          xSelf,
+          ySelf,
+          xRel,
+          yRel,
+          geoAngle,
+          comboAngle,
+          distance;
       selfShip = Space.getSelfShip();
-      selfShipAngle = selfShip.get('angle');
-      xPos = entity.get('xPos');
-      yPos = entity.get('yPos');
-      angle = entity.get('angle');
-      height = entity.get('height');
-      width = entity.get('width');
-      halfHeight = height / 2;
-      halfWidth = width / 2;
-      ctx.save();
-      rounded = Math.round(xPos * 100)/100 + "," + Math.round(yPos * 100)/100;
-      ctx.fillText(rounded,(xPos + 1) * scale, yPos * scale);
-      ctx.translate(xPos * scale, yPos * scale);
-      ctx.rotate(angle);
-      ctx.translate(-xPos * scale, -yPos * scale);
-      ctx.fillStyle = entity.get('color');
-      ctx.fillRect((xPos - halfWidth) * scale,
-                   (yPos - halfHeight) * scale,
-                   (halfWidth*2) * scale,
-                   (halfHeight*2) * scale);
-      ctx.restore();
+      xSelf = selfShip.get('xPos');
+      ySelf = selfShip.get('yPos');
+      xOther = entity.get('xPos');
+      yOther = entity.get('yPos');
+      xDif = xSelf - xOther;
+      yDif =  ySelf - yOther;
+      geoAngle = Math.atan2(xDif, yDif);
+      comboAngle = geoAngle + selfShip.get('angle');
+      distance = Math.sqrt(xDif * xDif + yDif * yDif);
+      xRel = distance * Math.sin(comboAngle);
+      yRel = distance * Math.cos(comboAngle);
+      if(xDif > 0) { xRel = 0 - xRel; }
+      if(yDif > 0) { yRel = 0 - yRel; }
+
+      this.placeShip(entity, xRel, yRel, entity.get('angle'), "red", otherEntitiesLayer);
+    },
+    updateOtherShip : function (kineticObj) {
+      
     }
   });
   return radarView;

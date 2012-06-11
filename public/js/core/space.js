@@ -21,7 +21,8 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
   var loopCallbacks = [];
   var update = function () {
     requestAnimFrame(update);
-    world.Step(1/60, 10, 10);
+    // Hz, Iteration, Position
+    world.Step(1/60, 5, 2);
     world.ClearForces();
     updateAllEntities();
     runLoopCallbacks();
@@ -75,6 +76,7 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
             selfShip.accelerate.rotateRight.call(selfShip);
             break;
           case "up":
+            selfShip.accelerate.foreward.call(selfShip);
             break;
         }
 

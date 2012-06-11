@@ -27,6 +27,10 @@ define(["app/constants", "box2d"], function (Constants,xx) {
 
     return {
 
+      box2d : {
+        b2Vec2 : b2Vec2
+      },
+
       // create a world
       generateWorld : function () {
         
@@ -54,7 +58,7 @@ define(["app/constants", "box2d"], function (Constants,xx) {
         $.each(entities, function(i, entity){
           var body = that.buildBody(entity, world);
           entity.set( { body : body } );
-          fixDef.shape = that.registerShape(entity);
+          fixDef.shape = that.registerShipShape(entity);
           body.CreateFixture(fixDef);
         });
       },
@@ -76,14 +80,18 @@ define(["app/constants", "box2d"], function (Constants,xx) {
             vec = b2Vec2(),
             points = [],
             shape       = new b2PolygonShape;
-        
-        // nose
-        //points.push();
-        //shape.SetAsArray
 
-        //shape.vertices[0].Set(0,height);      // nose
-        //shape.vertices[1].Set(-halfWidth,0);  // rear left
-        //shape.vertices[2].Set(0,halfWidth);   // rear right
+        // nose
+        points.push(new b2Vec2(0, -height));
+
+        // rear right
+        points.push(new b2Vec2(halfWidth, 0));
+
+        // rear left
+        points.push(new b2Vec2(-halfWidth, 0));
+
+        shape.SetAsArray(points);
+
         return shape;
       },
 
