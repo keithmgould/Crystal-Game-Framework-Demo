@@ -111,6 +111,7 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
 
   var updateReadout = function (scope) {
       var selfShip = Space.getSelfShip();
+      // todo: use the new ship#getSnapshot() method instead of below...
       var angle = Math.round(selfShip.get('angle') * 57.2957795 % 360);
       var friendlyAngle;
       var angVel = selfShip.get('body').GetAngularVelocity();

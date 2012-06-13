@@ -1,4 +1,4 @@
-define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function (Physics, Ship, Mediator, _) {
+define(['app/constants', 'core/physics', 'app/entities/ship', 'mediator', 'underscore'], function (Constants, Physics, Ship, Mediator, _) {
   // todo: use single var syntax...
   
   var mediator = new Mediator();
@@ -37,8 +37,8 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     });
   };
 
-  var addShip = function (isSelfShip, xPos, yPos, angle) {
-      var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle});
+  var addShip = function (isSelfShip, xPos, yPos, angle, id) {
+      var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
       if(isSelfShip) {
         ship.set({ selfShip : true, color : "blue"});
         selfShip = ship;
@@ -54,19 +54,34 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     mediator.Subscribe("pilotControl", function ( data ) {
       switch(data.keystroke)
       {
-        case "left":
+        case Constants.keystrokes.KEY_LEFT_ARROW:
           selfShip.accelerate.rotateLeft.call(selfShip);
           break;
-        case "right":
+        case Constants.keystrokes.KEY_RIGHT_ARROW:
           selfShip.accelerate.rotateRight.call(selfShip);
           break;
-        case "up":
+        case Constants.keystrokes.KEY_UP_ARROW:
           selfShip.accelerate.foreward.call(selfShip);
           break;
       }
     });
   }
 
+  var findShipById = function (shipId) {
+     var ship = _.find(allEntities, function (entity) {
+        return shipId === entity.id;
+      });
+      return ship;
+  }
+
+  var applySnapshot = function (snapshot) {
+    _.each(snapshot.ships, function (shipSnapshot) {
+      console.log('updating from snapshot.  ship: ' + shipSnapshot.id);
+      var ship = findShipById(shipSnapshot.id);
+      
+      ship.applySnapshot(shipSnapshot);
+    });
+  }
 
   return {
     mediator : mediator,
@@ -88,9 +103,9 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     enableDebugDraw : function (context) {
       Physics.enableDebugDraw(world, context);
     },
-    generateSelfShip : function (xPos, yPos, angle) {
+    generateSelfShip : function (xPos, yPos, angle, id) {
       if(typeof selfShip == 'undefined'){
-        addShip(true, xPos, yPos, angle);
+        addShip(true, xPos, yPos, angle, id);
       }
     },
     requestSelfShip : function () {
@@ -98,7 +113,8 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     },
     addEnemy : function (xPos, yPos, angle) {
       addShip(false, xPos, yPos, angle);
-    }
+    },
+    applySnapshot : applySnapshot
 
   };
 });

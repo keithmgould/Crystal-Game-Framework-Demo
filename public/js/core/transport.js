@@ -4,18 +4,7 @@ define(['app/constants', 'core/space'], function (Constants, Space) {
 
   var initLocalSubscriptions = function () {
     Space.mediator.Subscribe("pilotControl", function (data) {
-      switch(data.keystroke)
-      {
-        case "left":
-          socket.emit("pilotControl", {d:"l"});
-          break;
-        case "right":
-          socket.emit("pilotControl", {d:"r"});
-          break;
-        case "up":
-          socket.emit("pilotControl", {d:"u"});
-          break;
-      }
+      socket.emit("pilotControl", {d:data.keystroke});
     });
 
     Space.mediator.Subscribe("requestSelfShip", function () {
@@ -24,10 +13,17 @@ define(['app/constants', 'core/space'], function (Constants, Space) {
   }
 
   var initServerSubscriptions = function () {
+    
+    // we have a ship!
     socket.on('deliverSelfShip', function (data) {
-      Space.generateSelfShip(data.x, data.y, data.angle);
+      Space.generateSelfShip(data.x, data.y, data.angle, data.id);
       Space.mediator.Publish('receivedSelfShip', {foo: 'bar'});
     });
+
+    // snapshot update
+    socket.on('snapshot', function (data) {
+      Space.applySnapshot(data);
+    })
   }
 
   return {

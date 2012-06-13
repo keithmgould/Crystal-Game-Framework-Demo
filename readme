@@ -6,11 +6,11 @@ Strategy:
 
 Current Goal:
 - 0) DONE! Box2D running on server.
-- 1) DONE! Client requests and pulls down registered SelfShip
+- 1) DONE! Client requests and pulls down registered SelfShip.  SelfShip has a long unguessable hash...
 - 2) DONE! Commands to a) update client b) sent up to server
-- 3) Server to send down snapshots (when necessary)
+- 3) DONE! Server to send down snapshots (when necessary)
 - 4) Client to update based on snapshot
-- 5) Delete ship on socket disconnect
+- 5) DONE! Delete ship on socket disconnect
 - There are lots of problems with this but its a fantastic start...
 
 Box2D Components refresher:

@@ -8,18 +8,13 @@ define(['app/constants', 'backbone', 'core/space'], function (Constants, Backbon
     listen : function () {
       // todo: there needs to be a centralized way to register keystroke 
       // listeners...
+
+      var validKeys = _.values(Constants.keystrokes);
       $("body").keydown(function(e){
-        switch(e.which)
-        {
-          case Constants.keystrokes.KEY_LEFT_ARROW:
-            Space.mediator.Publish("pilotControl", { keystroke : "left" });
-            break;
-          case Constants.keystrokes.KEY_UP_ARROW:
-            Space.mediator.Publish("pilotControl", { keystroke : "up" });
-            break;
-          case Constants.keystrokes.KEY_RIGHT_ARROW:
-            Space.mediator.Publish("pilotControl", { keystroke : "right" });
-            break;
+        if(_.include(validKeys, e.which)){
+          Space.mediator.Publish("pilotControl", { keystroke : e.which });
+        }else{
+          console.log("invalid key pressed: " + e.which);
         }
       });
     }

@@ -1,22 +1,22 @@
 define(['core/entity', 'core/physics'], function (Entity, Physics) {
 
   var Ship = Entity.extend({
-    initialize : function () {
+    initialize: function () {
       this.set({ 
-        entityType : 'Ship', 
-        height : 2, 
+        entityType: 'Ship', 
+        height: 2, 
         width: 1, 
-        color : "red",
-        angle : 0 });
+        color: "red",
+        angle: 0 });
     },
-    accelerate : {
-      rotateRight : function () {
+    accelerate: {
+      rotateRight: function () {
         this.get('body').ApplyTorque(5);
       },
-      rotateLeft : function () {
+      rotateLeft: function () {
         this.get('body').ApplyTorque(-5);
       },
-      foreward : function () {
+      foreward: function () {
         var power = 1,
             x, 
             y, 

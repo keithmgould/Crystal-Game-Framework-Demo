@@ -83,6 +83,9 @@ define(["app/constants", "box2d", "underscore"], function (Constants, Box, _) {
           fixDef.shape = registerShipShape(entity);
           body.CreateFixture(fixDef);
         });
+      },
+      removeEntity : function (entity, world) {
+        world.DestroyBody(entity);
       }
     }
 });

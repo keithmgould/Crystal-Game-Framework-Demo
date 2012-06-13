@@ -18,7 +18,7 @@ define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'med
   };
 
   var addShip = function (xPos, yPos) {
-    var ship = new Ship({ xPos: xPos, yPos : yPos});
+    var ship = new Ship({ xPos: xPos, yPos: yPos, id: guidGenerator() });
     entities.push(ship);
     Physics.placeEntities([ship], world);
     return ship;
@@ -26,7 +26,7 @@ define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'med
 
   var findShipById = function (shipId) {
      var ship = _.find(entities, function (entity) {
-        return shipId === entity.cid;
+        return shipId === entity.id;
       });
       return ship;
   }
@@ -38,21 +38,29 @@ define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'med
     return { x: x, y: y};
   }
 
+  var guidGenerator = function () {
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+  }
+
   var initSubscribers = function () {
     mediator.Subscribe("pilotControl", function ( data ) {
       var ship = findShipById(data.shipId);
-      switch(data.keystroke)
-      {
-        case "left":
-          ship.accelerate.rotateLeft.call(selfShip);
+      console.log('ship-' + ship.id + " just tapped " + data.d);
+      switch(data.d){
+        case Constants.keystrokes.KEY_LEFT_ARROW:
+          ship.accelerate.rotateLeft.call(ship);
           break;
-        case "right":
-          ship.accelerate.rotateRight.call(selfShip);
+        case Constants.keystrokes.KEY_RIGHT_ARROW:
+          ship.accelerate.rotateRight.call(ship);
           break;
-        case "up":
-          ship.accelerate.foreward.call(selfShip);
+        case Constants.keystrokes.KEY_UP_ARROW:
+          ship.accelerate.foreward.call(ship);
           break;
       }
+      mediator.Publish('broadcastSnapshot', {});
     });
   }
 
@@ -68,10 +76,28 @@ define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'med
       var ship = addShip(coords.x, coords.y);
       return ship;
     },
+    // remove from entities and from physics engine
+    destroyShip : function (shipId) {
+      console.log('before destroying ship, entitiy count: ' + entities.length);
+      var ship = findShipById(shipId);
+      entities = _.without(entities, ship);
+      Physics.removeEntity(ship, world);
+      console.log('destroyed ship from entities and world: ' + ship.id);
+      console.log('entity count after destroy: ' + entities.length);
+    },
     findShipById: findShipById,
-
     generateSnapshot: function (requester) {
-    
+      var snapshot = {
+        ships : []
+      };
+      _.each(entities, function (entity) {
+        if(entity.get('entityType') === 'Ship'){
+          snapshot.ships.push(entity.getSnapshot());
+        }else{
+          console.log('unknown entity type in generateSnapshot! -- ' + entity.get('entityType'));
+        }
+      });
+      return snapshot;
     }
   };
 
