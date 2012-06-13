@@ -1,16 +1,4 @@
 define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Ship, Mediator) {
-  // not sure where else to place this?
-  // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-  window.requestAnimFrame = (function(){
-        return  window.requestAnimationFrame       || 
-                window.webkitRequestAnimationFrame || 
-                window.mozRequestAnimationFrame    || 
-                window.oRequestAnimationFrame      || 
-                window.msRequestAnimationFrame     || 
-                function(/* function */ callback, /* DOMElement */ element){
-                  window.setTimeout(callback, 1000 / 60);
-                };
-  })();
   // todo: use single var syntax...
   
   var mediator = new Mediator();
@@ -20,12 +8,19 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
   var selfShip; // holds the Self (Ship) entity
   var loopCallbacks = [];
   var update = function () {
-    requestAnimFrame(update);
     // Hz, Iteration, Position
     world.Step(1/60, 5, 2);
     world.ClearForces();
     updateAllEntities();
     runLoopCallbacks();
+    // if window is defined, we are running on client, and can 
+    // leverage requestAnimFrame.  Otherwise we are on server
+    // and must resort to a simple setTimeout.
+    if( typeof(window) == "object"){
+      requestAnimFrame(update);
+    }else{
+      setTimeout(update, 1000/60 );
+    }
   };
 
   var updateAllEntities = function () {
