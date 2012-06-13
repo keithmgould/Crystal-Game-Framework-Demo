@@ -25,6 +25,7 @@ define(['server/space'], function (Space) {
           }else{
             console.log('disconnect.  Exploding ship: ' + shipId);
             Space.destroyShip(shipId);
+            Space.mediator.Publish('broadcastSnapshot', {});
           }
         });
       });
@@ -66,6 +67,7 @@ define(['server/space'], function (Space) {
             id: ship.id
           };
           socket.emit('deliverSelfShip', response);
+          Space.mediator.Publish('broadcastSnapshot', {});
         });
       });
     });
