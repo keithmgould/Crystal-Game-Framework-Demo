@@ -1,6 +1,5 @@
 define(["app/constants", "box2d"], function (Constants, Box) {
-    
-  console.log("trying to start physics....");
+
     // Prep our Box2D variables
     var b2Vec2 = Box.Common.Math.b2Vec2;
     var b2AABB = Box.Collision.b2AABB;

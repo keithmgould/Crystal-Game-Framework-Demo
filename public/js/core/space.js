@@ -1,4 +1,4 @@
-define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Ship, Mediator) {
+define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function (Physics, Ship, Mediator, _) {
   // todo: use single var syntax...
   
   var mediator = new Mediator();
@@ -24,13 +24,13 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
   };
 
   var updateAllEntities = function () {
-    $.each(allEntities, function(i, entity){
+    _.each(allEntities, function(entity){
       entity.update();
     });
   };
 
   var runLoopCallbacks = function () {
-    $.each(loopCallbacks, function (i, callback) {
+    _.each(loopCallbacks, function (callback) {
       var fn = callback.fn;
       var scope = callback.scope;
       fn.call(scope);
@@ -81,7 +81,8 @@ define(['core/physics', 'app/entities/ship', 'mediator'], function (Physics, Shi
     generateSpace : function () {
       world = Physics.generateWorld();
       this.pubsub();
-      requestAnimFrame(update);
+      //requestAnimFrame(update);
+      update();
     },
     enableDebugDraw : function (context) {
       Physics.enableDebugDraw(world, context);

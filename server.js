@@ -1,10 +1,8 @@
 var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     static = require('node-static'),
-    requirejs = require('requirejs'),
-    Mediator = require('mediator'),
-    _ = require('underscore')._,
-    Backbone = require('backbone');
+    requirejs = require('requirejs');
+
 
 requirejs.config({
   baseUrl: 'public/js',
@@ -16,7 +14,7 @@ requirejs.config({
 });
 
 requirejs(['app/constants', 'core/space'], function (Constants, Space) {
-  console.log(Constants.server);
+  Space.generateSpace();
 });
 
 app.listen(3000);
