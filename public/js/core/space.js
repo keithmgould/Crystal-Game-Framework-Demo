@@ -37,9 +37,8 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     });
   };
 
-  var addShip = function (name, isSelfShip, xPos, yPos) {
-      var ship = new Ship({ xPos: xPos, yPos : yPos});
-      ship.set({name : name});
+  var addShip = function (isSelfShip, xPos, yPos, angle) {
+      var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle});
       if(isSelfShip) {
         ship.set({ selfShip : true, color : "blue"});
         selfShip = ship;
@@ -51,6 +50,24 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
       Physics.placeEntities([ship], world);
   };
 
+  var initPubsub = function () {
+    mediator.Subscribe("pilotControl", function ( data ) {
+      switch(data.keystroke)
+      {
+        case "left":
+          selfShip.accelerate.rotateLeft.call(selfShip);
+          break;
+        case "right":
+          selfShip.accelerate.rotateRight.call(selfShip);
+          break;
+        case "up":
+          selfShip.accelerate.foreward.call(selfShip);
+          break;
+      }
+    });
+  }
+
+
   return {
     mediator : mediator,
     addToLoopCallbacks : function (scope, fn) {
@@ -60,38 +77,27 @@ define(['core/physics', 'app/entities/ship', 'mediator', 'underscore'], function
     getAllEntities : function () { return allEntities; },
     getOtherEntities : function () { return otherEntities; },
     getSelfShip : function () { return selfShip; },
-    pubsub : function () {
-      mediator.Subscribe("pilotControl", function ( data ) {
-        switch(data.keystroke)
-        {
-          case "left":
-            selfShip.accelerate.rotateLeft.call(selfShip);
-            break;
-          case "right":
-            selfShip.accelerate.rotateRight.call(selfShip);
-            break;
-          case "up":
-            selfShip.accelerate.foreward.call(selfShip);
-            break;
-        }
-
-
-      });
+    hasSelfShip : function () {
+      return !(typeof selfShip === 'undefined');
     },
     generateSpace : function () {
       world = Physics.generateWorld();
-      this.pubsub();
-      //requestAnimFrame(update);
-      update();
+      initPubsub();
+      requestAnimFrame(update);
     },
     enableDebugDraw : function (context) {
       Physics.enableDebugDraw(world, context);
     },
-    addSelfShip : function (name, xPos, yPos) {
-      addShip(name, true, xPos, yPos);
+    generateSelfShip : function (xPos, yPos, angle) {
+      if(typeof selfShip == 'undefined'){
+        addShip(true, xPos, yPos, angle);
+      }
     },
-    addEnemy : function (name, xPos, yPos) {
-      addShip(name, false, xPos, yPos);
+    requestSelfShip : function () {
+      mediator.Publish('requestSelfShip');
+    },
+    addEnemy : function (xPos, yPos, angle) {
+      addShip(false, xPos, yPos, angle);
     }
 
   };

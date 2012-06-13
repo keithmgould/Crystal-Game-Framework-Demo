@@ -39,8 +39,8 @@ require(['core/animation',
 
   Transport.initialize();
   Space.generateSpace();
-  Space.addSelfShip("keith", 20, 30);
-  Space.addEnemy("bill", 20, 10);
+  Space.requestSelfShip();
+  aaa = Space;
   radar = new Radar();
   map   = new Map();
   pilot = new Pilot();

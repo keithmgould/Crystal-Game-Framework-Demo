@@ -169,11 +169,21 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templa
       selfShipLayer = new Kinetic.Layer();
       otherEntitiesLayer = new Kinetic.Layer();
       gridLayer = new Kinetic.Layer();
+      if(Space.hasSelfShip()){
+        this.start();
+      }else{
+        var that = this;
+        Space.mediator.Subscribe('receivedSelfShip', function(data) {
+          that.start();
+        });
+      }
+    },
+    start : function () {
       placeEntities();
+      Space.addToLoopCallbacks(this, this.updateRadar);
       stage.add(gridLayer);
       stage.add(selfShipLayer);
       stage.add(otherEntitiesLayer);
-      Space.addToLoopCallbacks(this, this.updateRadar);
     },
 
     render : function (event) {

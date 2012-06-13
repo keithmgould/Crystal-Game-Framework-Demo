@@ -1,4 +1,4 @@
-define(["app/constants", "box2d"], function (Constants, Box) {
+define(["app/constants", "box2d", "underscore"], function (Constants, Box, _) {
 
     // Prep our Box2D variables
     var b2Vec2 = Box.Common.Math.b2Vec2;
@@ -25,20 +25,43 @@ define(["app/constants", "box2d"], function (Constants, Box) {
     fixDef.friction = 0.5;
     fixDef.restitution = 0.2;
 
+
+    // Register the positon and dynamics
+    var buildBody = function (entity, world) {
+      var bodyDef = new b2BodyDef,
+          body;
+      bodyDef.type = b2Body.b2_dynamicBody;
+      bodyDef.position.x = entity.get('xPos');
+      bodyDef.position.y = entity.get('yPos');
+      body = world.CreateBody(bodyDef);
+      return body;
+    }
+
+    var registerShipShape = function (entity) {
+      var height      = entity.get('height'),
+          halfWidth   = entity.get('width') / 2,
+          vec         = b2Vec2(),
+          points      = [],
+          shape       = new b2PolygonShape;
+
+      points.push(new b2Vec2(0, -height)); // nose
+      points.push(new b2Vec2(halfWidth, 0)); // rear right
+      points.push(new b2Vec2(-halfWidth, 0)); // rear left
+      shape.SetAsArray(points);
+      return shape;
+    }
+
     return {
 
       box2d : {
         b2Vec2 : b2Vec2
       },
 
-      // create a world
       generateWorld : function () {
-        
         world = new b2World(
           new b2Vec2(0, 0),  //zero gravity (x,y)
           true               //allow sleep
         );
-
         return world;
       },
 
@@ -54,57 +77,13 @@ define(["app/constants", "box2d"], function (Constants, Box) {
 
       // Places an array of entities.
       placeEntities : function (entities, world) {
-        that = this;
-        $.each(entities, function(i, entity){
-          var body = that.buildBody(entity, world);
+        _.each(entities, function(entity){
+          var body = buildBody(entity, world);
           entity.set( { body : body } );
-          fixDef.shape = that.registerShipShape(entity);
+          fixDef.shape = registerShipShape(entity);
           body.CreateFixture(fixDef);
         });
-      },
-
-      // Register the positon and dynamics
-      buildBody : function (entity, world) {
-        var bodyDef = new b2BodyDef;
-        bodyDef.type = b2Body.b2_dynamicBody;
-        bodyDef.position.x = entity.get('xPos');
-        bodyDef.position.y = entity.get('yPos');
-        var body = world.CreateBody(bodyDef);
-        a = 1;
-        return body;
-      },
-
-      registerShipShape : function (entity) {
-        var height  = entity.get('height'),
-            halfWidth   = entity.get('width') / 2,
-            vec = b2Vec2(),
-            points = [],
-            shape       = new b2PolygonShape;
-
-        // nose
-        points.push(new b2Vec2(0, -height));
-
-        // rear right
-        points.push(new b2Vec2(halfWidth, 0));
-
-        // rear left
-        points.push(new b2Vec2(-halfWidth, 0));
-
-        shape.SetAsArray(points);
-
-        return shape;
-      },
-
-      // Register the geometry
-      registerShape : function (entity) {
-        var halfHeight  = entity.get('height') / 2,
-            halfWidth   = entity.get('width') / 2,
-            shape       = new b2PolygonShape;
-        shape.SetAsBox(halfWidth, halfHeight);
-        return shape;
       }
-
     }
-
 });
 
