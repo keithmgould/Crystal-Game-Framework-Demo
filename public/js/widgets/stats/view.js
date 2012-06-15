@@ -1,4 +1,4 @@
-define(['stats', 'backbone', 'core/space'], function (Stats, Backbone, Space) {
+define(['stats', 'backbone', 'space'], function (Stats, Backbone, Space) {
   var stats;
   var statsView = Backbone.View.extend({
     el : $('#statsWidget'),

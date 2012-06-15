@@ -1,6 +1,7 @@
-define(['app/constants','core/space', 'backbone', 'text!app/widgets/map/templates/screen.html'], function (Constants, Space, Backbone, Screen) {
+define(['common/constants','space', 'backbone', 'text!widgets/map/templates/screen.html', 'underscore'], function (Constants, Space, Backbone, Screen, _) {
 
-   var stage,
+   var canvas,
+       ctx,
        canvasWidth,
        canvasHeight,
        scale,
@@ -30,7 +31,27 @@ define(['app/constants','core/space', 'backbone', 'text!app/widgets/map/template
     },
     drawDebug : function () {
       world.DrawDebugData();
+      this.drawEntityFlightInfo();
       world.ClearForces();
+    },
+    drawEntityFlightInfo : function () {
+      var entities = Space.getAllEntities(),
+          x,
+          y,
+          snapshot,
+          text;
+
+      _.each(entities, function (entity) {
+        snapshot = entity.getSnapshot();
+        x = scale * entity.get('xPos') + 10;
+        y = scale * entity.get('yPos') - 25;
+        ctx.fillText("x:" + snapshot.x, x, y);
+        ctx.fillText("y:" + snapshot.y, x, y + 10);
+        ctx.fillText("xv:" + snapshot.xv, x, y + 20);
+        ctx.fillText("yv:" + snapshot.yv, x, y + 30);
+        ctx.fillText("a:" + snapshot.a, x, y + 40);
+        ctx.fillText("av:" + snapshot.av, x, y + 50);
+      });
     }
   });
   return mapView;

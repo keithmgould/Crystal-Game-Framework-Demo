@@ -29,13 +29,13 @@ require.config({
   }
 });
 
-require(['core/animation',
-         'core/space',
-         'core/transport',
-         'app/widgets/radar/view', 
-         'app/widgets/pilot/view', 
-         'app/widgets/map/view',
-         'app/widgets/stats/view'], function (Animation, Space, Transport, Radar, Pilot, Map, Stats) {
+require(['animation',
+         'space',
+         'transport',
+         'widgets/radar/view', 
+         'widgets/pilot/view', 
+         'widgets/map/view',
+         'widgets/stats/view'], function (Animation, Space, Transport, Radar, Pilot, Map, Stats) {
 
   Transport.initialize();
   Space.generateSpace();

@@ -1,4 +1,4 @@
-define(['app/constants', 'core/space'], function (Constants, Space) {
+define(['common/constants', 'space'], function (Constants, Space) {
 
   var socket = io.connect(Constants.server);
 

@@ -1,11 +1,11 @@
-define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'mediator'], function (Constants, Physics, _, Ship, Mediator) {
+define(['common/constants', 'common/physics', 'underscore', 'common/entities/ship', 'mediator'], function (Constants, Physics, _, Ship, Mediator) {
   var world,
       entities = [],
       mediator = new Mediator();
 
   var update = function () {
     // Hz, Iteration, Position
-    world.Step(1/60, 5, 2);
+    world.Step(1/60, 10, 10);
     world.ClearForces();
     updateEntities();
     setTimeout( update, 1000/60 );

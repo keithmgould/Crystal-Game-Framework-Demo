@@ -1,4 +1,4 @@
-define(['core/entity', 'core/physics'], function (Entity, Physics) {
+define(['common/entity', 'common/physics'], function (Entity, Physics) {
 
   var Ship = Entity.extend({
     initialize: function () {

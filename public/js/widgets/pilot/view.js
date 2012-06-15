@@ -1,4 +1,4 @@
-define(['app/constants', 'backbone', 'core/space'], function (Constants, Backbone, Space) {
+define(['common/constants', 'backbone', 'space'], function (Constants, Backbone, Space) {
   var mediator = new Mediator();
   var pilotView = Backbone.View.extend({
     el : $("#pilotWidget"),

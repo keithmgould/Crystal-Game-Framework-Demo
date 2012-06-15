@@ -29,8 +29,8 @@ define(['backbone'], function (Backbone) {
       // not sure why but I can't Set Angular Velocity if 
       // the existing angular velocity is zero.  but I CAN
       // apply a torque.  Curious....
-      if(body.GetAngularVelocity() === 0 && snapshot.av != 0){
-        body.ApplyTorque(0.01);
+      if(body.GetAngularVelocity() == 0 && snapshot.av != 0){
+        body.ApplyTorque(0.1);
       }
       body.SetAngularVelocity(snapshot.av);
     }

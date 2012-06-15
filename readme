@@ -5,15 +5,9 @@ Strategy:
 - Common code stored in public/js/
 
 Current Goal:
-- 0) DONE! Box2D running on server.
-- 1) DONE! Client requests and pulls down registered SelfShip.  SelfShip has a long unguessable hash...
-- 2) DONE! Commands to a) update client b) sent up to server
-- 3) DONE! Server to send down snapshots (when necessary)
-- 4) DONE! Client ships to update based on snapshot
-- 5) DONE! Delete ship on socket disconnect
-- 6) DONE! Client ships to destroy if "enemy" leaves the "game"
-- 8) DONE! Client Stops and alerts user if connection to server lost
-- There are lots of problems with this but its a fantastic start...
+- 1) Show Lag
+- 2) Figure out how to compensate for lag
+- 3) BUG: Radar not updating to show other ships.
 
 Box2D Components refresher:
 - Body: have mass nd velocity

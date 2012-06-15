@@ -1,4 +1,4 @@
-define(['app/constants','core/space', 'backbone', 'text!app/widgets/radar/templates/screen.html', 'kinetic'], function (Constants, Space, Backbone, Screen, Kinetic) {
+define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/screen.html', 'kinetic'], function (Constants, Space, Backbone, Screen, Kinetic) {
 
   var stage,
        otherEntitiesLayer,
