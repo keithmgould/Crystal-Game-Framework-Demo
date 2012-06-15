@@ -11,7 +11,8 @@ Current Goal:
 - 3) DONE! Server to send down snapshots (when necessary)
 - 4) DONE! Client ships to update based on snapshot
 - 5) DONE! Delete ship on socket disconnect
-- 6) Client ships to destroy if "enemy" leaves the "game"
+- 6) DONE! Client ships to destroy if "enemy" leaves the "game"
+- 8) DONE! Client Stops and alerts user if connection to server lost
 - There are lots of problems with this but its a fantastic start...
 
 Box2D Components refresher:

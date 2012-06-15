@@ -48,6 +48,7 @@ define(['app/constants', 'core/physics', 'app/entities/ship', 'mediator', 'under
       }
       allEntities.push(ship);
       Physics.placeEntities([ship], world);
+      return ship;
   };
 
   var initPubsub = function () {
@@ -80,11 +81,10 @@ define(['app/constants', 'core/physics', 'app/entities/ship', 'mediator', 'under
       var ship = findShipById(shipSnapshot.id);
       if(typeof ship === "undefined"){
         // must be a new ship.  lets make it!
-         addShip(false, shipSnapshot.x, shipSnapshot.y, shipSnapshot.a, shipSnapshot.id);
+         ship = addShip(false, shipSnapshot.x, shipSnapshot.y, shipSnapshot.a, shipSnapshot.id);
          console.log('adding ship via snapshot')
-      }else{
-        ship.applySnapshot(shipSnapshot);
       }
+      ship.applySnapshot(shipSnapshot);
     });
     // now find all ships that were not in the snapshot and destroy them.
     //
@@ -100,12 +100,12 @@ define(['app/constants', 'core/physics', 'app/entities/ship', 'mediator', 'under
 
   // remove from entities and from physics engine
   var destroyShip = function (shipId) {
-      console.log('before destroying ship, entitiy count: ' + entities.length);
+      console.log('before destroying ship, otherEntitiy count: ' + otherEntities.length);
       var ship = findShipById(shipId);
-      entities = _.without(entities, ship);
+      otherEntities = _.without(otherEntities, ship);
       Physics.removeEntity(ship, world);
-      console.log('destroyed ship from entities and world: ' + ship.id);
-      console.log('entity count after destroy: ' + entities.length);
+      console.log('destroyed ship from otherEntities and world: ' + ship.id);
+      console.log('otherEntity count after destroy: ' + otherEntities.length);
   }
 
   return {

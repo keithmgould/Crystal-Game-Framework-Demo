@@ -60,7 +60,7 @@ define(['app/constants', 'core/physics', 'underscore', 'app/entities/ship', 'med
           ship.accelerate.foreward.call(ship);
           break;
       }
-      mediator.Publish('broadcastSnapshot', {});
+      mediator.Publish('broadcastSnapshot', {from: 'Space#pilotControl'});
     });
   }
 

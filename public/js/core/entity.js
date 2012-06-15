@@ -21,9 +21,17 @@ define(['backbone'], function (Backbone) {
     },
     applySnapshot: function (snapshot) {
       var body = this.get('body');
-      console.log('actually applying snapshot');
-      body.SetPosition({x: snapshot.x, y: snapshot.y});
+      console.log('in Entity#applySnapshot');
+      console.log('angle: ' + snapshot.a + ", av: " + snapshot.av);
+      body.SetPositionAndAngle({x: snapshot.x, y: snapshot.y}, snapshot.a);
       body.SetLinearVelocity({x: snapshot.xv, y: snapshot.yv});
+
+      // not sure why but I can't Set Angular Velocity if 
+      // the existing angular velocity is zero.  but I CAN
+      // apply a torque.  Curious....
+      if(body.GetAngularVelocity() === 0 && snapshot.av != 0){
+        body.ApplyTorque(0.01);
+      }
       body.SetAngularVelocity(snapshot.av);
     }
   });

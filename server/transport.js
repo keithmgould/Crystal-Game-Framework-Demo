@@ -1,21 +1,20 @@
-define(['server/space'], function (Space) {
+define(['server/space', 'underscore'], function (Space, _) {
   var initSubscriptions = function (io) {
+
+    // Listen for Snapshot Broadcast Requests (by server)
+    Space.mediator.Subscribe('broadcastSnapshot', function (data) {
+      console.log("EVENT came from: " + data.from);
+      var socketId,
+          socket,
+          snapshot = Space.generateSnapshot();
+
+      for(socketId in io.sockets.sockets){
+        socket = io.sockets.sockets[socketId];
+        socket.emit('snapshot', snapshot);
+      }
+    });
+
     io.sockets.on('connection', function (socket) {
-      
-      
-      // Listen for Snapshot Broadcast Requests (by server)
-      Space.mediator.Subscribe('broadcastSnapshot', function (data) {
-        socket.get('shipId', function (err, shipId) {
-          var snapshot;
-          if(shipId === null){
-            snapshot = Space.generateSnapshot();
-          }else{
-            snapshot = Space.generateSnapshot(shipId);
-          }
-          socket.broadcast.emit('snapshot', snapshot);
-          socket.emit('snapshot', snapshot);
-        });
-      });
 
       // Listen for disconnection.  Destroy ship on disconnect
       socket.on('disconnect', function () {
@@ -25,11 +24,11 @@ define(['server/space'], function (Space) {
           }else{
             console.log('disconnect.  Exploding ship: ' + shipId);
             Space.destroyShip(shipId);
-            Space.mediator.Publish('broadcastSnapshot', {});
+            Space.mediator.Publish('broadcastSnapshot', {from: "Transport#disconnect"});
           }
         });
       });
-      
+
       // Listen for clients tapping pilot controls
       socket.on('pilotControl', function (data) {
         socket.get('shipId', function (err, shipId) {
@@ -52,7 +51,7 @@ define(['server/space'], function (Space) {
             console.log("no ship associated with this socket yet...");
             ship = Space.generateShip();
             socket.set('shipId', ship.id, function () {
-              console.log("set shipId to: " + ship.id);
+              console.log("set this socket's shipId to: " + ship.id);
             });
           }else{
            console.log('this socket has a ship with id: ' + shipId);
@@ -67,7 +66,9 @@ define(['server/space'], function (Space) {
             id: ship.id
           };
           socket.emit('deliverSelfShip', response);
-          Space.mediator.Publish('broadcastSnapshot', {});
+          console.log('ABOUT TO BROADCAST SNAPSHOT');
+          Space.mediator.Publish('broadcastSnapshot', {from: "Transport#requestSelfShip"});
+          console.log('DONE BROADCASTING SNAPSHOT');
         });
       });
     });

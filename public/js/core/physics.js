@@ -85,7 +85,8 @@ define(["app/constants", "box2d", "underscore"], function (Constants, Box, _) {
         });
       },
       removeEntity : function (entity, world) {
-        world.DestroyBody(entity);
+        var body = entity.get('body');
+        world.DestroyBody(body);
       }
     }
 });

@@ -7,7 +7,7 @@ define(['app/constants', 'backbone', 'core/space'], function (Constants, Backbon
     },
     listen : function () {
       // todo: there needs to be a centralized way to register keystroke 
-      // listeners...
+      // listeners.  Right now its only the pilot but there are two?
 
       var validKeys = _.values(Constants.keystrokes);
       $("body").keydown(function(e){
