@@ -126,6 +126,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
       $('#radarWidget').find('#angle').html(friendlyAngle);
       $('#radarWidget').find('#angVelocity').html(angVel);
       $('#radarWidget').find('#linVelocity').html(linVel.cleanX + "," + linVel.cleanY);
+      $('#radarWidget').find('#lag').html(Space.getLag());
   }
 
   var calculateRelativeOffsets = function (entity) {

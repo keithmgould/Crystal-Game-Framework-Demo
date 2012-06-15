@@ -7,6 +7,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
   var otherEntities = [];
   var selfShip; // holds the Self (Ship) entity
   var loopCallbacks = [];
+  var lag;
   var update = function () {
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
@@ -113,7 +114,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     addToLoopCallbacks : function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});
     },
-    getWorld : function () { return world },
+    setLag: function (newLag) { lag = newLag; },
+    getLag: function () { return lag; },
+    getWorld : function () { return world; },
     getAllEntities : function () { return allEntities; },
     getOtherEntities : function () { return otherEntities; },
     getSelfShip : function () { return selfShip; },

@@ -16,6 +16,11 @@ define(['server/space', 'underscore'], function (Space, _) {
 
     io.sockets.on('connection', function (socket) {
 
+      // Listen for lag ping
+      socket.on('ping', function (data) {
+        socket.emit('pong', {timestamp: data.timestamp});
+      });
+
       // Listen for disconnection.  Destroy ship on disconnect
       socket.on('disconnect', function () {
         socket.get('shipId', function (err, shipId) {
