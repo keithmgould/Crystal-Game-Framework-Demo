@@ -6,8 +6,7 @@ define(['common/entity', 'common/physics'], function (Entity, Physics) {
         entityType: 'Ship', 
         height: 2, 
         width: 1, 
-        color: "red",
-        angle: 0 });
+        color: "red"});
     },
     accelerate: {
       rotateRight: function () {

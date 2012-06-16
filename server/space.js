@@ -17,8 +17,8 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     });
   };
 
-  var addShip = function (xPos, yPos) {
-    var ship = new Ship({ xPos: xPos, yPos: yPos, id: guidGenerator() });
+  var addShip = function (xPos, yPos, angle) {
+    var ship = new Ship({ xPos: xPos, yPos: yPos, id: guidGenerator(), angle: angle });
     entities.push(ship);
     Physics.placeEntities([ship], world);
     return ship;
@@ -72,8 +72,9 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
       update();
     },
     generateShip: function () {
-      var coords = findRandomUnoccupiedSpace();
-      var ship = addShip(coords.x, coords.y);
+      var coords = findRandomUnoccupiedSpace(),
+          angle  = Math.random() * 2 * Math.PI;
+      var ship = addShip(coords.x, coords.y, angle);
       return ship;
     },
     // remove from entities and from physics engine

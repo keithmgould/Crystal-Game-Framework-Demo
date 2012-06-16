@@ -5,11 +5,18 @@ Strategy:
 - Common code stored in public/js/
 
 Current Goal:
-- 1) Show Lag
-- 2) Figure out how to compensate for lag
-- 3) BUG: Radar not updating to show other ships.
+- 1) DONE! Show Lag
+- 2) Show running avg for update frequency 
 
 Box2D Components refresher:
 - Body: have mass nd velocity
 - Shape: collision geometry attached to bodies.  used to define mass of body. have friction and restitution.  shapes owned by bodies.
 - Fixture: binds shapes to bodies.
+
+Timing refresher:
+- FPS (Hz): (frames per second): frequency canvas is repainted (drawn).  This is usually called (and thusly tied) to the update frequency
+- Box2D Step (Hz):  Tells how many steps happen per second.  Or, how much "time" should pass in the simulation during one step.  The smaller 
+  the number, the more time passes per step.  so 60/60 would mean 1 second per step.  1/60 would mean 1/60th of a second per step.
+- Update (hz): How often we call world.Step and draw.
+
+

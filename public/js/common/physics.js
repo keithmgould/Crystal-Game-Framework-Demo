@@ -33,6 +33,7 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
       bodyDef.type = b2Body.b2_dynamicBody;
       bodyDef.position.x = entity.get('xPos');
       bodyDef.position.y = entity.get('yPos');
+      bodyDef.angle      = entity.get('angle');
       body = world.CreateBody(bodyDef);
       return body;
     }
