@@ -1,15 +1,39 @@
 define(['common/constants', 'common/physics', 'underscore', 'common/entities/ship', 'mediator'], function (Constants, Physics, _, Ship, Mediator) {
   var world,
       entities = [],
-      mediator = new Mediator();
+      mediator = new Mediator(),
+      lastUpdateAt,
+      updateDifs = [];
 
   var update = function () {
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
     world.ClearForces();
     updateEntities();
+    storeUpdateDifs();
     setTimeout( update, 1000/60 );
   };
+
+  var storeUpdateDifs = function () {
+    var dif,
+        now = Date.now();
+    if(_.isUndefined(lastUpdateAt)){
+      lastUpdateAt = now;
+      return;
+    }else{
+      dif = now - lastUpdateAt;
+      lastUpdateAt = now;
+      updateDifs.push(dif);
+      if(updateDifs.length >= 120){
+        updateDifs.shift();
+      }
+    }
+  }
+
+  var getAverageUpdateDifs = function () {
+    var total = _.reduce(updateDifs, function(memo, num){ return memo + num; }, 0);
+    return total / updateDifs.length;
+  }
 
   var updateEntities = function () {
     _.each(entities, function(entity){
@@ -66,6 +90,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   return {
     mediator: mediator,
+    getAverageUpdateDifs: getAverageUpdateDifs,
     generateSpace: function () {
       world = Physics.generateWorld();
       initSubscribers();

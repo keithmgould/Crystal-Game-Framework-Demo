@@ -1,4 +1,18 @@
-define(['server/space', 'underscore'], function (Space, _) {
+define(['common/constants', 'server/space', 'underscore'], function (Constants, Space, _) {
+
+  // Add artificial latency when receiving server messages
+  var delayedSocketOn = function (socket, message, fn) {
+    socket.on(message, function (data) {
+      _.delay(fn, Constants.extraLatency.fromClient, data);
+    });
+  }
+
+  var initPeriodicSnapshots = function () {
+    setInterval(function () {
+      Space.mediator.Publish('broadcastSnapshot', {from: "PeriodicSnapshot"});
+    }, 1000);
+  }
+
   var initSubscriptions = function (io) {
 
     // Listen for Snapshot Broadcast Requests (by server)
@@ -16,10 +30,12 @@ define(['server/space', 'underscore'], function (Space, _) {
 
     io.sockets.on('connection', function (socket) {
 
-      // Listen for lag ping
-      socket.on('ping', function (data) {
+      // Listen for client ping (used to determine lag)
+      delayedSocketOn(socket, 'ping', function (data) {
         socket.emit('pong', {timestamp: data.timestamp});
+        console.log("avg update: " + Space.getAverageUpdateDifs());
       });
+
 
       // Listen for disconnection.  Destroy ship on disconnect
       socket.on('disconnect', function () {
@@ -82,6 +98,7 @@ define(['server/space', 'underscore'], function (Space, _) {
   return {
     initialize: function(io) {
       initSubscriptions(io);
+      initPeriodicSnapshots();
     }
   };
 

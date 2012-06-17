@@ -1,11 +1,11 @@
-define(['common/constants', 'space'], function (Constants, Space) {
+define(['common/constants', 'space', 'underscore'], function (Constants, Space, _) {
 
   var socket = io.connect(Constants.server),
       messages = [];
 
   var emitAndEnqueue = function (channel, data) {
     data = data || {};
-    var timestamp = new Date().getTime();
+    var timestamp = Date.now();
     data.timestamp = timestamp;
     socket.emit(channel, data);
     messages.push({ timestamp: timestamp, channel: channel, data: data});
@@ -21,6 +21,7 @@ define(['common/constants', 'space'], function (Constants, Space) {
     }, 1000);
   }
 
+  // Listen locally for messages to send to clients
   var initLocalSubscriptions = function () {
     Space.mediator.Subscribe("pilotControl", function (data) {
       emitAndEnqueue("pilotControl", {d:data.keystroke});
@@ -31,9 +32,17 @@ define(['common/constants', 'space'], function (Constants, Space) {
     });
   }
 
+  // Add artificial latency when receiving server messages
+  var delayedSocketOn = function (message, fn) {
+    socket.on(message, function (data) {
+      _.delay(fn, Constants.extraLatency.fromServer, data);
+    });
+  }
+
+  // Listen for server messages
   var initServerSubscriptions = function () {
     // we have a ping response
-    socket.on('pong', function (data) {
+    delayedSocketOn('pong', function (data) {
       var timeNow, timeDif;
       timeNow = new Date().getTime();
       timeDif = timeNow - data.timestamp;
@@ -41,13 +50,13 @@ define(['common/constants', 'space'], function (Constants, Space) {
     });
 
     // we have a ship
-    socket.on('deliverSelfShip', function (data) {
+    delayedSocketOn('deliverSelfShip', function (data) {
       Space.generateSelfShip(data.x, data.y, data.angle, data.id);
       Space.mediator.Publish('receivedSelfShip', {foo: 'bar'});
     });
 
     // we have a snapshot
-    socket.on('snapshot', function (data) {
+    delayedSocketOn('snapshot', function (data) {
       Space.applySnapshot(data);
     })
   }
