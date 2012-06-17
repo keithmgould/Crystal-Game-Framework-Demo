@@ -78,7 +78,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
   }
 
   var updateRadar = function () {
-      updateElements();
+      //updateElements();
       updateReadout();
   }
 
@@ -127,6 +127,9 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
       $('#radarWidget').find('#angVelocity').html(angVel);
       $('#radarWidget').find('#linVelocity').html(linVel.cleanX + "," + linVel.cleanY);
       $('#radarWidget').find('#lag').html(Space.getLag());
+      $('#radarWidget').find('#avgClientUpdate').html(Math.round(Space.getAverageUpdateDifs() * 1000) / 1000);
+      $('#radarWidget').find('#timeoutFreq').html(Space.getTimeoutFreq());
+
   }
 
   var calculateRelativeOffsets = function (entity) {
@@ -163,11 +166,11 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
     initialize : function () {
       this.render();
       scale = Constants.physics.scale;
-      stage = new Kinetic.Stage({
-        container : "radarScreen",
-        width: Constants.physics.width,
-        height: Constants.physics.height
-      });
+      //stage = new Kinetic.Stage({
+        //container : "radarScreen",
+        //width: Constants.physics.width,
+        //height: Constants.physics.height
+      //});
       selfShipLayer = new Kinetic.Layer();
       otherEntitiesLayer = new Kinetic.Layer();
       gridLayer = new Kinetic.Layer();
@@ -181,11 +184,11 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
       }
     },
     start : function () {
-      placeEntities();
+      //placeEntities();
       Space.addToLoopCallbacks(this, this.updateRadar);
-      stage.add(gridLayer);
-      stage.add(selfShipLayer);
-      stage.add(otherEntitiesLayer);
+      //stage.add(gridLayer);
+      //stage.add(selfShipLayer);
+      //stage.add(otherEntitiesLayer);
     },
 
     render : function (event) {

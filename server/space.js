@@ -88,6 +88,21 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     });
   }
 
+  var generateSnapshot = function () {
+    var snapshot = {
+      avgUpdateDifs: getAverageUpdateDifs(),
+      ships: []
+    };
+    _.each(entities, function (entity) {
+      if(entity.get('entityType') === 'Ship'){
+        snapshot.ships.push(entity.getSnapshot());
+      }else{
+        console.log('unknown entity type in generateSnapshot! -- ' + entity.get('entityType'));
+      }
+    });
+    return snapshot;
+  }
+
   return {
     mediator: mediator,
     getAverageUpdateDifs: getAverageUpdateDifs,
@@ -112,19 +127,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
       console.log('entity count after destroy: ' + entities.length);
     },
     findShipById: findShipById,
-    generateSnapshot: function (requester) {
-      var snapshot = {
-        ships : []
-      };
-      _.each(entities, function (entity) {
-        if(entity.get('entityType') === 'Ship'){
-          snapshot.ships.push(entity.getSnapshot());
-        }else{
-          console.log('unknown entity type in generateSnapshot! -- ' + entity.get('entityType'));
-        }
-      });
-      return snapshot;
-    }
+    generateSnapshot: generateSnapshot
   };
 
 });

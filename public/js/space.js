@@ -1,27 +1,26 @@
 define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator', 'underscore'], function (Constants, Physics, Ship, Mediator, _) {
-  // todo: use single var syntax...
-  
-  var mediator = new Mediator();
-  var world;
-  var allEntities = [];
-  var otherEntities = [];
-  var selfShip; // holds the Self (Ship) entity
-  var loopCallbacks = [];
-  var lag;
+
+  var mediator = new Mediator(),
+      world,
+      allEntities = [],
+      otherEntities = [],
+      selfShip,
+      loopCallbacks = [],
+
+      // below variables used for synching
+      lag,
+      lastUpdateAt,
+      updateDifs = [],
+      timeoutFreq = 1000 / 60;
+
   var update = function () {
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
     world.ClearForces();
     updateAllEntities();
     runLoopCallbacks();
-    // if window is defined, we are running on client, and can 
-    // leverage requestAnimFrame.  Otherwise we are on server
-    // and must resort to a simple setTimeout.
-    //if( typeof(window) == "object"){
-      //requestAnimFrame(update);
-    //}else{
-      setTimeout(update, 1000/60 );
-    //}
+    storeUpdateDifs();
+    setTimeout(update, timeoutFreq ); // not using requestAnimFrame while I debug stuff...
   };
 
   var updateAllEntities = function () {
@@ -29,6 +28,34 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
       entity.update();
     });
   };
+
+  var storeUpdateDifs = function () {
+    var dif,
+        now = Date.now();
+    if(_.isUndefined(lastUpdateAt)){
+      lastUpdateAt = now;
+      return;
+    }else{
+      dif = now - lastUpdateAt;
+      lastUpdateAt = now;
+      updateDifs.push(dif);
+      if(updateDifs.length >= 120){
+        updateDifs.shift();
+      }
+    }
+  }
+
+  var getAverageUpdateDifs = function () {
+    var total = _.reduce(updateDifs, function(memo, num){ return memo + num; }, 0);
+    return total / updateDifs.length;
+  }
+
+  var updateTimeoutFreq = function (serverAvgUpdateDif) {
+    serverAverageUpateDif = serverAvgUpdateDif;
+    if(updateDifs.length < 100){ return; } // wait till we have a decent sample set
+    var clientProcessTime = Math.abs(getAverageUpdateDifs() - timeoutFreq);
+    timeoutFreq = serverAvgUpdateDif - clientProcessTime;
+  }
 
   var runLoopCallbacks = function () {
     _.each(loopCallbacks, function (callback) {
@@ -77,6 +104,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
   }
 
   var applySnapshot = function (snapshot) {
+    updateTimeoutFreq(snapshot.avgUpdateDifs);
     _.each(snapshot.ships, function (shipSnapshot) {
       console.log('updating from snapshot.  ship: ' + shipSnapshot.id);
       var ship = findShipById(shipSnapshot.id);
@@ -111,6 +139,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
 
   return {
     mediator : mediator,
+    getAverageUpdateDifs: getAverageUpdateDifs,
+    getTimeoutFreq: function () { return timeoutFreq; },
     addToLoopCallbacks : function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});
     },

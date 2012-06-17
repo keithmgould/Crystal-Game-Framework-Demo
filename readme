@@ -6,7 +6,8 @@ Strategy:
 
 Current Goal:
 - 1) DONE! Show Lag
-- 2) Show running avg for update frequency 
+- 2) DONE! Show running avg for update frequency
+- 3) DONE! Dynamically change update speed to match server
 
 Box2D Components refresher:
 - Body: have mass nd velocity
