@@ -20,15 +20,27 @@ define(['backbone'], function (Backbone) {
       };
     },
     applySnapshot: function (snapshot) {
-      var body = this.get('body');
+      var body = this.get('body'),
+          linVel;
       console.log('in Entity#applySnapshot');
       console.log('angle: ' + snapshot.a + ", av: " + snapshot.av);
       body.SetPositionAndAngle({x: snapshot.x, y: snapshot.y}, snapshot.a);
+
+      // not sure why but I can't Set Angular Velocity or 
+      // linVel if the existing lin/ang velocity is zero.  
+      // but I CAN apply a torque/impulse.
+      // So I do that first. Curious....
+
+      linVel = body.GetLinearVelocity();
+      if(linVel.x == 0 && linVel.y == 0 && (snapshot.xv != 0 || snapshot.yv != 0)){
+          console.log("trying to set linVel");
+          body.ApplyImpulse(
+            {x: 1, y: 1},
+            body.GetWorldCenter());
+      }
       body.SetLinearVelocity({x: snapshot.xv, y: snapshot.yv});
 
-      // not sure why but I can't Set Angular Velocity if 
-      // the existing angular velocity is zero.  but I CAN
-      // apply a torque.  Curious....
+      // for explanation of this strangeness see comments above.
       if(body.GetAngularVelocity() == 0 && snapshot.av != 0){
         body.ApplyTorque(0.1);
       }
