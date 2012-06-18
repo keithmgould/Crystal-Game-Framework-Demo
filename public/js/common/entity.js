@@ -17,7 +17,9 @@ define(['backbone'], function (Backbone) {
         a: this.get('angle'),
         xv: linVel.x,
         yv: linVel.y,
-        av: angVel
+        av: angVel,
+        type: this.get('entityType'),
+        ownerId: 69 // fix
       };
     },
     applySnapshot: function (snapshot) {

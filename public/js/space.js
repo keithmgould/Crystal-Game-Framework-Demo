@@ -1,9 +1,8 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator', 'underscore'], function (Constants, Physics, Ship, Mediator, _) {
+define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'mediator', 'underscore'], function (Constants, Physics, Ship, Missile, Mediator, _) {
 
   var mediator = new Mediator(),
       world,
-      allEntities = [],
-      otherEntities = [],
+      entities = [],
       selfShip,
       loopCallbacks = [],
       lag,                      // determined by Transport#ping/pong
@@ -15,14 +14,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
     world.ClearForces();
-    updateAllEntities();
+    updateEntities();
     runLoopCallbacks();
     storeUpdateDifs(startUpdateAt);
     setTimeout(update, timeoutFreq ); // not using requestAnimFrame while I debug stuff...
   };
 
-  var updateAllEntities = function () {
-    _.each(allEntities, function(entity){
+  var updateEntities = function () {
+    _.each(entities, function(entity){
       entity.update();
     });
   };
@@ -54,6 +53,13 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     });
   };
 
+  var guidGenerator = function () {
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+  }
+
   var addShip = function (isSelfShip, xPos, yPos, angle, id) {
       var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
       if(isSelfShip) {
@@ -61,12 +67,30 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
         selfShip = ship;
       }else{
         ship.set({ color : "red" });
-        otherEntities.push(ship);
       }
-      allEntities.push(ship);
+      entities.push(ship);
       Physics.placeEntities([ship], world);
       return ship;
   };
+
+  var addMissileFromSnapshot = function(xPos, yPos, id, ownerId) {
+    var missile = new Missile({
+      xPos: xPos,
+      yPos: yPos,
+      id:   id,
+      ownerId: ownerId});
+    entities.push(missile);
+    Physics.placeEntities([missile], world);
+    return missile;
+  }
+
+  var addMissileFromShip = function (ship) {
+    var missile = ship.fireMissile();
+    missile.set({id: guidGenerator()});
+    entities.push(missile);
+    Physics.placeEntities([missile], world);
+    return missile;
+  }
 
   var initPubsub = function () {
     mediator.Subscribe("pilotControl", function ( data ) {
@@ -81,12 +105,17 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
         case Constants.keystrokes.KEY_UP_ARROW:
           selfShip.accelerate.foreward.call(selfShip);
           break;
+        case Constants.keystrokes.KEY_SPACE_BAR:
+          addMissileFromShip(selfShip);
+          break;
+        default:
+          console.log("don't know what to do with this valid key yet...")
       }
     });
   }
 
-  var findShipById = function (shipId) {
-     var ship = _.find(allEntities, function (entity) {
+  var findEntityById = function (shipId) {
+     var ship = _.find(entities, function (entity) {
         return shipId === entity.id;
       });
       return ship;
@@ -94,35 +123,47 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
 
   var applySnapshot = function (snapshot) {
     updateTimeoutFreq(snapshot.avgUpdateDifs);
-    _.each(snapshot.ships, function (shipSnapshot) {
-      console.log('updating from snapshot.  ship: ' + shipSnapshot.id);
-      var ship = findShipById(shipSnapshot.id);
-      if(typeof ship === "undefined"){
-        // must be a new ship.  lets make it!
-         ship = addShip(false, shipSnapshot.x, shipSnapshot.y, shipSnapshot.a, shipSnapshot.id);
-         console.log('adding ship via snapshot')
+    _.each(snapshot.entities, function (entitySnapshot) {
+      console.log('updating from snapshot.  id: ' + entitySnapshot.id);
+      var entity = findEntityById(entitySnapshot.id);
+      if(typeof entity === "undefined"){
+         switch(entitySnapshot.type) {
+          case "Ship":
+            entity = addShip(false, entitySnapshot.x, entitySnapshot.y, entitySnapshot.a, entitySnapshot.id);
+            console.log('adding ship via snapshot')
+            break;
+          case "Missile":
+            entity = addMissileFromSnapshot();
+            console.log('adding missile via snapshot');
+            break;
+         }
       }
-      ship.applySnapshot(shipSnapshot);
+      entity.applySnapshot(entitySnapshot);
     });
     // now find all ships that were not in the snapshot and destroy them.
-    var entityIds = _.map(snapshot.ships, function (ship) {
-      return ship.id;
+    var entityIds = _.map(snapshot.entities, function (entity) {
+      return entity.id;
     });
-    _.each(otherEntities, function (entity) {
+    _.each(entities, function (entity) {
       if(_.include(entityIds, entity.id) === false){
-        destroyShip(entity.id);
+        destroyEntity(entity.id);
       }
     });
   }
 
-  // remove from entities and from physics engine
-  var destroyShip = function (shipId) {
-      console.log('before destroying ship, otherEntitiy count: ' + otherEntities.length);
-      var ship = findShipById(shipId);
-      otherEntities = _.without(otherEntities, ship);
-      Physics.removeEntity(ship, world);
-      console.log('destroyed ship from otherEntities and world: ' + ship.id);
-      console.log('otherEntity count after destroy: ' + otherEntities.length);
+  // remove from entities array and from physics engine
+  var destroyEntity = function (entityId) {
+      console.log("destroying entity with id: " + entityId);
+      console.log('before destroying entity, entitiy count: ' + entities.length);
+      var entity = findEntityById(entityId);
+      if(_.isObject(entity)){
+        entities = _.without(entities, entity);
+        Physics.removeEntity(entity, world);
+        console.log('destroyed entity from entities array and world: ' + entity.id);
+        console.log('entities count after destroy: ' + entities.length);
+      }else{
+        console.log('could not find entity by id: ' + entityId);
+      }
   }
 
   return {
@@ -135,8 +176,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     setLag: function (newLag) { lag = newLag; },
     getLag: function () { return lag; },
     getWorld : function () { return world; },
-    getAllEntities : function () { return allEntities; },
-    getOtherEntities : function () { return otherEntities; },
+    getEntities : function () { return entities; },
     getSelfShip : function () { return selfShip; },
     hasSelfShip : function () {
       return !(typeof selfShip === 'undefined');
@@ -150,11 +190,13 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
       Physics.enableDebugDraw(world, context);
     },
     generateSelfShip : function (xPos, yPos, angle, id) {
+      console.log("we have a ship!");
       if(typeof selfShip == 'undefined'){
         addShip(true, xPos, yPos, angle, id);
       }
     },
     requestSelfShip : function () {
+      console.log("requesting ship!");
       mediator.Publish('requestSelfShip');
     },
     addEnemy : function (xPos, yPos, angle) {

@@ -48,11 +48,18 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     return ship;
   };
 
-  var findShipById = function (shipId) {
-     var ship = _.find(entities, function (entity) {
-        return shipId === entity.id;
+  var addMissile = function (ship) {
+    var missile = ship.fireMissile();
+    missile.set({ id: guidGenerator() });
+    entities.push(missile);
+    Physics.placeEntities([missile], world);
+  }
+
+  var findEntityById = function (entityId) {
+     var entity = _.find(entities, function (entity) {
+        return entityId === entity.id;
       });
-      return ship;
+      return entity;
   }
 
   // todo: this does not yet find an UNOCCUPIED random space.
@@ -71,7 +78,8 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   var initSubscribers = function () {
     mediator.Subscribe("pilotControl", function ( data ) {
-      var ship = findShipById(data.shipId);
+      var ship = findEntityById(data.shipId);
+      // todo: handle ship not found
       console.log('ship-' + ship.id + " just tapped " + data.d);
       switch(data.d){
         case Constants.keystrokes.KEY_LEFT_ARROW:
@@ -83,6 +91,12 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
         case Constants.keystrokes.KEY_UP_ARROW:
           ship.accelerate.foreward.call(ship);
           break;
+        case Constants.keystrokes.KEY_SPACE_BAR:
+          console.log("adding missile!");
+          addMissile(ship);
+          break;
+        default:
+          console.log("don't know what to do with this valid key yet...")
       }
       mediator.Publish('broadcastSnapshot', {from: 'Space#pilotControl'});
     });
@@ -91,16 +105,25 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
   var generateSnapshot = function () {
     var snapshot = {
       avgUpdateDifs: getAverageUpdateDifs(),
-      ships: []
+      entities: []
     };
     _.each(entities, function (entity) {
-      if(entity.get('entityType') === 'Ship'){
-        snapshot.ships.push(entity.getSnapshot());
-      }else{
-        console.log('unknown entity type in generateSnapshot! -- ' + entity.get('entityType'));
-      }
+      snapshot.entities.push(entity.getSnapshot());
     });
     return snapshot;
+  }
+
+  var destroyEntity = function (entityId) {
+    console.log('before destroying entity, entity count: ' + entities.length);
+    var entity = findEntityById(entityId);
+    if(_.isObject(entity)){
+      entities = _.without(entities, entity);
+      Physics.removeEntity(entity, world);
+      console.log('destroyed entity from entities and world: ' + entity.id);
+      console.log('entity count after destroy: ' + entities.length);
+    }else{
+      console.log('could not find entity in Space#destroyEntity');
+    }
   }
 
   return {
@@ -117,16 +140,8 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
       var ship = addShip(coords.x, coords.y, angle);
       return ship;
     },
-    // remove from entities and from physics engine
-    destroyShip : function (shipId) {
-      console.log('before destroying ship, entitiy count: ' + entities.length);
-      var ship = findShipById(shipId);
-      entities = _.without(entities, ship);
-      Physics.removeEntity(ship, world);
-      console.log('destroyed ship from entities and world: ' + ship.id);
-      console.log('entity count after destroy: ' + entities.length);
-    },
-    findShipById: findShipById,
+    destroyEntity : destroyEntity,
+    findEntityById: findEntityById,
     generateSnapshot: generateSnapshot
   };
 

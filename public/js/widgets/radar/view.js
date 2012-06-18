@@ -59,10 +59,14 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
   }
 
   var placeOtherEntities = function () {
-      $.each(Space.getOtherEntities(), function (i, other) {
+      $.each(Space.getEntities(), function (i, other) {
         switch(other.get('entityType')) {
           case 'Ship':
-            placeOtherShip(other);
+            if(other.get('selfShip') === true){
+              // skip
+            }else{
+              placeOtherShip(other);
+            }
             break;
           default:
             console.log("unknown entity type in Radar View placeOtherEntities");

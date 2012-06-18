@@ -21,7 +21,7 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
     }, 1000);
   }
 
-  // Listen locally for messages to send to clients
+  // Listen locally for messages to send to server
   var initLocalSubscriptions = function () {
     Space.mediator.Subscribe("pilotControl", function (data) {
       emitAndEnqueue("pilotControl", {d:data.keystroke});

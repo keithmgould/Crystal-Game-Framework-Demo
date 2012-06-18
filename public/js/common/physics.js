@@ -48,6 +48,11 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
       return shape;
     }
 
+    var registerCircleShape = function (entity) {
+      var shape = new b2CircleShape( entity.get('radius'));
+      return shape;
+    }
+
     var placeEntities = function (entities, world) {
       _.each(entities, function(entity){
         var body = buildBody(entity, world);
@@ -55,8 +60,12 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
         switch (entity.shape) {
           case "polygon":
             fixDef.shape = registerPolygonShape(entity);
+            break;
+          case "circle":
+            fixDef.shape = registerCircleShape(entity);
+            break;
           default:
-            console.log("unknown entity shape in physics#placeEntites");
+            console.log("unknown entity shape in physics#placeEntites: " + entity.shape);
             break;
         }
         body.CreateFixture(fixDef);

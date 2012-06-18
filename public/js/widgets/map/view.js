@@ -41,7 +41,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
       world.ClearForces();
     },
     drawEntityFlightInfo : function () {
-      var entities = Space.getAllEntities(),
+      var entities = Space.getEntities(),
           x,
           y,
           snapshot,

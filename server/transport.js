@@ -44,7 +44,7 @@ define(['common/constants', 'server/space', 'underscore'], function (Constants, 
             console.log("socket with no ship just disconnected...");
           }else{
             console.log('disconnect.  Exploding ship: ' + shipId);
-            Space.destroyShip(shipId);
+            Space.destroyEntity(shipId);
             Space.mediator.Publish('broadcastSnapshot', {from: "Transport#disconnect"});
           }
         });
@@ -76,7 +76,7 @@ define(['common/constants', 'server/space', 'underscore'], function (Constants, 
             });
           }else{
            console.log('this socket has a ship with id: ' + shipId);
-           ship = Space.findShipById(shipId);
+           ship = Space.findEntityById(shipId);
 
            // todo: handle if ship not found...
           }
