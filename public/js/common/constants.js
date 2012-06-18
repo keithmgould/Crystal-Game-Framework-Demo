@@ -4,8 +4,8 @@ define({
 
   // Artificial Latency (in Ms)
   extraLatency: {
-    fromServer: 0,
-    fromClient: 0
+    server: 50,
+    client: 50
   },
 
   // Physics

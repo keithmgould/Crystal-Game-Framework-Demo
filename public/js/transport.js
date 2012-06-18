@@ -35,7 +35,7 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
   // Add artificial latency when receiving server messages
   var delayedSocketOn = function (message, fn) {
     socket.on(message, function (data) {
-      _.delay(fn, Constants.extraLatency.fromServer, data);
+      _.delay(fn, Constants.extraLatency.client, data);
     });
   }
 

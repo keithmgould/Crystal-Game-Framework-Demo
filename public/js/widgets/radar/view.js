@@ -128,7 +128,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/radar/templates/sc
       $('#radarWidget').find('#linVelocity').html(linVel.cleanX + "," + linVel.cleanY);
       $('#radarWidget').find('#lag').html(Space.getLag());
       $('#radarWidget').find('#avgClientUpdate').html(Math.round(Space.getAverageUpdateDifs() * 1000) / 1000);
-      $('#radarWidget').find('#timeoutFreq').html(Space.getTimeoutFreq());
+      $('#radarWidget').find('#timeoutFreq').html(Math.round(Space.getTimeoutFreq() * 1000) / 1000);
 
   }
 
