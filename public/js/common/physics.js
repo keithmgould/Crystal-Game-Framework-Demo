@@ -23,7 +23,7 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
     fixDef.friction = 0.5;
-    fixDef.restitution = 0.2;
+    fixDef.restitution = 0.5; // 0 = no energy transfer (no bounce).  1 = 100% transfer
 
 
     // Register the positon and dynamics
@@ -38,53 +38,83 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
       return body;
     }
 
-    var registerShipShape = function (entity) {
-      var height      = entity.get('height'),
-          halfWidth   = entity.get('width') / 2,
-          vec         = b2Vec2(),
-          points      = [],
-          shape       = new b2PolygonShape;
-
-      points.push(new b2Vec2(0, -height)); // nose
-      points.push(new b2Vec2(halfWidth, 0)); // rear right
-      points.push(new b2Vec2(-halfWidth, 0)); // rear left
+    var registerPolygonShape = function (entity) {
+      var points = [],
+          shape = new b2PolygonShape;
+      _.each(entity.getShapePoints(), function (point) {
+        points.push(point)
+      });
       shape.SetAsArray(points);
       return shape;
     }
 
+    var placeEntities = function (entities, world) {
+      _.each(entities, function(entity){
+        var body = buildBody(entity, world);
+        entity.set( { body: body } );
+        switch (entity.shape) {
+          case "polygon":
+            fixDef.shape = registerPolygonShape(entity);
+          default:
+            console.log("unknown entity shape in physics#placeEntites");
+            break;
+        }
+        body.CreateFixture(fixDef);
+      });
+    }
+
+    var enableDebugDraw = function (world, context) {
+      var debugDraw = new b2DebugDraw();
+      debugDraw.SetSprite(context);
+      debugDraw.SetDrawScale(Constants.physics.scale);
+      debugDraw.SetFillAlpha(0.3);
+      debugDraw.SetLineThickness(1.0);
+      debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+      world.SetDebugDraw(debugDraw);
+    }
+
+    var generateWalls = function (world) {
+      var scale = Constants.physics.scale,
+          cwidth = Constants.physics.width / scale,
+          cheight = Constants.physics.height / scale,
+          bodyDef = new b2BodyDef;
+      bodyDef.type = b2Body.b2_staticBody;
+      fixDef.shape = new b2PolygonShape;
+      // south
+      bodyDef.position.x = cwidth / 2;
+      bodyDef.position.y = cheight;
+      fixDef.shape.SetAsBox( cwidth / 2, cheight / 30);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      // north
+      bodyDef.position.x = cwidth / 2;
+      bodyDef.position.y = 0;
+      fixDef.shape.SetAsBox( cwidth / 2, cheight / 30);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      // east
+      bodyDef.position.x = cwidth;
+      bodyDef.position.y = cheight / 2;
+      fixDef.shape.SetAsBox( cwidth / 30, cheight / 2);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      // west
+      bodyDef.position.x = 0;
+      bodyDef.position.y = cheight / 2;
+      fixDef.shape.SetAsBox( cwidth / 30, cheight / 2);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+    }
+
+    var generateWorld = function () {
+      var world = new b2World(
+        new b2Vec2(0, 0),  //zero gravity (x,y)
+        true               //allow sleep
+      );
+      generateWalls(world);
+      return world;
+    }
+
     return {
-
-      box2d : {
-        b2Vec2 : b2Vec2
-      },
-
-      generateWorld : function () {
-        world = new b2World(
-          new b2Vec2(0, 0),  //zero gravity (x,y)
-          true               //allow sleep
-        );
-        return world;
-      },
-
-      enableDebugDraw : function (world, context) {
-        var debugDraw = new b2DebugDraw();
-        debugDraw.SetSprite(context);
-        debugDraw.SetDrawScale(Constants.physics.scale);
-        debugDraw.SetFillAlpha(0.3);
-        debugDraw.SetLineThickness(1.0);
-        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-        world.SetDebugDraw(debugDraw);
-      },
-
-      // Places an array of entities.
-      placeEntities : function (entities, world) {
-        _.each(entities, function(entity){
-          var body = buildBody(entity, world);
-          entity.set( { body : body } );
-          fixDef.shape = registerShipShape(entity);
-          body.CreateFixture(fixDef);
-        });
-      },
+      generateWorld : generateWorld,
+      enableDebugDraw : enableDebugDraw,
+      placeEntities : placeEntities,
       removeEntity : function (entity, world) {
         var body = entity.get('body');
         world.DestroyBody(body);

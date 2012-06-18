@@ -1,6 +1,7 @@
 define(['backbone'], function (Backbone) {
   var Entity = Backbone.Model.extend({
 
+    shape: "box",
     update: function(){
       this.set({xPos : this.get('body').GetPosition().x});
       this.set({yPos : this.get('body').GetPosition().y});

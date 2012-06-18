@@ -1,6 +1,14 @@
 define(['common/entity', 'common/physics'], function (Entity, Physics) {
 
   var Ship = Entity.extend({
+    shape: "polygon",
+    getShapePoints: function () {
+      return [
+        {x: 0, y: -this.get('height')},      // nose
+        {x: (this.get('width') / 2), y: 0},  // rear right
+        {x: -(this.get('width') / 2), y: 0 } // rear left
+      ];
+    },
     initialize: function () {
       this.set({ 
         entityType: 'Ship', 
@@ -23,7 +31,7 @@ define(['common/entity', 'common/physics'], function (Entity, Physics) {
         y = -Math.cos(angle).toFixed(2);
         x = Math.sin(angle).toFixed(2);
         this.get('body').ApplyImpulse(
-          new Physics.box2d.b2Vec2(x * power, y * power),
+          { x: x * power, y: y * power},
           this.get('body').GetWorldCenter()
         );
       }

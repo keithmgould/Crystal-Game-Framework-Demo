@@ -6,11 +6,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
       otherEntities = [],
       selfShip,
       loopCallbacks = [],
-
-      // below variables used for synching
-      lag, // determined by Transport#ping/pong
-      updateDifs = [],
-      timeoutFreq = 1000 / 60;
+      lag,                      // determined by Transport#ping/pong
+      updateDifs = [],          // stores update loop timing difs
+      timeoutFreq = 1000 / 60;  // initial value only
 
   var update = function () {
     var startUpdateAt = Date.now();
@@ -107,7 +105,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
       ship.applySnapshot(shipSnapshot);
     });
     // now find all ships that were not in the snapshot and destroy them.
-    //
     var entityIds = _.map(snapshot.ships, function (ship) {
       return ship.id;
     });
@@ -147,7 +144,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     generateSpace : function () {
       world = Physics.generateWorld();
       initPubsub();
-      //requestAnimFrame(update);
       update();
     },
     enableDebugDraw : function (context) {
