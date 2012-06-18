@@ -25,8 +25,6 @@ define(['backbone'], function (Backbone) {
     applySnapshot: function (snapshot) {
       var body = this.get('body'),
           linVel;
-      console.log('in Entity#applySnapshot');
-      console.log('angle: ' + snapshot.a + ", av: " + snapshot.av);
       body.SetPositionAndAngle({x: snapshot.x, y: snapshot.y}, snapshot.a);
 
       // not sure why but I can't Set Angular Velocity or 

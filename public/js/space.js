@@ -73,12 +73,12 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       return ship;
   };
 
-  var addMissileFromSnapshot = function(xPos, yPos, id, ownerId) {
+  var addMissileFromSnapshot = function(snapshot) {
     var missile = new Missile({
-      xPos: xPos,
-      yPos: yPos,
-      id:   id,
-      ownerId: ownerId});
+      xPos: snapshot.xPos,
+      yPos: snapshot.yPos,
+      id:   snapshot.id,
+      ownerId: snapshot.ownerId});
     entities.push(missile);
     Physics.placeEntities([missile], world);
     return missile;
@@ -124,7 +124,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   var applySnapshot = function (snapshot) {
     updateTimeoutFreq(snapshot.avgUpdateDifs);
     _.each(snapshot.entities, function (entitySnapshot) {
-      console.log('updating from snapshot.  id: ' + entitySnapshot.id);
+      //console.log('updating from snapshot.  id: ' + entitySnapshot.id);
       var entity = findEntityById(entitySnapshot.id);
       if(typeof entity === "undefined"){
          switch(entitySnapshot.type) {
@@ -133,9 +133,11 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
             console.log('adding ship via snapshot')
             break;
           case "Missile":
-            entity = addMissileFromSnapshot();
             console.log('adding missile via snapshot');
+            entity = addMissileFromSnapshot(entitySnapshot);
             break;
+          default:
+            throw new Error("trying to apply snapshot but no entity found and snapshot.type not supported: " + entitySnapshot.type);
          }
       }
       entity.applySnapshot(entitySnapshot);
@@ -153,17 +155,16 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   // remove from entities array and from physics engine
   var destroyEntity = function (entityId) {
-      console.log("destroying entity with id: " + entityId);
-      console.log('before destroying entity, entitiy count: ' + entities.length);
-      var entity = findEntityById(entityId);
-      if(_.isObject(entity)){
-        entities = _.without(entities, entity);
-        Physics.removeEntity(entity, world);
-        console.log('destroyed entity from entities array and world: ' + entity.id);
-        console.log('entities count after destroy: ' + entities.length);
-      }else{
-        console.log('could not find entity by id: ' + entityId);
+      if(_.isUndefined(entityId)){
+        throw new Error("entityId undefined in Space#destroyEntity");
       }
+      console.log("destroying entity with id: " + entityId);
+      console.log('before destroying entity, entity count: ' + entities.length);
+      var entity = findEntityById(entityId);
+      entities = _.without(entities, entity);
+      Physics.removeEntity(entity, world);
+      console.log('destroyed entity from entities array and world: ' + entity.id);
+      console.log('entities count after destroy: ' + entities.length);
   }
 
   return {
