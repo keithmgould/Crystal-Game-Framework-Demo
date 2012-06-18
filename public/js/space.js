@@ -8,18 +8,18 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
       loopCallbacks = [],
 
       // below variables used for synching
-      lag,
-      lastUpdateAt,
+      lag, // determined by Transport#ping/pong
       updateDifs = [],
       timeoutFreq = 1000 / 60;
 
   var update = function () {
+    var startUpdateAt = Date.now();
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
     world.ClearForces();
     updateAllEntities();
     runLoopCallbacks();
-    storeUpdateDifs();
+    storeUpdateDifs(startUpdateAt);
     setTimeout(update, timeoutFreq ); // not using requestAnimFrame while I debug stuff...
   };
 
@@ -29,20 +29,12 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
     });
   };
 
-  var storeUpdateDifs = function () {
-    var dif,
-        now = Date.now();
-    if(_.isUndefined(lastUpdateAt)){
-      lastUpdateAt = now;
-      return;
-    }else{
-      dif = now - lastUpdateAt;
-      lastUpdateAt = now;
+  var storeUpdateDifs = function (startUpdateAt) {
+      var dif = Date.now() - startUpdateAt;
       updateDifs.push(dif);
       if(updateDifs.length >= 120){
         updateDifs.shift();
       }
-    }
   }
 
   var getAverageUpdateDifs = function () {
@@ -53,8 +45,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'mediator'
   var updateTimeoutFreq = function (serverAvgUpdateDif) {
     serverAverageUpateDif = serverAvgUpdateDif;
     if(updateDifs.length < 100){ return; } // wait till we have a decent sample set
-    var clientProcessTime = Math.abs(getAverageUpdateDifs() - timeoutFreq);
-    timeoutFreq = serverAvgUpdateDif - clientProcessTime;
+    timeoutFreq = serverAvgUpdateDif -  getAverageUpdateDifs();
   }
 
   var runLoopCallbacks = function () {

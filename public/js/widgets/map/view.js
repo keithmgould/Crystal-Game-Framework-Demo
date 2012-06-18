@@ -7,6 +7,12 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
        scale,
        world;
 
+  var round = function (floater, deg) {
+    var deg = deg || 2,
+        multiple = 10 * deg;
+    return Math.round(floater * multiple) / multiple;
+  }
+
   var mapView = Backbone.View.extend({
     el : $("#mapWidget"),
     initialize : function () {
@@ -45,12 +51,12 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
         snapshot = entity.getSnapshot();
         x = scale * entity.get('xPos') + 10;
         y = scale * entity.get('yPos') - 25;
-        ctx.fillText("x:" + snapshot.x, x, y);
-        ctx.fillText("y:" + snapshot.y, x, y + 10);
-        ctx.fillText("xv:" + snapshot.xv, x, y + 20);
-        ctx.fillText("yv:" + snapshot.yv, x, y + 30);
-        ctx.fillText("a:" + snapshot.a, x, y + 40);
-        ctx.fillText("av:" + snapshot.av, x, y + 50);
+        ctx.fillText("x:" + round(snapshot.x), x, y);
+        ctx.fillText("y:" + round(snapshot.y), x, y + 10);
+        ctx.fillText("xv:" + round(snapshot.xv), x, y + 20);
+        ctx.fillText("yv:" + round(snapshot.yv), x, y + 30);
+        ctx.fillText("a:" + round(snapshot.a), x, y + 40);
+        ctx.fillText("av:" + round(snapshot.av), x, y + 50);
       });
     }
   });
