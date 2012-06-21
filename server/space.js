@@ -1,9 +1,9 @@
-define(['common/constants', 'common/physics', 'underscore', 'common/entities/ship', 'mediator'], function (Constants, Physics, _, Ship, Mediator) {
+define(['common/constants', 'common/physics', 'underscore', 'common/entities/ship', 'mediator', 'common/utility'], function (Constants, Physics, _, Ship, Mediator, Utility) {
   var world,
       entities = [],
       mediator = new Mediator(),
       lastUpdateAt,
-      updateDifs = [];
+      frameTimes = [];
 
   var generateSpace = function () {
     world = Physics.generateWorld();
@@ -16,11 +16,9 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     world.Step(1/60, 10, 10);
     world.ClearForces();
     updateEntities();
-    storeUpdateDifs();
-    //setTimeout( update, 1000/60 );
   };
 
-  var storeUpdateDifs = function () {
+  var storeFrameTime = function () {
     var dif,
         now = Date.now();
     if(_.isUndefined(lastUpdateAt)){
@@ -29,16 +27,16 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     }else{
       dif = now - lastUpdateAt;
       lastUpdateAt = now;
-      updateDifs.push(dif);
-      if(updateDifs.length >= 120){
-        updateDifs.shift();
+      frameTimes.push(dif);
+      if(frameTimes.length >= 120){
+        frameTimes.shift();
       }
     }
   }
 
-  var getAverageUpdateDifs = function () {
-    var total = _.reduce(updateDifs, function(memo, num){ return memo + num; }, 0);
-    return total / updateDifs.length;
+  var getAverageFrameTimes = function () {
+    var total = _.reduce(frameTimes, function(memo, num){ return memo + num; }, 0);
+    return total / frameTimes.length;
   }
 
   var updateEntities = function () {
@@ -53,7 +51,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
   };
 
   var addShip = function (xPos, yPos, angle) {
-    var ship = new Ship({ xPos: xPos, yPos: yPos, id: guidGenerator(), angle: angle });
+    var ship = new Ship({ xPos: xPos, yPos: yPos, id: Utility.guidGenerator(), angle: angle });
     entities.push(ship);
     Physics.placeEntities([ship], world);
     return ship;
@@ -61,7 +59,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   var addMissile = function (ship) {
     var missile = ship.fireMissile();
-    missile.set({ id: guidGenerator() });
+    missile.set({ id: Utility.guidGenerator() });
     entities.push(missile);
     Physics.placeEntities([missile], world);
   }
@@ -78,13 +76,6 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     var x = Math.floor((Math.random()*(Constants.physics.width /  Constants.physics.scale))+1),
         y = Math.floor((Math.random()*(Constants.physics.height / Constants.physics.scale))+1);
     return { x: x, y: y};
-  }
-
-  var guidGenerator = function () {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
   }
 
   var initSubscribers = function () {
@@ -122,7 +113,6 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   var generateSnapshot = function () {
     var snapshot = {
-      avgUpdateDifs: getAverageUpdateDifs(),
       entities: []
     };
     _.each(entities, function (entity) {
@@ -146,7 +136,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   return {
     mediator: mediator,
-    getAverageUpdateDifs: getAverageUpdateDifs,
+    getAverageFrameTimes: getAverageFrameTimes,
     generateSpace: generateSpace,
     generateShip: generateShip,
     destroyEntity : destroyEntity,

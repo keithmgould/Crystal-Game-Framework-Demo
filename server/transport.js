@@ -8,9 +8,9 @@ define(['common/constants', 'server/space', 'underscore'], function (Constants, 
   }
 
   var initPeriodicSnapshots = function () {
-    setInterval(function () {
-      Space.mediator.Publish('broadcastSnapshot', {from: "PeriodicSnapshot"});
-    }, 1000);
+    //setInterval(function () {
+      //Space.mediator.Publish('broadcastSnapshot', {from: "PeriodicSnapshot"});
+    //}, 1000);
   }
 
   var initSubscriptions = function (io) {
@@ -33,7 +33,6 @@ define(['common/constants', 'server/space', 'underscore'], function (Constants, 
       // Listen for client ping (used to determine lag)
       delayedSocketOn(socket, 'ping', function (data) {
         socket.emit('pong', {timestamp: data.timestamp});
-        console.log("avg update: " + Space.getAverageUpdateDifs());
       });
 
 

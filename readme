@@ -2,8 +2,9 @@ Major Todo:
 - Add and adhere to a "widget API", aka Nicholas Z's "sandbox" (facade pattern)
 
 Current Goal:
-- Done! Build rigid space border (client/server)
-- Build in weapons
+- Get proper syncing between server and client
+- Use syncing to eliminate jerkyness on client
+
 
 Box2D Components refresher:
 - Body: has mass and velocity

@@ -1,4 +1,4 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'mediator', 'underscore'], function (Constants, Physics, Ship, Missile, Mediator, _) {
+define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'mediator', 'common/utility', 'underscore'], function (Constants, Physics, Ship, Missile, Mediator, Utility, _) {
 
   var mediator = new Mediator(),
       world,
@@ -53,13 +53,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     });
   };
 
-  var guidGenerator = function () {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-  }
-
   var addShip = function (isSelfShip, xPos, yPos, angle, id) {
       var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
       if(isSelfShip) {
@@ -86,7 +79,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   var addMissileFromShip = function (ship) {
     var missile = ship.fireMissile();
-    missile.set({id: guidGenerator()});
+    missile.set({id: Utility.guidGenerator()});
     entities.push(missile);
     Physics.placeEntities([missile], world);
     return missile;
