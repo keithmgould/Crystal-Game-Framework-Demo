@@ -10,15 +10,27 @@ define(['common/entity', 'common/entities/missile'], function (Entity, Missile) 
       ];
     },
     initialize: function () {
-      this.set({ 
-        entityType: 'Ship', 
-        height: 2, 
-        width: 1, 
-        color: "red"});
+      this.set({
+        entityType: 'Ship',
+        xVel: 0,
+        yVel: 0,
+        height: 2,
+        width: 1,
+        color: "red",
+        lifespan: 0, // means infinity
+        createdAt: Date.now()
+      });
+    },
+    axisUsage: function () {
+      var angle = this.get('angle');
+      return {
+        x:  Math.sin(angle).toFixed(2),
+        y:  -Math.cos(angle).toFixed(2)
+      }
     },
     fireMissile: function () {
 
-     var power = 1,
+     var power = 50,
           x, 
           y, 
           angle = this.get('angle');
@@ -26,8 +38,8 @@ define(['common/entity', 'common/entities/missile'], function (Entity, Missile) 
       x = Math.sin(angle).toFixed(2);
 
       var missile = new Missile({
-        xPos: 10,
-        yPos: 10,
+        xPos:  this.get('xPos') + (1.5 * this.get('height')) * x,
+        yPos: this.get('yPos') + (1.5 * this.get('height')) * y,
         xVel: x * power,
         yVel: y * power,
         ownerId: this.id
@@ -36,10 +48,10 @@ define(['common/entity', 'common/entities/missile'], function (Entity, Missile) 
     },
     accelerate: {
       rotateRight: function () {
-        this.get('body').ApplyTorque(5);
+        this.get('body').ApplyTorque(10);
       },
       rotateLeft: function () {
-        this.get('body').ApplyTorque(-5);
+        this.get('body').ApplyTorque(-10);
       },
       foreward: function () {
         var power = 1,

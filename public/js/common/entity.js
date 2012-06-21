@@ -1,23 +1,37 @@
-define(['backbone'], function (Backbone) {
+define(['backbone', 'common/utility'], function (Backbone, Utility) {
   var Entity = Backbone.Model.extend({
 
     shape: "box",
     update: function(){
-      this.set({xPos : this.get('body').GetPosition().x});
-      this.set({yPos : this.get('body').GetPosition().y});
-      this.set({angle : this.get('body').GetAngle()});
+      if(this.suicideIfGeriatric()){
+        return {status: 'suicide'};
+      }else{
+        this.set({xPos : this.get('body').GetPosition().x});
+        this.set({yPos : this.get('body').GetPosition().y});
+        this.set({angle : this.get('body').GetAngle()});
+        return {status: 'ok'}
+      }
+    },
+    suicideIfGeriatric: function () {
+      var lifespan = this.get('lifespan');
+      if(lifespan === 0){ return false; } // live forever
+      if(Date.now() > lifespan + this.get('createdAt')){
+        return true;
+      }else{
+        return false;
+      }
     },
     getSnapshot: function () {
       var angVel = this.get('body').GetAngularVelocity();
       var linVel = this.get('body').GetLinearVelocity();
       return {
         id: this.id,
-        x: this.get('xPos'),
-        y: this.get('yPos'),
-        a: this.get('angle'),
-        xv: linVel.x,
-        yv: linVel.y,
-        av: angVel,
+        x: Utility.round(this.get('xPos'),4),
+        y: Utility.round(this.get('yPos'),4),
+        a: Utility.round(this.get('angle'),4),
+        xv: Utility.round(linVel.x,4),
+        yv: Utility.round(linVel.y,4),
+        av: Utility.round(angVel,4),
         type: this.get('entityType'),
         ownerId: 69 // fix
       };

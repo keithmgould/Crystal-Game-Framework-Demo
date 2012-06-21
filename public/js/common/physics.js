@@ -34,6 +34,7 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
       bodyDef.position.x = entity.get('xPos');
       bodyDef.position.y = entity.get('yPos');
       bodyDef.angle      = entity.get('angle');
+      bodyDef.linearVelocity = {x: entity.get('xVel'), y: entity.get('yVel')};
       body = world.CreateBody(bodyDef);
       return body;
     }

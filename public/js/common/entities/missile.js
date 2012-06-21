@@ -5,7 +5,9 @@ define(['common/entity', 'common/physics'], function (Entity, Physics) {
       this.set({
         angle: 0,
         entityType: "Missile",
-        radius: 1
+        radius: 0.25,
+        lifespan: 2000, // MS
+        createdAt: Date.now()
       });
     }
   });

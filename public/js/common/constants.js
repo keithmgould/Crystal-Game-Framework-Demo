@@ -4,8 +4,8 @@ define({
 
   // Artificial Latency (in Ms)
   extraLatency: {
-    server: 50,
-    client: 50
+    server: 0,
+    client: 0
   },
 
   // Physics
@@ -14,6 +14,8 @@ define({
     height: 400,
     width:  400
   },
+
+  // Keystrokes
   keystrokes: {
     KEY_LEFT_ARROW:   37,
     KEY_UP_ARROW:     38,

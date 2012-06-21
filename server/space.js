@@ -5,13 +5,19 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
       lastUpdateAt,
       updateDifs = [];
 
+  var generateSpace = function () {
+    world = Physics.generateWorld();
+    initSubscribers();
+    setInterval(update, 1000/60);
+  }
+
   var update = function () {
     // Hz, Iteration, Position
     world.Step(1/60, 10, 10);
     world.ClearForces();
     updateEntities();
     storeUpdateDifs();
-    setTimeout( update, 1000/60 );
+    //setTimeout( update, 1000/60 );
   };
 
   var storeUpdateDifs = function () {
@@ -36,8 +42,13 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
   }
 
   var updateEntities = function () {
+    var response;
     _.each(entities, function(entity){
-      entity.update();
+      response = entity.update();
+      if(response.status == 'suicide'){
+        console.log("killing: " + entity.id);
+        destroyEntity(entity.id);
+      }
     });
   };
 
@@ -80,6 +91,7 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     mediator.Subscribe("pilotControl", function ( data ) {
       var ship = findEntityById(data.shipId);
       // todo: handle ship not found
+      // todo: this functionality should maybe be in the ship itself.
       console.log('ship-' + ship.id + " just tapped " + data.d);
       switch(data.d){
         case Constants.keystrokes.KEY_LEFT_ARROW:
@@ -102,6 +114,12 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
     });
   }
 
+  var generateShip = function () {
+    var coords = findRandomUnoccupiedSpace(),
+        angle  = Math.random() * 2 * Math.PI;
+    return addShip(coords.x, coords.y, angle);
+  }
+
   var generateSnapshot = function () {
     var snapshot = {
       avgUpdateDifs: getAverageUpdateDifs(),
@@ -122,24 +140,15 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
       console.log('destroyed entity from entities and world: ' + entity.id);
       console.log('entity count after destroy: ' + entities.length);
     }else{
-      console.log('could not find entity in Space#destroyEntity');
+      throw new Error('could not find entity in Space#destroyEntity');
     }
   }
 
   return {
     mediator: mediator,
     getAverageUpdateDifs: getAverageUpdateDifs,
-    generateSpace: function () {
-      world = Physics.generateWorld();
-      initSubscribers();
-      update();
-    },
-    generateShip: function () {
-      var coords = findRandomUnoccupiedSpace(),
-          angle  = Math.random() * 2 * Math.PI;
-      var ship = addShip(coords.x, coords.y, angle);
-      return ship;
-    },
+    generateSpace: generateSpace,
+    generateShip: generateShip,
     destroyEntity : destroyEntity,
     findEntityById: findEntityById,
     generateSnapshot: generateSnapshot

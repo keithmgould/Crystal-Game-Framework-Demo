@@ -1,4 +1,4 @@
-define(['common/constants','space', 'backbone', 'text!widgets/map/templates/screen.html', 'underscore'], function (Constants, Space, Backbone, Screen, _) {
+define(['common/constants','space', 'backbone', 'text!widgets/map/templates/screen.html', 'underscore', 'common/utility'], function (Constants, Space, Backbone, Screen, _, Utility) {
 
    var canvas,
        ctx,
@@ -6,12 +6,6 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
        canvasHeight,
        scale,
        world;
-
-  var round = function (floater, deg) {
-    var deg = deg || 2,
-        multiple = 10 * deg;
-    return Math.round(floater * multiple) / multiple;
-  }
 
   var mapView = Backbone.View.extend({
     el : $("#mapWidget"),
@@ -37,7 +31,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
     },
     drawDebug : function () {
       world.DrawDebugData();
-      this.drawEntityFlightInfo();
+      //this.drawEntityFlightInfo();
       world.ClearForces();
     },
     drawEntityFlightInfo : function () {
@@ -51,12 +45,12 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
         snapshot = entity.getSnapshot();
         x = scale * entity.get('xPos') + 10;
         y = scale * entity.get('yPos') - 25;
-        ctx.fillText("x:" + round(snapshot.x), x, y);
-        ctx.fillText("y:" + round(snapshot.y), x, y + 10);
-        ctx.fillText("xv:" + round(snapshot.xv), x, y + 20);
-        ctx.fillText("yv:" + round(snapshot.yv), x, y + 30);
-        ctx.fillText("a:" + round(snapshot.a), x, y + 40);
-        ctx.fillText("av:" + round(snapshot.av), x, y + 50);
+        ctx.fillText("x:" + Utility.round(snapshot.x), x, y);
+        ctx.fillText("y:" + Utility.round(snapshot.y), x, y + 10);
+        ctx.fillText("xv:" + Utility.round(snapshot.xv), x, y + 20);
+        ctx.fillText("yv:" + Utility.round(snapshot.yv), x, y + 30);
+        ctx.fillText("a:" + Utility.round(snapshot.a), x, y + 40);
+        ctx.fillText("av:" + Utility.round(snapshot.av), x, y + 50);
       });
     }
   });
