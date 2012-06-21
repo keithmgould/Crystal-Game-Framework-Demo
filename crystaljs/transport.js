@@ -13,14 +13,24 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
 
     // Listen for Api Broadcast Request
     CrystaljsApi.Subscribe('broadcast', function (data) {
-      var socketId,
-          socket,
-          message = data.message;
-
-      for(socketId in io.sockets.sockets){
-        socket = io.sockets.sockets[socketId];
+      var socket, x;
+      for(x in io.sockets.sockets){
+        socket = io.sockets.sockets[x];
+        console.log('trying to send broadcast to socket: ' + socket.id);
         socket.emit(data.type, data.message);
       }
+    });
+
+    // Listen for Api sending message to single client
+    CrystaljsApi.Subscribe('socketEmitMessage', function (data) {
+      var socket, x;
+      // could not get _.find() to work!?
+      //socket = _.find(io.sockets.sockets, function (s) {s.id === data.socketId});
+      for(x in io.sockets.sockets){
+        socket = io.sockets.sockets[x];
+        if(socket.id === data.socketId){break;}
+      }
+      socket.emit(data.type, data.message);
     });
 
     io.sockets.on('connection', function (socket) {
@@ -38,8 +48,9 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       });
 
       // Listen for client messages
-      delayedSocketOn(socket, 'message', function(message) {
-        CrystaljsApi.Publish('message', message);
+      delayedSocketOn(socket, 'message', function(data) {
+        data.socketId = socket.id;
+        CrystaljsApi.Publish('message', data);
       });
     });
   }

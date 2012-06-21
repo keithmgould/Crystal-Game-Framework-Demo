@@ -116,6 +116,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   var applySnapshot = function (snapshot) {
+    console.log('applying a snapshot!');
     updateTimeoutFreq(snapshot.avgUpdateDifs);
     _.each(snapshot.entities, function (entitySnapshot) {
       //console.log('updating from snapshot.  id: ' + entitySnapshot.id);

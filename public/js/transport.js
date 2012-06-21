@@ -24,11 +24,12 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
   // Listen locally for messages to send to server
   var initLocalSubscriptions = function () {
     Space.mediator.Subscribe('pilotControl', function (data) {
-      emitAndEnqueue('message', {type: 'pilotControl', data: {key: data.keystroke}});
+      emitAndEnqueue('message', {type: 'pilotControl', key: data.keystroke});
     });
 
     Space.mediator.Subscribe('requestSelfShip', function () {
-      emitAndEnqueue('message', {type: 'requestSelfShip'});
+      console.log('sending requestSelfShip..emiting now.');
+      emitAndEnqueue('message', {type: 'requestShip'});
     });
   }
 
@@ -50,7 +51,7 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
     });
 
     // we have a ship
-    delayedSocketOn('deliverSelfShip', function (data) {
+    delayedSocketOn('shipDelivery', function (data) {
       Space.generateSelfShip(data.x, data.y, data.angle, data.id);
       Space.mediator.Publish('receivedSelfShip', {foo: 'bar'});
     });
@@ -63,7 +64,7 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
 
   return {
     initialize : function () {
-      initLagEstimate();
+      //initLagEstimate();
       initLocalSubscriptions();
       initServerSubscriptions();
     }

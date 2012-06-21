@@ -1,7 +1,7 @@
 define(['common/constants', 'common/physics', 'common/entities/ship', 'common/utility', 'underscore', 'crystaljs/api'], function (Constants, Physics, Ship, Utility, _, CrystaljsApi) {
   var world,
       entities = [],
-      clients = [];
+      clients = {};
 
   var initialize = function () {
     apiSubscribe();
@@ -19,20 +19,43 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     CrystaljsApi.Subscribe('update', function (data) {updateSpace(data);});
   }
 
-  handleMessage = function (message) {
-    switch(message.type){
+  var handleMessage = function (data) {
+    switch(data.type){
       case "pilotControl":
-        pilotControl(message.data);
+        pilotControl(data);
         break;
       case "requestShip":
-        handleRequestShip(message.data);
+        handleRequestShip(data);
+        break;
       default:
-        throw new Error('received unknown message type: ' + message.type);
+        console.log("received unknown message type: " + data.message);
     }
   }
 
   var handleRequestShip = function (data) {
+    console.log("a ship was requested!");
+    var socketId = data.socketId;
 
+    var ship = clients[socketId],
+        response;
+
+    if( _.isUndefined(ship) ){
+      console.log("no ship associated with this socket yet...");
+      ship = generateShip();
+      clients[socketId] = ship;
+    }else{
+      console.log('this socket has a ship with id: ' + ship.id);
+    }
+    response = {
+      socketId: socketId,
+      type: 'shipDelivery',
+      message: {
+        x: ship.get('xPos'),
+        y: ship.get('yPos'),
+        angle: ship.get('angle'),
+        id: ship.id}
+    };
+    CrystaljsApi.Publish('socketEmitMessage', response);
   }
 
   var updateSpace = function () {
@@ -81,11 +104,11 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   }
 
   var pilotControl = function (data) {
-    var ship = findEntityById(data.shipId);
+    var ship = clients[data.socketId];
     // todo: handle ship not found
     // todo: this functionality should maybe be in the ship itself.
-    console.log('ship-' + ship.id + " just tapped " + data.d);
-    switch(data.d){
+    console.log('ship-' + ship.id + " just tapped " + data.key);
+    switch(data.key){
       case Constants.keystrokes.KEY_LEFT_ARROW:
         ship.accelerate.rotateLeft.call(ship);
         break;
@@ -102,13 +125,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       default:
         console.log("don't know what to do with this valid key yet...");
     }
-    CrystaljsApi.Publish('broadcast', {from: 'Space#pilotControl'});
+    CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()});
   }
 
   var generateShip = function () {
     var coords = findRandomUnoccupiedSpace(),
         angle  = Math.random() * 2 * Math.PI;
-    return addShip(coords.x, coords.y, angle);
+        ship   = addShip(coords.x, coords.y, angle);
+    return ship;
   }
 
   var generateSnapshot = function () {
@@ -134,16 +158,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     }
   }
 
-  var socketDisconnected = function (socketId) {
-    
-          if(shipId === null){
-            console.log("socket with no ship just disconnected...");
-          }else{
-            console.log('disconnect.  Exploding ship: ' + shipId);
-            Space.destroyEntity(shipId);
-            Space.mediator.Publish('broadcastSnapshot', {from: "Transport#disconnect"});
-          }
-  }
+  var socketDisconnected = function (socketId) {}
 
 
   return {
