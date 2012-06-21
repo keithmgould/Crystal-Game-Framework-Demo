@@ -40,9 +40,9 @@ require(['animation',
   Transport.initialize();
   Space.generateSpace();
   Space.requestSelfShip();
-  aaa = Space;
-  radar = new Radar();
-  map   = new Map();
-  pilot = new Pilot();
-  stats = new Stats();
+  //aaa = Space; // intentional global used for spying via console.  remove for production.
+  //radar = new Radar();
+  //map   = new Map();
+  //pilot = new Pilot();
+  //stats = new Stats();
 });

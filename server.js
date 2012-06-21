@@ -18,12 +18,14 @@ requirejs.config({
   baseUrl: 'public/js',
   paths: {
     box2d: 'lib/Box2dWeb-2.1.a.3.min',
-    server: '../../server'
+    game: '../../game',
+    crystaljs: '../../crystaljs'
   },
   nodeRequire: require
 });
 
-requirejs(['server/app', 'server/transport'], function (App, Transport) {
-  App.start();
-  Transport.initialize(io);
+requirejs(['crystaljs/server', 'crystaljs/transport', 'game/space'], function (Crystal, Transport, Space) {
+  Space.initialize();         // 1) initialize your own game server
+  Transport.initialize(io);   // 2) initialize transport
+  Crystal.start();            // 3) begin game loop
 });

@@ -23,12 +23,12 @@ define(['common/constants', 'space', 'underscore'], function (Constants, Space, 
 
   // Listen locally for messages to send to server
   var initLocalSubscriptions = function () {
-    Space.mediator.Subscribe("pilotControl", function (data) {
-      emitAndEnqueue("pilotControl", {d:data.keystroke});
+    Space.mediator.Subscribe('pilotControl', function (data) {
+      emitAndEnqueue('message', {type: 'pilotControl', data: {key: data.keystroke}});
     });
 
-    Space.mediator.Subscribe("requestSelfShip", function () {
-      emitAndEnqueue("requestSelfShip");
+    Space.mediator.Subscribe('requestSelfShip', function () {
+      emitAndEnqueue('message', {type: 'requestSelfShip'});
     });
   }
 

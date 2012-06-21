@@ -86,6 +86,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   var initPubsub = function () {
+    // todo: remove this once its moved to ship entity
     mediator.Subscribe("pilotControl", function ( data ) {
       switch(data.keystroke)
       {
