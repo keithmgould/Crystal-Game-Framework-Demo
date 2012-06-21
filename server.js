@@ -23,7 +23,7 @@ requirejs.config({
   nodeRequire: require
 });
 
-requirejs(['common/constants', 'server/space', 'server/transport'], function (Constants, Space, Transport) {
-  Space.generateSpace();
+requirejs(['server/app', 'server/transport'], function (App, Transport) {
+  App.start();
   Transport.initialize(io);
 });

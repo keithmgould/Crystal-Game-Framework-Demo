@@ -2,41 +2,19 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
   var world,
       entities = [],
       mediator = new Mediator(),
-      lastUpdateAt,
-      frameTimes = [];
+      tick_count = 0;
+
 
   var generateSpace = function () {
     world = Physics.generateWorld();
     initSubscribers();
-    setInterval(update, 1000/60);
   }
 
+  // to be moved into demo
   var update = function () {
-    // Hz, Iteration, Position
-    world.Step(1/60, 10, 10);
+    world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
     updateEntities();
-  };
-
-  var storeFrameTime = function () {
-    var dif,
-        now = Date.now();
-    if(_.isUndefined(lastUpdateAt)){
-      lastUpdateAt = now;
-      return;
-    }else{
-      dif = now - lastUpdateAt;
-      lastUpdateAt = now;
-      frameTimes.push(dif);
-      if(frameTimes.length >= 120){
-        frameTimes.shift();
-      }
-    }
-  }
-
-  var getAverageFrameTimes = function () {
-    var total = _.reduce(frameTimes, function(memo, num){ return memo + num; }, 0);
-    return total / frameTimes.length;
   }
 
   var updateEntities = function () {
@@ -136,8 +114,8 @@ define(['common/constants', 'common/physics', 'underscore', 'common/entities/shi
 
   return {
     mediator: mediator,
-    getAverageFrameTimes: getAverageFrameTimes,
     generateSpace: generateSpace,
+    update: update,
     generateShip: generateShip,
     destroyEntity : destroyEntity,
     findEntityById: findEntityById,
