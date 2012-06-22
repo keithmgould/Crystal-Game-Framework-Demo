@@ -12,7 +12,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
     // COMMUNICATION API SUBSCRIPTIONS
     CrystaljsApi.Subscribe('socketConnected', function (data) { handleRequestShip(data); });
-    CrystaljsApi.Subscribe('message', function (message) { handleMessage(message); });
+    CrystaljsApi.Subscribe('messageFromServer', function (message) { handleMessage(message); });
     CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
     // GAME LOOP API SUBSCRIPTIONS
@@ -48,29 +48,21 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   }
 
   var handleRequestShip = function (data) {
-    console.log("a ship was requested!");
-    var socketId = data.socketId;
-
-    var ship = clients[socketId],
+    var socketId = data.socketId,
+        ship     = clients[socketId],
         response;
 
     if( _.isUndefined(ship) ){
-      console.log("no ship associated with this socket yet...");
       ship = generateShip();
       clients[socketId] = ship;
-    }else{
-      console.log('this socket has a ship with id: ' + ship.id);
     }
+
     response = {
       socketId: socketId,
       type: 'shipDelivery',
-      message: {
-        x: ship.get('xPos'),
-        y: ship.get('yPos'),
-        angle: ship.get('angle'),
-        id: ship.id}
+      message: ship.getSnapshot()
     };
-    CrystaljsApi.Publish('socketEmitMessage', response);
+    CrystaljsApi.Publish('messageToServer', response);
     broadcastSnapshot();
   }
 
@@ -151,7 +143,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       broadcastSnapshot();
     }
   }
-
 
   return {
     initialize: initialize

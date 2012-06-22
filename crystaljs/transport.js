@@ -27,7 +27,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
     });
 
     // Listen for Api sending message to single client
-    CrystaljsApi.Subscribe('socketEmitMessage', function (data) {
+    CrystaljsApi.Subscribe('messageToServer', function (data) {
       var socket, x;
       // could not get _.find() to work!?
       //socket = _.find(io.sockets.sockets, function (s) {s.id === data.socketId});
@@ -53,7 +53,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       // Listen for client messages
       delayedSocketOn(socket, 'message', function(data) {
         data.socketId = socket.id;
-        CrystaljsApi.Publish('message', data);
+        CrystaljsApi.Publish('messageFromServer', data);
       });
     });
   }
