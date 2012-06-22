@@ -132,19 +132,18 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     });
     _.each(entities, function (entity) {
       if(_.include(entityIds, entity.id) === false){
-        destroyEntity(entity.id);
+        destroyEntity(entity);
       }
     });
   }
 
   // remove entity from entities array and from physics engine
-  var destroyEntity = function (entityId) {
-      if(_.isUndefined(entityId)){
-        throw new Error("entityId undefined in Space#destroyEntity");
+  var destroyEntity = function (entity) {
+      if(_.isUndefined(entity)){
+        throw new Error("entity undefined in Space#destroyEntity");
       }
-      console.log("destroying entity with id: " + entityId);
+      console.log("destroying entity with id: " + entity.id);
       console.log('before destroying entity, entity count: ' + entities.length);
-      var entity = findEntityById(entityId);
       entities = _.without(entities, entity);
       Physics.removeEntity(entity, world);
       console.log('destroyed entity from entities array and world: ' + entity.id);

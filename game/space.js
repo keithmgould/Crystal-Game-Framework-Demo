@@ -19,6 +19,10 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     CrystaljsApi.Subscribe('update', function (data) {updateSpace(data);});
   }
 
+  var broadcastSnapshot = function () {
+    CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
+  }
+
   var handleMessage = function (data) {
     switch(data.type){
       case "pilotControl":
@@ -36,7 +40,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(!_.isUndefined(ship)){
       ship.pilotControl(data.message.key);
-      CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
+      broadcastSnapshot();
     }else{
       console.log("got a pilot control for a non-existant ship");
     }
@@ -67,6 +71,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
         id: ship.id}
     };
     CrystaljsApi.Publish('socketEmitMessage', response);
+    broadcastSnapshot();
   }
 
   var updateSpace = function () {
@@ -143,6 +148,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(_.isObject(ship)){
       destroyEntity(ship);
+      broadcastSnapshot();
     }
   }
 
