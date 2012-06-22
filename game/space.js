@@ -105,6 +105,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   }
 
   // todo: this does not yet find an UNOCCUPIED random space.
+  // todo: sometimes this puts a ship in the walls.  fix.
   var findRandomUnoccupiedSpace = function () {
     var x = Math.floor((Math.random()*(Constants.physics.width /  Constants.physics.scale))+1),
         y = Math.floor((Math.random()*(Constants.physics.height / Constants.physics.scale))+1);
