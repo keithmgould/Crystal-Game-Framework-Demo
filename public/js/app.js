@@ -7,7 +7,8 @@ require.config({
     text: 'lib/text_2.0.0.requirejs',
     mediator: 'lib/mediator_0.7.0',
     kinetic: 'lib/kinetic_3.9.8-min',
-    stats: 'lib/stats_r10-min'
+    stats: 'lib/stats_r10-min',
+    crystaljs: 'lib/crystaljs'
   },
   shim: {
     'stats': {
@@ -29,20 +30,23 @@ require.config({
   }
 });
 
-require(['animation',
-         'space',
-         'transport',
+require(['space',
+         'crystaljs/transport',
+         'crystaljs/loop',
          'widgets/radar/view', 
          'widgets/pilot/view', 
          'widgets/map/view',
-         'widgets/stats/view'], function (Animation, Space, Transport, Radar, Pilot, Map, Stats) {
+         'widgets/stats/view'], function (Space, Transport, Loop, RadarWidget, PilotWidget, MapWidget, StatsWidget) {
 
-  Transport.initialize();
-  Space.generateSpace();
-  Space.requestSelfShip();
-  aaa = Space; // intentional global used for spying via console.  remove for production.
-  radar = new Radar();
-  map   = new Map();
-  pilot = new Pilot();
-  stats = new Stats();
+
+  Space.initialize();       // 1) Initialize your game
+  Transport.initialize();   // 2) Initialize Crystaljs transport
+  Loop.start();             // 3) Begin Crystaljs game loop
+
+
+  // note: I don't like that I'm declaring variables and not using them.
+  //var radar = new RadarWidget();
+  var map   = new MapWidget();
+  var pilot = new PilotWidget();
+  var stats = new StatsWidget();
 });

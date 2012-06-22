@@ -11,9 +11,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   var apiSubscribe = function () {
 
     // COMMUNICATION API SUBSCRIPTIONS
+    CrystaljsApi.Subscribe('socketConnected', function (data) { handleRequestShip(data); });
     CrystaljsApi.Subscribe('message', function (message) { handleMessage(message); });
-    CrystaljsApi.Subscribe('socketConnect', function (data) {});
-    CrystaljsApi.Subscribe('socketDisconnect', function (data) { socketDisconnect(data); });
+    CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
     // GAME LOOP API SUBSCRIPTIONS
     CrystaljsApi.Subscribe('update', function (data) {updateSpace(data);});
@@ -30,6 +30,17 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       default:
         console.log("received unknown message type: " + data.message);
     }
+  }
+
+  var pilotControl = function (data) {
+    var ship = clients[data.socketId];
+    if(!_.isUndefined(ship)){
+      ship.pilotControl(data.message.key);
+      CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
+    }else{
+      console.log("got a pilot control for a non-existant ship");
+    }
+
   }
 
   var handleRequestShip = function (data) {
@@ -101,31 +112,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var x = Math.floor((Math.random()*(Constants.physics.width /  Constants.physics.scale))+1),
         y = Math.floor((Math.random()*(Constants.physics.height / Constants.physics.scale))+1);
     return { x: x, y: y};
-  }
-
-  var pilotControl = function (data) {
-    var ship = clients[data.socketId];
-    // todo: handle ship not found
-    // todo: this functionality should maybe be in the ship itself.
-    console.log('ship-' + ship.id + " just tapped " + data.key);
-    switch(data.key){
-      case Constants.keystrokes.KEY_LEFT_ARROW:
-        ship.accelerate.rotateLeft.call(ship);
-        break;
-      case Constants.keystrokes.KEY_RIGHT_ARROW:
-        ship.accelerate.rotateRight.call(ship);
-        break;
-      case Constants.keystrokes.KEY_UP_ARROW:
-        ship.accelerate.foreward.call(ship);
-        break;
-      case Constants.keystrokes.KEY_SPACE_BAR:
-        console.log("adding missile!");
-        addMissile(ship);
-        break;
-      default:
-        console.log("don't know what to do with this valid key yet...");
-    }
-    CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()});
   }
 
   var generateShip = function () {

@@ -1,15 +1,20 @@
 define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
 
-  var extraLatency = 0; // used to simulate latency when receiving a message.  In MS.
+  var extraLatency = 0; // used to simulate latency when receiving a message.  In Ms.
 
-  // Add artificial latency when receiving server messages
+  // For testing: Add artificial latency when receiving server messages
   var delayedSocketOn = function (socket, message, fn) {
     socket.on(message, function (data) {
       _.delay(fn, extraLatency, data);
     });
   }
 
-  var initSubscriptions = function (io) {
+  var initialize = function (io) {
+    listenForApi(io);
+    listenForClient(io);
+  }
+
+  var listenForApi = function (io) {
 
     // Listen for Api Broadcast Request
     CrystaljsApi.Subscribe('broadcast', function (data) {
@@ -17,7 +22,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
         console.log('trying to send broadcast to socket: ' + socket.id);
-        socket.emit(data.type, data.message);
+        socket.emit('message', data);
       }
     });
 
@@ -30,9 +35,12 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
         socket = io.sockets.sockets[x];
         if(socket.id === data.socketId){break;}
       }
-      socket.emit(data.type, data.message);
+      socket.emit('message', {type: data.type, message: data.message});
     });
 
+  }
+
+  var listenForClient = function (io) {
     io.sockets.on('connection', function (socket) {
       // Tell API we have a new connection
       CrystaljsApi.Publish('socketConnected', { socketId: socket.id });
@@ -40,11 +48,6 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       // Listen for client disconnection.
       delayedSocketOn(socket, 'disconnect', function () {
         CrystaljsApi.Publish('socketDisconnected', {socketId: socket.id});
-      });
-
-      // Listen for client ping (used to determine lag)
-      delayedSocketOn(socket, 'ping', function (data) {
-        socket.emit('pong', {timestamp: data.timestamp});
       });
 
       // Listen for client messages
@@ -56,9 +59,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   return {
-    initialize: function(io) {
-      initSubscriptions(io);
-    }
+    initialize: initialize
   };
 
 });

@@ -1,13 +1,4 @@
 define({
-  // Socket.IO
-  server: "collabfighter.local:3000",
-
-  // Artificial Latency (in Ms)
-  extraLatency: {
-    server: 0,
-    client: 0
-  },
-
   // Physics
   physics: {
     scale:  4,

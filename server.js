@@ -24,8 +24,8 @@ requirejs.config({
   nodeRequire: require
 });
 
-requirejs(['crystaljs/server', 'crystaljs/transport', 'game/space'], function (Crystal, Transport, Space) {
-  Space.initialize();         // 1) initialize your own game server
-  Transport.initialize(io);   // 2) initialize transport
-  Crystal.start();            // 3) begin game loop
+requirejs(['crystaljs/loop', 'crystaljs/transport', 'game/space'], function (Loop, Transport, Space) {
+  Space.initialize();         // 1) initialize your game
+  Transport.initialize(io);   // 2) initialize Crystaljs transport
+  Loop.start();               // 3) begin Crystaljs game loop
 });

@@ -1,23 +1,54 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'mediator', 'common/utility', 'underscore'], function (Constants, Physics, Ship, Missile, Mediator, Utility, _) {
+define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'common/utility', 'underscore', 'mediator', 'crystaljs/api'], function (Constants, Physics, Ship, Missile, Utility, _, Mediator, CrystaljsApi) {
 
-  var mediator = new Mediator(),
-      world,
+  var world,
       entities = [],
       selfShip,
       loopCallbacks = [],
-      lag,                      // determined by Transport#ping/pong
-      updateDifs = [],          // stores update loop timing difs
-      timeoutFreq = 1000 / 60;  // initial value only
+      mediator = new Mediator();
+
+  var initPubSub = function () {
+    // listen for pilot controls
+    mediator.Subscribe('pilotControl', function (data) {
+      if(_.isObject(selfShip)){
+        // shoot control off to ship for prediction
+        selfShip.pilotControl(data.keystroke);
+        // tell server for authority
+        CrystaljsApi.Publish('messageToServer', {type: 'pilotControl', message: {key: data.keystroke}});
+      }
+    });
+
+    // listen for messages from loop
+    CrystaljsApi.Subscribe('update', function (data) {
+      update();
+    });
+
+    // listen for messages from the server
+    CrystaljsApi.Subscribe('messageFromServer', function (data) {
+      switch(data.type){
+        case "shipDelivery":
+          generateSelfShip(data.message);
+          break;
+        case "sync":
+          break;
+        case "snapshot":
+          applySnapshot(data.message);
+          break;
+        default:
+          throw new Error("we have a message with an unknown type: " + data.type);
+      }
+    });
+
+  }
+
+  var generateSelfShip = function (data) {
+    addShip(true, data.x, data.y, data.angle, data.id);
+  }
 
   var update = function () {
-    var startUpdateAt = Date.now();
-    // Hz, Iteration, Position
-    world.Step(1/60, 10, 10);
+    world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
     updateEntities();
     runLoopCallbacks();
-    storeUpdateDifs(startUpdateAt);
-    setTimeout(update, timeoutFreq ); // not using requestAnimFrame while I debug stuff...
   };
 
   var updateEntities = function () {
@@ -25,25 +56,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       entity.update();
     });
   };
-
-  var storeUpdateDifs = function (startUpdateAt) {
-      var dif = Date.now() - startUpdateAt;
-      updateDifs.push(dif);
-      if(updateDifs.length >= 120){
-        updateDifs.shift();
-      }
-  }
-
-  var getAverageUpdateDifs = function () {
-    var total = _.reduce(updateDifs, function(memo, num){ return memo + num; }, 0);
-    return total / updateDifs.length;
-  }
-
-  var updateTimeoutFreq = function (serverAvgUpdateDif) {
-    serverAverageUpateDif = serverAvgUpdateDif;
-    if(updateDifs.length < 100){ return; } // wait till we have a decent sample set
-    timeoutFreq = serverAvgUpdateDif -  getAverageUpdateDifs();
-  }
 
   var runLoopCallbacks = function () {
     _.each(loopCallbacks, function (callback) {
@@ -54,16 +66,17 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   };
 
   var addShip = function (isSelfShip, xPos, yPos, angle, id) {
-      var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
-      if(isSelfShip) {
-        ship.set({ selfShip : true, color : "blue"});
-        selfShip = ship;
-      }else{
-        ship.set({ color : "red" });
-      }
-      entities.push(ship);
-      Physics.placeEntities([ship], world);
-      return ship;
+    console.log('adding ship!');
+    var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
+    if(isSelfShip) {
+      ship.set({ selfShip : true, color : "blue"});
+      selfShip = ship;
+    }else{
+      ship.set({ color : "red" });
+    }
+    entities.push(ship);
+    Physics.placeEntities([ship], world);
+    return ship;
   };
 
   var addMissileFromSnapshot = function(snapshot) {
@@ -85,29 +98,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     return missile;
   }
 
-  var initPubsub = function () {
-    // todo: remove this once its moved to ship entity
-    mediator.Subscribe("pilotControl", function ( data ) {
-      switch(data.keystroke)
-      {
-        case Constants.keystrokes.KEY_LEFT_ARROW:
-          selfShip.accelerate.rotateLeft.call(selfShip);
-          break;
-        case Constants.keystrokes.KEY_RIGHT_ARROW:
-          selfShip.accelerate.rotateRight.call(selfShip);
-          break;
-        case Constants.keystrokes.KEY_UP_ARROW:
-          selfShip.accelerate.foreward.call(selfShip);
-          break;
-        case Constants.keystrokes.KEY_SPACE_BAR:
-          addMissileFromShip(selfShip);
-          break;
-        default:
-          console.log("don't know what to do with this valid key yet...")
-      }
-    });
-  }
-
   var findEntityById = function (shipId) {
      var ship = _.find(entities, function (entity) {
         return shipId === entity.id;
@@ -117,7 +107,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   var applySnapshot = function (snapshot) {
     console.log('applying a snapshot!');
-    updateTimeoutFreq(snapshot.avgUpdateDifs);
     _.each(snapshot.entities, function (entitySnapshot) {
       //console.log('updating from snapshot.  id: ' + entitySnapshot.id);
       var entity = findEntityById(entitySnapshot.id);
@@ -148,7 +137,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     });
   }
 
-  // remove from entities array and from physics engine
+  // remove entity from entities array and from physics engine
   var destroyEntity = function (entityId) {
       if(_.isUndefined(entityId)){
         throw new Error("entityId undefined in Space#destroyEntity");
@@ -163,42 +152,27 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   return {
-    mediator : mediator,
-    getAverageUpdateDifs: getAverageUpdateDifs,
-    getTimeoutFreq: function () { return timeoutFreq; },
-    addToLoopCallbacks : function (scope, fn) {
-      loopCallbacks.push({ scope : scope, fn : fn});
-    },
-    setLag: function (newLag) { lag = newLag; },
-    getLag: function () { return lag; },
-    getWorld : function () { return world; },
-    getEntities : function () { return entities; },
-    getSelfShip : function () { return selfShip; },
-    hasSelfShip : function () {
+    mediator: mediator,
+    getWorld: function () { return world; },
+    getEntities: function () { return entities; },
+    getSelfShip: function () { return selfShip; },
+    hasSelfShip: function () {
       return !(typeof selfShip === 'undefined');
     },
-    generateSpace : function () {
+    initialize: function () {
       world = Physics.generateWorld();
-      initPubsub();
-      update();
+      initPubSub();
     },
-    enableDebugDraw : function (context) {
+    addToLoopCallbacks: function (scope, fn) {
+      loopCallbacks.push({ scope : scope, fn : fn});
+    },
+    enableDebugDraw: function (context) {
       Physics.enableDebugDraw(world, context);
     },
-    generateSelfShip : function (xPos, yPos, angle, id) {
-      console.log("we have a ship!");
-      if(typeof selfShip == 'undefined'){
-        addShip(true, xPos, yPos, angle, id);
-      }
-    },
-    requestSelfShip : function () {
-      console.log("requesting ship!");
-      mediator.Publish('requestSelfShip');
-    },
-    addEnemy : function (xPos, yPos, angle) {
+    addEnemy: function (xPos, yPos, angle) {
       addShip(false, xPos, yPos, angle);
     },
-    applySnapshot : applySnapshot
+    applySnapshot: applySnapshot
 
   };
 });

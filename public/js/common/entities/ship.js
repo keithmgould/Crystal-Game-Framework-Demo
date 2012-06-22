@@ -1,4 +1,4 @@
-define(['common/entity', 'common/entities/missile'], function (Entity, Missile) {
+define(['common/entity', 'common/entities/missile', 'common/constants'], function (Entity, Missile, Constants) {
 
   var Ship = Entity.extend({
     shape: "polygon",
@@ -20,6 +20,27 @@ define(['common/entity', 'common/entities/missile'], function (Entity, Missile) 
         lifespan: 0, // means infinity
         createdAt: Date.now()
       });
+    },
+
+    pilotControl: function (command) {
+      console.log("ship got a control: " + command);
+      switch(command)
+      {
+        case Constants.keystrokes.KEY_LEFT_ARROW:
+          this.rotateLeft();
+          break;
+        case Constants.keystrokes.KEY_RIGHT_ARROW:
+          this.rotateRight();
+          break;
+        case Constants.keystrokes.KEY_UP_ARROW:
+          this.thrust();
+          break;
+        case Constants.keystrokes.KEY_SPACE_BAR:
+          //What to do?
+          break;
+        default:
+          console.log("don't know what to do with this valid key yet...");
+      }
     },
     axisUsage: function () {
       var angle = this.get('angle');
@@ -46,25 +67,24 @@ define(['common/entity', 'common/entities/missile'], function (Entity, Missile) 
       });
       return missile;
     },
-    accelerate: {
-      rotateRight: function () {
-        this.get('body').ApplyTorque(10);
-      },
-      rotateLeft: function () {
-        this.get('body').ApplyTorque(-10);
-      },
-      foreward: function () {
-        var power = 1,
-            x, 
-            y, 
-            angle = this.get('angle');
-        y = -Math.cos(angle).toFixed(2);
-        x = Math.sin(angle).toFixed(2);
-        this.get('body').ApplyImpulse(
-          { x: x * power, y: y * power},
-          this.get('body').GetWorldCenter()
-        );
-      }
+
+    rotateRight: function () {
+      this.get('body').ApplyTorque(10);
+    },
+    rotateLeft: function () {
+      this.get('body').ApplyTorque(-10);
+    },
+    thrust: function () {
+      var power = 1,
+          x, 
+          y, 
+          angle = this.get('angle');
+      y = -Math.cos(angle).toFixed(2);
+      x = Math.sin(angle).toFixed(2);
+      this.get('body').ApplyImpulse(
+        { x: x * power, y: y * power},
+        this.get('body').GetWorldCenter()
+      );
     }
   });
 
