@@ -81,7 +81,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       response = entity.update();
       if(response.status == 'suicide'){
         console.log("killing: " + entity.id);
-        destroyEntity(entity.id);
+        destroyEntity(entity);
       }
     });
   };
@@ -131,20 +131,20 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     return snapshot;
   }
 
-  var destroyEntity = function (entityId) {
+  var destroyEntity = function (entity) {
     console.log('before destroying entity, entity count: ' + entities.length);
-    var entity = findEntityById(entityId);
-    if(_.isObject(entity)){
-      entities = _.without(entities, entity);
-      Physics.removeEntity(entity, world);
-      console.log('destroyed entity from entities and world: ' + entity.id);
-      console.log('entity count after destroy: ' + entities.length);
-    }else{
-      throw new Error('could not find entity in Space#destroyEntity');
-    }
+    entities = _.without(entities, entity);
+    Physics.removeEntity(entity, world);
+    console.log('destroyed entity from entities and world: ' + entity.id);
+    console.log('entity count after destroy: ' + entities.length);
   }
 
-  var socketDisconnected = function (socketId) {}
+  var socketDisconnected = function (data) {
+    var ship = clients[data.socketId];
+    if(_.isObject(ship)){
+      destroyEntity(ship);
+    }
+  }
 
 
   return {
