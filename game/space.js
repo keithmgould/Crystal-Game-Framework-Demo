@@ -28,7 +28,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   var broadcastSnapshot = function () {
     _.delay(function () {
         CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
-    }, 10);
+    }, 20);
   }
 
   var handleMessage = function (data) {
