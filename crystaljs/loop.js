@@ -27,12 +27,13 @@ define(['crystaljs/api'], function (CrystaljsApi) {
   var update = function () {
     CrystaljsApi.Publish("update");
     if( tickCount % syncRate === 0){
-      CrystaljsApi.Publish("broadcast", {type: 'sync', message : tickCount});
+      CrystaljsApi.Publish("broadcast", {type: 'sync'});
     }
   };
 
   return {
-    start: start
+    start: start,
+    getTickCount: function () { return tickCount; }
   };
 
 });
