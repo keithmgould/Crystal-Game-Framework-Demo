@@ -1,4 +1,4 @@
-define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
+define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi, CrystaljsLoop, _) {
 
   var extraLatency = 0; // used to simulate latency when receiving a message.  In Ms.
 
@@ -18,10 +18,10 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
 
     // Listen for Api Broadcast Request
     CrystaljsApi.Subscribe('broadcast', function (data) {
+      data.tickCount = CrystaljsLoop.getTickCount();
       var socket, x;
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
-        console.log('trying to send broadcast to socket: ' + socket.id);
         socket.emit('message', data);
       }
     });
@@ -35,7 +35,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
         socket = io.sockets.sockets[x];
         if(socket.id === data.socketId){break;}
       }
-      socket.emit('message', {type: data.type, message: data.message});
+      socket.emit('message', {tickCount: CrystaljsLoop.getTickCount(), type: data.type, message: data.message});
     });
 
   }

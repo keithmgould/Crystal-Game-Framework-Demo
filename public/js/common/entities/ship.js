@@ -1,4 +1,4 @@
-define(['common/entity', 'common/entities/missile', 'common/constants'], function (Entity, Missile, Constants) {
+define(['common/entity', 'common/entities/missile', 'common/constants', 'underscore'], function (Entity, Missile, Constants, _) {
 
   var Ship = Entity.extend({
     shape: "polygon",
