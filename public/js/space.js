@@ -14,6 +14,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         selfShip.pilotControl(data.keystroke);
         // tell server for authority
         CrystaljsApi.Publish('messageToServer', {type: 'pilotControl', message: {key: data.keystroke}});
+      }else{
+        console.log("pilot control but selfship is: " + typeof(selfShip));
       }
     });
 
@@ -40,7 +42,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   }
 
-  var generateSelfShip = function (data) {
+  var generateSelfShip = function (data){
+    console.log("generating selfship!");
     addShip(true, data.x, data.y, data.angle, data.id);
   }
 

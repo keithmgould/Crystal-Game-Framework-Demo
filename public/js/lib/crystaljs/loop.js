@@ -51,13 +51,6 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
     startedAt = Date.now();
     serverTickOffset = data.tickCount;
     request(accurateInterval);
-
-    //CrystaljsApi.Subscribe('messageFromServer', function (data) {
-      //if(data.type === 'sync'){
-        //var tickDiff = (serverTickCount - serverTickOffset) - tickCount;
-        //console.log("tickDiff: " + tickDiff + ", tickCount: " + tickCount);
-      //}
-    //});
   }
 
   return {

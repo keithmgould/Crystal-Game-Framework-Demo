@@ -12,7 +12,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
     // COMMUNICATION API SUBSCRIPTIONS
     CrystaljsApi.Subscribe('socketConnected', function (data) { handleRequestShip(data); });
-    CrystaljsApi.Subscribe('messageFromServer', function (message) { handleMessage(message); });
+    CrystaljsApi.Subscribe('messageFromClient', function (message) { handleMessage(message); });
     CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
     // GAME LOOP API SUBSCRIPTIONS
@@ -27,7 +27,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
   var broadcastSnapshot = function () {
     _.delay(function () {
-        CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
+      CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
     }, 20);
   }
 
@@ -48,7 +48,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(!_.isUndefined(ship)){
       ship.pilotControl(data.message.key);
-      broadcastSnapshot();
+    broadcastSnapshot();
     }else{
       console.log("got a pilot control for a non-existant ship");
     }
@@ -70,7 +70,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       type: 'shipDelivery',
       message: ship.getSnapshot()
     };
-    CrystaljsApi.Publish('messageToServer', response);
+    CrystaljsApi.Publish('messageToClient', response);
     broadcastSnapshot();
   }
 
