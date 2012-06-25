@@ -43,7 +43,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
     
     var expectedTick = tickCount + serverTickOffset;
     var diff = expectedTick - data.tickCount;
-    console.log('latency in ticks: ' + diff);
+    //console.log('latency in ticks: ' + diff);
     return diff;
   }
 

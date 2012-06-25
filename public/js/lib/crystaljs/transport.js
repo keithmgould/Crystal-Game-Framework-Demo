@@ -1,10 +1,8 @@
 define(['underscore', 'crystaljs/api', 'crystaljs/loop'], function (_, CrystaljsApi, CrystaljsLoop) {
 
-  var socket = io.connect("collabfighter.local:3000");
-  
-  // global for easy testing
-  socketOnLatency   = 25; // Ms
-  socketEmitLatency = 25; // Ms
+  var socket = io.connect("collabfighter.local:3000"),
+      socketOnLatency   = 25, // Ms
+      socketEmitLatency = 25; // Ms
 
   // For testing: Add artificial latency when receiving server messages
   var delayedSocketOn = function (message, fn) {
@@ -35,6 +33,23 @@ define(['underscore', 'crystaljs/api', 'crystaljs/loop'], function (_, Crystaljs
   }
 
   return {
-    initialize: initialize
+    initialize: function () {
+      initialize();
+      
+      // these are all to accomodate dat.gui
+      // http://code.google.com/p/dat-gui/
+      this.__defineGetter__("socketOnLatency", function () {
+        return socketOnLatency;
+      });
+      this.__defineSetter__("socketOnLatency", function (val) {
+        socketOnLatency = val;
+      });
+      this.__defineGetter__("socketEmitLatency", function () {
+        return socketEmitLatency;
+      });
+      this.__defineSetter__("socketEmitLatency", function (val) {
+        socketEmitLatency = val;
+      });
+    }
   };
 });
