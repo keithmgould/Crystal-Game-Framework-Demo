@@ -8,11 +8,15 @@ require.config({
     mediator: 'lib/mediator_0.7.0',
     kinetic: 'lib/kinetic_3.9.8-min',
     stats: 'lib/stats_r10-min',
+    dat: 'lib/dat.gui.min',
     crystaljs: 'lib/crystaljs'
   },
   shim: {
     'stats': {
       exports: 'Stats'
+    },
+    'dat' : {
+      exports: 'dat'
     },
     'kinetic': {
       exports: 'Kinetic'
@@ -36,7 +40,8 @@ require(['space',
          'widgets/radar/view', 
          'widgets/pilot/view', 
          'widgets/map/view',
-         'widgets/stats/view'], function (Space, Transport, Loop, RadarWidget, PilotWidget, MapWidget, StatsWidget) {
+         'widgets/stats/view',
+         'widgets/datgui/view'], function (Space, Transport, Loop, RadarWidget, PilotWidget, MapWidget, StatsWidget, DatguiWidget) {
 
 
   Space.initialize();       // 1) Initialize your game
@@ -44,7 +49,8 @@ require(['space',
 
   // note: I don't like that I'm declaring variables and not using them.
   //var radar = new RadarWidget();
-  var map   = new MapWidget();
-  var pilot = new PilotWidget();
-  var stats = new StatsWidget();
+  var mapWidget     = new MapWidget();
+  var pilotWidget   = new PilotWidget();
+  var statsWidget   = new StatsWidget();
+  var datguiWidget  = new DatguiWidget();
 });
