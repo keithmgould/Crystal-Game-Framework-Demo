@@ -1,14 +1,5 @@
 define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi, CrystaljsLoop, _) {
 
-  var extraLatency = 0; // used to simulate latency when receiving a message.  In Ms.
-
-  // For testing: Add artificial latency when receiving server messages
-  var delayedSocketOn = function (socket, message, fn) {
-    socket.on(message, function (data) {
-      _.delay(fn, extraLatency, data);
-    });
-  }
-
   var initialize = function (io) {
     listenForApi(io);
     listenForClient(io);
@@ -46,12 +37,12 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
       CrystaljsApi.Publish('socketConnected', { socketId: socket.id });
 
       // Listen for client disconnection.
-      delayedSocketOn(socket, 'disconnect', function () {
+      socket.on('disconnect', function () {
         CrystaljsApi.Publish('socketDisconnected', {socketId: socket.id});
       });
 
       // Listen for client messages
-      delayedSocketOn(socket, 'message', function(data) {
+      socket.on('message', function(data) {
         data.socketId = socket.id;
         CrystaljsApi.Publish('messageFromClient', data);
       });
