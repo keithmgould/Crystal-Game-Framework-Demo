@@ -7,8 +7,8 @@ define(['dat', 'backbone', 'crystaljs/transport'], function (dat, Backbone, Tran
     initialize : function () {
       datgui = new dat.GUI();
       var latencyFolder = datgui.addFolder('latency');
-      latencyFolder.add(Transport, "socketOnLatency", 25, 2000);
-      latencyFolder.add(Transport, "socketEmitLatency", 25, 2000);
+      latencyFolder.add(Transport, "fromServer", 25, 2000);
+      latencyFolder.add(Transport, "toServer", 25, 2000);
     }
   });
 

@@ -4,7 +4,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       entities = [],
       selfShip,
       loopCallbacks = [],
-      mediator = new Mediator();
+      mediator = new Mediator(),
+      lastLag = -1;
 
   var initPubSub = function () {
     // listen for pilot controls
@@ -38,6 +39,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         default:
           throw new Error("we have a message with an unknown type: " + data.type);
       }
+      lastLag = data.latency;
     });
 
   }
@@ -174,7 +176,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     addEnemy: function (xPos, yPos, angle) {
       addShip(false, xPos, yPos, angle);
     },
-    applySnapshot: applySnapshot
+    applySnapshot: applySnapshot,
+    lastLag: function () { return lastLag; }
 
   };
 });
