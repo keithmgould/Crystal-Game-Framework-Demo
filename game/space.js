@@ -1,7 +1,8 @@
 define(['common/constants', 'common/physics', 'common/entities/ship', 'common/utility', 'underscore', 'crystaljs/api'], function (Constants, Physics, Ship, Utility, _, CrystaljsApi) {
   var world,
       entities = [],
-      clients = {};
+      clients = {},
+      broadcastSnapshotFlag = false;
 
   var initialize = function () {
     apiSubscribe();
@@ -25,10 +26,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
   }
 
+  /**
+   * broadcastSnapshot
+   *
+   * this is called in update AFTER the world STEP method is called to ensure
+   * the snapshot captures changes in the physics engine
+   */
   var broadcastSnapshot = function () {
-    _.delay(function () {
-      CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
-    }, 20);
+    CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
   }
 
   var handleMessage = function (data) {
@@ -48,7 +53,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(!_.isUndefined(ship)){
       ship.pilotControl(data.message.key);
-    broadcastSnapshot();
+      broadcastSnapshotFlag = true;
     }else{
       console.log("got a pilot control for a non-existant ship");
     }
@@ -78,6 +83,10 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
     updateEntities();
+    if(broadcastSnapshotFlag){
+      broadcastSnapshotFlag = false;
+      broadcastSnapshot();
+    }
   }
 
   var updateEntities = function () {
@@ -149,7 +158,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(_.isObject(ship)){
       destroyEntity(ship);
-      broadcastSnapshot();
+      broadcastSnapshotFlag = true;
     }
   }
 
