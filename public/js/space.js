@@ -5,7 +5,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
       mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      avgLag = 0,                    // holds the last known lag.  used by timing techniques.
+      avgLag = 0,                     // holds the last known lag.  used by timing techniques.
       snapshotTank = false;           // Snapshots held here until they are ready to be applied
 
   
@@ -33,7 +33,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
     // listen for messages from CrystalJS's Loop
     CrystaljsApi.Subscribe('update', function (data) {
-      update();
+      update(data);
     });
 
     CrystaljsApi.Subscribe('avgLag', function (alag) {
@@ -64,8 +64,13 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     addShip(true, data.x, data.y, data.a, data.id);
   }
 
-  var update = function () {
-    world.Step(1/60, 10, 10); // Hz, Iteration, Position
+  var update = function (data) {
+    var myStep = 1/60;
+
+    if(data.stepMultiplier){
+      myStep *= data.stepMultiplier;
+    }
+    world.Step(myStep, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
     checkForSnapshot();
     updateEntities();
