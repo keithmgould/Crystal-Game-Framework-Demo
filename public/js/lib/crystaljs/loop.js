@@ -13,6 +13,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       updateInterval = 1000 /60,
       startedAt,
       ticksPerPing = Math.floor((1000 / updateInterval) / 2); // about twice per second
+      lags = [];
 
 
   var accurateInterval = function () {
@@ -36,11 +37,19 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   var listenForPong = function () {
-    var lag = 0;
+    var lag = 0, avgLag;
     CrystaljsApi.Subscribe("messageFromServer:loop", function (data) {
       if(data.type === "pong"){
         lag = Date.now() - data.message;
-        CrystaljsApi.Publish("lag", lag);
+        lags.push(lag);
+        if(lags.length > 10) { lags.shift();}
+        if(lags.length == 0){
+          avgLag = lag;
+        }else{
+          avgLag = _.reduce(lags, function(memo, num){ return memo + num; }, 0) / lags.length;
+        }
+        avgLag = Math.round(avgLag * 100) / 100;
+        CrystaljsApi.Publish("avgLag", avgLag);
       }
     });
   }

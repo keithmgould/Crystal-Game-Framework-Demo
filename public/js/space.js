@@ -5,7 +5,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
       mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      lastLag = 0,                    // holds the last known lag.  used by timing techniques.
+      avgLag = 0,                    // holds the last known lag.  used by timing techniques.
       snapshotTank = false;           // Snapshots held here until they are ready to be applied
 
   
@@ -36,8 +36,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       update();
     });
 
-    CrystaljsApi.Subscribe('lag', function (lag) {
-      lastLag = lag;
+    CrystaljsApi.Subscribe('avgLag', function (alag) {
+      avgLag = alag;
     });
 
     // listen for messages from the server (via CrystalJS's Transport)
@@ -54,7 +54,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         default:
           throw new Error("we have a message with an unknown type: " + data.type);
       }
-      // set lastLag here...
+      // set avgLag here...
     });
 
   }
@@ -192,7 +192,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     enableDebugDraw: function (context) {
       Physics.enableDebugDraw(world, context);
     },
-    lastLag: function () { return lastLag; }
+    avgLag: function () { return avgLag; }
 
   };
 });

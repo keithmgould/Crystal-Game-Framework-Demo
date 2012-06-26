@@ -13,7 +13,7 @@ define(['stats', 'backbone', 'space','text!widgets/stats/templates/screen.html']
       this.$el.find("#fpsStats").html(stats.domElement);
     },
     update : function () {
-      this.$el.find("#lag").html(Space.lastLag);
+      this.$el.find("#lag").html(Space.avgLag);
       stats.update();
     }
   });
