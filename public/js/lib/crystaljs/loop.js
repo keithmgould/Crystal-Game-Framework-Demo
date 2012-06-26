@@ -12,7 +12,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
       tickCount = 0,
       updateInterval = 1000 /60,
       startedAt,
-      ticksPerPing = Math.floor((1000 / updateInterval) / 2);
+      ticksPerPing = Math.floor((1000 / updateInterval) / 2); // about twice per second
 
 
   var accurateInterval = function () {

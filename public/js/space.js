@@ -67,6 +67,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   var update = function () {
     world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
+    checkForSnapshot();
     updateEntities();
     runLoopCallbacks();
   };
@@ -125,11 +126,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       return ship;
   }
 
-  var applySnapshot = function () {
+  var checkForSnapshot = function () {
+    var snapshot;
     if(!snapshotTank){
       return;
     }
     snapshot = snapshotTank;
+    snapshotTank = false;
+
     console.log('applying a snapshot: ' + JSON.stringify(snapshot));
 
     _.each(snapshot.entities, function (entitySnapshot) {
@@ -159,8 +163,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         destroyEntity(entity);
       }
     });
-    // finally, we are done so empty the snapshot tank
-    snapshotTank = false;
   }
 
   // remove entity from entities array and from physics engine

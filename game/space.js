@@ -33,7 +33,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
    * the snapshot captures changes in the physics engine
    */
   var broadcastSnapshot = function () {
-    CrystaljsApi.Publish('broadcast', {type: 'snapshot', message: generateSnapshot()} );
+    CrystaljsApi.Publish('broadcast', {target: 'game', type: 'snapshot', message: generateSnapshot()} );
   }
 
   var handleMessage = function (data) {
