@@ -5,7 +5,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
       mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      lastLag = 0;                    // holds the last known lag.  used by timing techniques.
+      lastLag = 0,                    // holds the last known lag.  used by timing techniques.
+      snapshotTank = false;           // Snapshots held here until they are ready to be applied
 
   
   /**
@@ -21,9 +22,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     // listen for pilot controls (from Pilot Widget)
     mediator.Subscribe('pilotControl', function (data) {
       if(_.isObject(selfShip)){
-        // shoot control off to ship for prediction
+        // tell local ship for prediction
         selfShip.pilotControl(data.keystroke);
-        // tell server for authority
+        // tell server.  (This game has an Authorative Server!)
         CrystaljsApi.Publish('messageToServer', {type: 'pilotControl', message: {key: data.keystroke}});
       }else{
         throw new Error("received pilot control but selfship is: " + typeof(selfShip));
@@ -44,7 +45,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         case "sync":
           break;
         case "snapshot":
-          applySnapshot(data.message);
+          snapshotTank = data.message;
           break;
         default:
           throw new Error("we have a message with an unknown type: " + data.type);
@@ -56,12 +57,24 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   var generateSelfShip = function (data){
     console.log("generating selfship!");
-    addShip(true, data.x, data.y, data.angle, data.id);
+    addShip(true, data.x, data.y, data.a, data.id);
   }
 
   var update = function () {
+    var tmpAv, tmpAvB;
+    if(_.isObject(selfShip)){
+      tmpAv = selfShip.get('body').GetAngularVelocity();
+    }
     world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
+    if(snapshotTank) {applySnapshot();}
+    if(_.isObject(selfShip)){
+      tmpAvB = selfShip.get('body').GetAngularVelocity();
+      if(tmpAv != tmpAvB) {
+        console.log("before update: " + tmpAv);
+        console.log("after update: " + tmpAvB);
+      }
+    }
     updateEntities();
     runLoopCallbacks();
   };
@@ -120,10 +133,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       return ship;
   }
 
-  var applySnapshot = function (snapshot) {
-    console.log('applying a snapshot!');
+  var applySnapshot = function () {
+    if(!snapshotTank){
+      return;
+    }
+    snapshot = snapshotTank;
+    console.log('applying a snapshot: ' + JSON.stringify(snapshot));
+
     _.each(snapshot.entities, function (entitySnapshot) {
-      //console.log('updating from snapshot.  id: ' + entitySnapshot.id);
       var entity = findEntityById(entitySnapshot.id);
       if(typeof entity === "undefined"){
          switch(entitySnapshot.type) {
@@ -150,6 +167,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         destroyEntity(entity);
       }
     });
+    // finally, we are done so empty the snapshot tank
+    snapshotTank = false;
   }
 
   // remove entity from entities array and from physics engine
