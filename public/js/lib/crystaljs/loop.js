@@ -25,12 +25,8 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   var performTickCheck = function () {
-    // not ready for nextTick
     var nextTickAt = (tickCount * updateInterval) + startedAt;
-    if(nextTickAt > Date.now()){ return false; };
-
-    // all good
-    return true;
+    return (nextTickAt <= Date.now());
   }
 
   var update = function () {
@@ -40,7 +36,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   var estimateLatency = function (data) {
     // in case this is the first message from the server
     if(_.isUndefined(startedAt)){ start(data);}
-    
+
     var expectedTick = tickCount + serverTickOffset;
     var diff = expectedTick - data.tickCount;
     //console.log('latency in ticks: ' + diff);
