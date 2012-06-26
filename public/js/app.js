@@ -46,6 +46,7 @@ require(['space',
 
   Space.initialize();       // 1) Initialize your game
   Transport.initialize();   // 2) Initialize Crystaljs transport
+  Loop.initialize();        // 3) Initialize Crystaljs loop
 
   // note: I don't like that I'm declaring variables and not using them.
   //var radar = new RadarWidget();

@@ -25,7 +25,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         // tell local ship for prediction
         selfShip.pilotControl(data.keystroke);
         // tell server.  (This game has an Authorative Server!)
-        CrystaljsApi.Publish('messageToServer', {type: 'pilotControl', message: {key: data.keystroke}});
+        CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
       }else{
         throw new Error("received pilot control but selfship is: " + typeof(selfShip));
       }
@@ -36,8 +36,12 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       update();
     });
 
+    CrystaljsApi.Subscribe('lag', function (lag) {
+      lastLag = lag;
+    });
+
     // listen for messages from the server (via CrystalJS's Transport)
-    CrystaljsApi.Subscribe('messageFromServer', function (data) {
+    CrystaljsApi.Subscribe('messageFromServer:game', function (data) {
       switch(data.type){
         case "shipDelivery":
           generateSelfShip(data.message);
@@ -50,7 +54,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         default:
           throw new Error("we have a message with an unknown type: " + data.type);
       }
-      lastLag = data.latency;
+      // set lastLag here...
     });
 
   }
@@ -61,20 +65,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   var update = function () {
-    var tmpAv, tmpAvB;
-    if(_.isObject(selfShip)){
-      tmpAv = selfShip.get('body').GetAngularVelocity();
-    }
     world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
-    if(snapshotTank) {applySnapshot();}
-    if(_.isObject(selfShip)){
-      tmpAvB = selfShip.get('body').GetAngularVelocity();
-      if(tmpAv != tmpAvB) {
-        console.log("before update: " + tmpAv);
-        console.log("after update: " + tmpAvB);
-      }
-    }
     updateEntities();
     runLoopCallbacks();
   };

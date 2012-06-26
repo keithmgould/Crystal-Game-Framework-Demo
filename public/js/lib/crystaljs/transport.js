@@ -1,8 +1,8 @@
-define(['underscore', 'crystaljs/api', 'crystaljs/loop'], function (_, CrystaljsApi, CrystaljsLoop) {
+define(['underscore', 'crystaljs/api'], function (_, CrystaljsApi) {
 
   var socket = io.connect("collabfighter.local:3000"),
-      socketOnLatency   = 25, // Ms
-      socketEmitLatency = 25; // Ms
+      socketOnLatency   = 0, // Ms
+      socketEmitLatency = 0; // Ms
 
   // For testing: Add artificial latency when receiving server messages
   var delayedSocketOn = function (message, fn) {
@@ -27,8 +27,11 @@ define(['underscore', 'crystaljs/api', 'crystaljs/loop'], function (_, Crystaljs
 
     // Listen for server sending message to client
     delayedSocketOn('message', function (data) {
-      data.latency = CrystaljsLoop.estimateLatency(data);
-      CrystaljsApi.Publish('messageFromServer', data);
+      var publishTo = "messageFromServer";
+        if(data.target){
+          publishTo += ":" + data.target;
+        }
+      CrystaljsApi.Publish(publishTo, data);
     });
   }
 

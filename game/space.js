@@ -13,7 +13,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
     // COMMUNICATION API SUBSCRIPTIONS
     CrystaljsApi.Subscribe('socketConnected', function (data) { handleRequestShip(data); });
-    CrystaljsApi.Subscribe('messageFromClient', function (message) { handleMessage(message); });
+    CrystaljsApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
     CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
     // GAME LOOP API SUBSCRIPTIONS
@@ -45,7 +45,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
         handleRequestShip(data);
         break;
       default:
-        console.log("received unknown message type: " + data.message);
+        console.log("received unknown message type: " + data.type);
     }
   }
 

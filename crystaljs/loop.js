@@ -5,13 +5,26 @@
 define(['crystaljs/api'], function (CrystaljsApi) {
   var updateInterval = 1000 / 60,     // how many MS before another call to update()
       tickCount = 0,                  // how many ticks have transpired
-      syncRate = 60,                  // how many ticks transpire before another sync broadcast
       startedAt;                      // Time the loop started
 
   var start = function () {
-    CrystaljsApi.Publish("start");
     startedAt = Date.now();
+    listenForPing();
     accurateInterval();
+  }
+
+  var listenForPing = function () {
+    CrystaljsApi.Subscribe("messageFromClient:loop", function (data) {
+      if(data.type === "ping"){
+        var response = {
+          socketId: data.socketId,
+          type: 'pong',
+          message: data.message,
+          target: 'loop'
+        };
+        CrystaljsApi.Publish('messageToClient', response);
+      }
+    });
   }
 
   var accurateInterval = function () {
@@ -26,14 +39,10 @@ define(['crystaljs/api'], function (CrystaljsApi) {
 
   var update = function () {
     CrystaljsApi.Publish("update");
-    if( tickCount % syncRate === 0){
-      CrystaljsApi.Publish("broadcast", {type: 'sync'});
-    }
   };
 
   return {
-    start: start,
-    getTickCount: function () { return tickCount; }
+    start: start
   };
 
 });

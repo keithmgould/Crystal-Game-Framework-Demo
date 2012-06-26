@@ -3,13 +3,13 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
   var initialize = function (io) {
     listenForApi(io);
     listenForClient(io);
+    CrystaljsApi.Publish("start");
   }
 
   var listenForApi = function (io) {
 
     // Listen for Api Broadcast Request
     CrystaljsApi.Subscribe('broadcast', function (data) {
-      data.tickCount = CrystaljsLoop.getTickCount();
       var socket, x;
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
@@ -26,7 +26,8 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
         socket = io.sockets.sockets[x];
         if(socket.id === data.socketId){break;}
       }
-      socket.emit('message', {tickCount: CrystaljsLoop.getTickCount(), type: data.type, message: data.message});
+      delete data.socketId;
+      socket.emit('message', data);
     });
 
   }
@@ -43,8 +44,12 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
 
       // Listen for client messages
       socket.on('message', function(data) {
+        var publishTo = "messageFromClient";
+        if(data.target){
+          publishTo += ":" + data.target;
+        }
         data.socketId = socket.id;
-        CrystaljsApi.Publish('messageFromClient', data);
+        CrystaljsApi.Publish(publishTo, data);
       });
     });
   }
