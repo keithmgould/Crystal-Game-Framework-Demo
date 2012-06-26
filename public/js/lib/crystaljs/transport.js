@@ -36,7 +36,7 @@ define(['underscore', 'crystaljs/api', 'crystaljs/loop'], function (_, Crystaljs
     initialize: function () {
       initialize();
 
-      // these are all to accomodate dat.gui
+      // added these to accomodate dat.gui
       // http://code.google.com/p/dat-gui/
       this.__defineGetter__("fromServer", function () {
         return socketOnLatency;

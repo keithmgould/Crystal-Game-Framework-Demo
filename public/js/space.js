@@ -1,14 +1,24 @@
 define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'common/utility', 'underscore', 'mediator', 'crystaljs/api'], function (Constants, Physics, Ship, Missile, Utility, _, Mediator, CrystaljsApi) {
 
-  var world,
-      entities = [],
-      selfShip,
-      loopCallbacks = [],
-      mediator = new Mediator(),
-      lastLag = -1;
+  var world,                          // holds the box2d instance
+      entities = [],                  // holds all entities
+      selfShip,                       // pointer to entity that is our own ship
+      loopCallbacks = [],             // lets widgets etc have callbacks during the update method
+      mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
+      lastLag = 0;                    // holds the last known lag.  used by timing techniques.
+
+  
+  /**
+   * initPubSub
+   *
+   * both game internal communication, as well as game commuication with CrystalJS framework
+   * is done using the mediator pattern.  There are two mediator instances below.  One owned
+   * by this Space module, and one owned by CrystalJS.  The initPubSub initializes Publishers
+   * and Subscriptions to both mediator instances.
+   */
 
   var initPubSub = function () {
-    // listen for pilot controls
+    // listen for pilot controls (from Pilot Widget)
     mediator.Subscribe('pilotControl', function (data) {
       if(_.isObject(selfShip)){
         // shoot control off to ship for prediction
@@ -16,16 +26,16 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         // tell server for authority
         CrystaljsApi.Publish('messageToServer', {type: 'pilotControl', message: {key: data.keystroke}});
       }else{
-        console.log("pilot control but selfship is: " + typeof(selfShip));
+        throw new Error("received pilot control but selfship is: " + typeof(selfShip));
       }
     });
 
-    // listen for messages from loop
+    // listen for messages from CrystalJS's Loop
     CrystaljsApi.Subscribe('update', function (data) {
       update();
     });
 
-    // listen for messages from the server
+    // listen for messages from the server (via CrystalJS's Transport)
     CrystaljsApi.Subscribe('messageFromServer', function (data) {
       switch(data.type){
         case "shipDelivery":
@@ -147,12 +157,8 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       if(_.isUndefined(entity)){
         throw new Error("entity undefined in Space#destroyEntity");
       }
-      console.log("destroying entity with id: " + entity.id);
-      console.log('before destroying entity, entity count: ' + entities.length);
       entities = _.without(entities, entity);
       Physics.removeEntity(entity, world);
-      console.log('destroyed entity from entities array and world: ' + entity.id);
-      console.log('entities count after destroy: ' + entities.length);
   }
 
   return {
@@ -173,10 +179,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     enableDebugDraw: function (context) {
       Physics.enableDebugDraw(world, context);
     },
-    addEnemy: function (xPos, yPos, angle) {
-      addShip(false, xPos, yPos, angle);
-    },
-    applySnapshot: applySnapshot,
     lastLag: function () { return lastLag; }
 
   };
