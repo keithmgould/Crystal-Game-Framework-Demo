@@ -16,7 +16,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
         ticksBehind = latency / updateInterval;
     switch(multiplierState){
       case "slowdown":
-        multiplier = 1;
+        multiplier = 0.5;
         break;
       case "fastforward":
         multiplier = ticksBehind;

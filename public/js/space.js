@@ -58,9 +58,14 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
 
   }
 
+  var requestSelfShip = function () {
+    CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'requestShip', message: {}});
+  }
+
   var generateSelfShip = function (data){
     console.log("generating selfship!");
     addShip(true, data.x, data.y, data.a, data.id);
+    CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'requestSnapshot', message: {}});
   }
 
   var update = function (data) {
@@ -190,6 +195,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     initialize: function () {
       world = Physics.generateWorld();
       initPubSub();
+      requestSelfShip();
     },
     addToLoopCallbacks: function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});
