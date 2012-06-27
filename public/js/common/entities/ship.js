@@ -23,7 +23,6 @@ define(['common/entity', 'common/entities/missile', 'common/constants', 'undersc
     },
 
     pilotControl: function (command) {
-      console.log("ship got a control: " + command);
       switch(command)
       {
         case Constants.keystrokes.KEY_LEFT_ARROW:
