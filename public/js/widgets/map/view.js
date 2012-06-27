@@ -31,8 +31,6 @@ define(['common/constants','space', 'backbone', 'text!widgets/map/templates/scre
     },
     drawDebug : function () {
       world.DrawDebugData();
-      //this.drawEntityFlightInfo();
-      world.ClearForces();
     },
     drawEntityFlightInfo : function () {
       var entities = Space.getEntities(),
