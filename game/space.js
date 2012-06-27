@@ -18,12 +18,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
 
     // GAME LOOP API SUBSCRIPTIONS
     CrystaljsApi.Subscribe('update', function (data) {updateSpace(data);});
-
-    // For Testing purposes only...
-    CrystaljsApi.Subscribe('broadcast', function (data) {
-      console.log("Snapshot: " + JSON.stringify(generateSnapshot()));
-    });
-
   }
 
   /**
