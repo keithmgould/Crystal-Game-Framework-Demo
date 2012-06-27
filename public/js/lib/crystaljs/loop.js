@@ -1,4 +1,4 @@
-define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
+define(['crystaljs/api', 'crystaljs/slowfast', 'underscore'], function (CrystaljsApi, Slowfast, _) {
   var request = window.requestAnimationFrame       ||
                 window.webkitRequestAnimationFrame ||
                 window.mozRequestAnimationFrame    ||
@@ -8,15 +8,13 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
                   window.setTimeout(callback, 1000 / 60);
                 };
 
-  var requestFrame = !!request, // force boolean
-      tickCount = 0,
+  var tickCount = 0,
       updateInterval = 1000 /60,
       startedAt,
       ticksPerPing = Math.floor((1000 / updateInterval) / 2); // about twice per second
       lags = [],
-      multiplierState = false;
-      multiplierTicksRemaining = 0;
-      avgLag = 0;
+      avgLag = 0,
+      useSlowfast = true;
 
 
   var accurateInterval = function () {
@@ -33,38 +31,15 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   var update = function () {
-    var data = {};
-    if(multiplierState){
-      data.stepMultiplier = calculateStepMultiplier();
+    if(useSlowfast){
+      var data = {stepMultiplier: Slowfast.calculateStepMultiplier(avgLag)};
+    }else{
+      var data = {};
     }
     CrystaljsApi.Publish("update", data);
     if(tickCount % ticksPerPing === 0){
       CrystaljsApi.Publish("messageToServer", {target: 'loop', type: 'ping', message: Date.now() });
     }
-  }
-
-  var calculateStepMultiplier = function () {
-    if (multiplierTicksRemaining === 0){
-      return 1;
-      multiplierState = false;
-    }
-    console.log("in csm: " + multiplierTicksRemaining);
-    var latency = avgLag / 2,
-        multiplier,
-        ticksBehind = latency / updateInterval;
-    switch(multiplierState){
-      case "slowdown":
-        multiplier = 1;
-        break;
-      case "fastforward":
-        multiplier = ticksBehind;
-        break;
-      default:
-        throw new Error("uknown multiplier state in #calculateStepMultiplier");
-    }
-    console.log("multiplier: " + multiplier);
-    multiplierTicksRemaining--;
-    return multiplier;
   }
 
   var listenForPong = function () {
@@ -80,49 +55,37 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
     });
   }
 
-  var listenForStepMultiplier = function () {
-    CrystaljsApi.Subscribe("messageToServer", function (data) {
-      if(data.target === "game"){
-        performSlowdown();
-      }
-    });
-
-    CrystaljsApi.Subscribe("performFastForward", function (data) {
-        performFastForward();
-    });
-  }
-
   var storeAverageLag = function () {
     var lagsLength = lags.length;
-
-    if(lagsLength == 0){
+    if(lagsLength === 0){
       avgLag = 0;
     }else{
       avgLag = _.reduce(lags, function(memo, num){ return memo + num; }, 0) / lagsLength;
+      avgLag = Math.round(avgLag * 100) / 100;
     }
-    avgLag = Math.round(avgLag * 100) / 100;
   }
 
   var initialize = function () {
+    Slowfast.initialize(updateInterval);
     listenForPong();
-    listenForStepMultiplier();
     startedAt = Date.now();
+
+    // added these two to accomodate dat.gui
+    // http://code.google.com/p/dat-gui/
+    this.__defineGetter__("useSlowfast", function () {
+      return useSlowfast;
+    });
+    this.__defineSetter__("useSlowfast", function (val) {
+      useSlowfast = val;
+    });
+
+
+
     request(accurateInterval);
   }
 
-  var performSlowdown = function () {
-    console.log("performing slowdown");
-    multiplierState = "slowdown";
-    multiplierTicksRemaining = Math.floor(avgLag / 2 / updateInterval);
-  }
-
-  var performFastForward = function () {
-    console.log("performing fastforward");
-    multiplierState = "fastforward";
-    multiplierTicksRemaining = 1;
-  }
-
   return {
-    initialize: initialize
+    initialize: initialize,
+
   };
 });
