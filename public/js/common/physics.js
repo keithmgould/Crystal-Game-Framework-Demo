@@ -93,22 +93,22 @@ define(["common/constants", "box2d", "underscore"], function (Constants, Box, _)
       // south
       bodyDef.position.x = cwidth / 2;
       bodyDef.position.y = cheight;
-      fixDef.shape.SetAsBox( cwidth / 2, cheight / 30);
+      fixDef.shape.SetAsBox( cwidth / 2, 0.5);
       world.CreateBody(bodyDef).CreateFixture(fixDef);
       // north
       bodyDef.position.x = cwidth / 2;
       bodyDef.position.y = 0;
-      fixDef.shape.SetAsBox( cwidth / 2, cheight / 30);
+      fixDef.shape.SetAsBox( cwidth / 2, 0.5);
       world.CreateBody(bodyDef).CreateFixture(fixDef);
       // east
       bodyDef.position.x = cwidth;
       bodyDef.position.y = cheight / 2;
-      fixDef.shape.SetAsBox( cwidth / 30, cheight / 2);
+      fixDef.shape.SetAsBox( 0.5, cheight / 2);
       world.CreateBody(bodyDef).CreateFixture(fixDef);
       // west
       bodyDef.position.x = 0;
       bodyDef.position.y = cheight / 2;
-      fixDef.shape.SetAsBox( cwidth / 30, cheight / 2);
+      fixDef.shape.SetAsBox( 0.5, cheight / 2);
       world.CreateBody(bodyDef).CreateFixture(fixDef);
     }
 

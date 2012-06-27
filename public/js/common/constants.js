@@ -1,9 +1,9 @@
 define({
   // Physics
   physics: {
-    scale:  4,
-    height: 400,
-    width:  400
+    scale:  10,
+    height: 700,
+    width:  1000
   },
 
   // Keystrokes
