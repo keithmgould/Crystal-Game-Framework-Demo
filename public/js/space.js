@@ -54,7 +54,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         default:
           throw new Error("we have a message with an unknown type: " + data.type);
       }
-      // set avgLag here...
     });
 
   }
@@ -136,6 +135,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     if(!snapshotTank){
       return;
     }
+    CrystaljsApi.Publish("performFastForward");
     snapshot = snapshotTank;
     snapshotTank = false;
 

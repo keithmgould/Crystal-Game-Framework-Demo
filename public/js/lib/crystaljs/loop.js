@@ -44,18 +44,17 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   var calculateStepMultiplier = function () {
-    console.log("in csm: " + multiplierTicksRemaining);
-    multiplierTicksRemaining--;
-    if (multiplierTicksRemaining <= 0){
-      multiplierState = false;
+    if (multiplierTicksRemaining === 0){
       return 1;
+      multiplierState = false;
     }
+    console.log("in csm: " + multiplierTicksRemaining);
     var latency = avgLag / 2,
         multiplier,
-        ticksBehind = avgLag / 2 / updateInterval;
+        ticksBehind = latency / updateInterval;
     switch(multiplierState){
       case "slowdown":
-        multiplier = 1 / ticksBehind;
+        multiplier = 1;
         break;
       case "fastforward":
         multiplier = ticksBehind;
@@ -64,6 +63,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
         throw new Error("uknown multiplier state in #calculateStepMultiplier");
     }
     console.log("multiplier: " + multiplier);
+    multiplierTicksRemaining--;
     return multiplier;
   }
 
@@ -82,9 +82,13 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
 
   var listenForStepMultiplier = function () {
     CrystaljsApi.Subscribe("messageToServer", function (data) {
-      if(data.target == "game"){
+      if(data.target === "game"){
         performSlowdown();
       }
+    });
+
+    CrystaljsApi.Subscribe("performFastForward", function (data) {
+        performFastForward();
     });
   }
 
@@ -115,7 +119,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   var performFastForward = function () {
     console.log("performing fastforward");
     multiplierState = "fastforward";
-    multiplierTicksRemaining = Math.floor(avgLag / 2 / updateInterval);
+    multiplierTicksRemaining = 1;
   }
 
   return {
