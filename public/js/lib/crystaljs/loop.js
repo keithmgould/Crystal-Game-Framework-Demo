@@ -79,8 +79,7 @@ define(['crystaljs/api', 'crystaljs/slowfast', 'underscore'], function (Crystalj
       useSlowfast = val;
     });
 
-
-
+    // start up the loop
     request(accurateInterval);
   }
 
