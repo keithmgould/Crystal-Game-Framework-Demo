@@ -12,7 +12,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   var apiSubscribe = function () {
 
     // COMMUNICATION API SUBSCRIPTIONS
-    CrystaljsApi.Subscribe('socketConnected', function (data) { handleRequestShip(data); });
     CrystaljsApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
     CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
@@ -37,6 +36,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
         break;
       case "requestShip":
         handleRequestShip(data);
+        break;
+      case "requestSnapshot":
+        broadcastSnapshotFlag = true;
         break;
       default:
         console.log("received unknown message type: " + data.type);
@@ -65,12 +67,12 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     }
 
     response = {
+      target: 'game',
       socketId: socketId,
       type: 'shipDelivery',
       message: ship.getSnapshot()
     };
     CrystaljsApi.Publish('messageToClient', response);
-    broadcastSnapshot();
   }
 
   var updateSpace = function () {
