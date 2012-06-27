@@ -37,11 +37,10 @@ require.config({
 require(['space',
          'crystaljs/transport',
          'crystaljs/loop',
-         'widgets/radar/view', 
-         'widgets/pilot/view', 
+         'widgets/pilot/view',
          'widgets/map/view',
          'widgets/stats/view',
-         'widgets/datgui/view'], function (Space, Transport, Loop, RadarWidget, PilotWidget, MapWidget, StatsWidget, DatguiWidget) {
+         'widgets/datgui/view'], function (Space, Transport, Loop, PilotWidget, MapWidget, StatsWidget, DatguiWidget) {
 
 
   Space.initialize();       // 1) Initialize your game
@@ -49,7 +48,6 @@ require(['space',
   Loop.initialize();        // 3) Initialize Crystaljs loop
 
   // note: I don't like that I'm declaring variables and not using them.
-  //var radar = new RadarWidget();
   var mapWidget     = new MapWidget();
   var pilotWidget   = new PilotWidget();
   var statsWidget   = new StatsWidget();

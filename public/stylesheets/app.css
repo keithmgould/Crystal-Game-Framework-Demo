@@ -1,4 +1,10 @@
-.widget {
+#mapWidget {
+  float: left;
 }
+
+#devTools {
+  float: right;
+}
+
 
 

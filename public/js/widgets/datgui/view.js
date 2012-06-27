@@ -4,12 +4,16 @@
 define(['dat', 'backbone', 'crystaljs/transport'], function (dat, Backbone, Transport) {
   var datgui;
   var datguiView = Backbone.View.extend({
-    initialize : function () {
-      datgui = new dat.GUI();
+    initialize: function () {
+      datgui = new dat.GUI({autoPlace: false});
       var latencyFolder = datgui.addFolder('extra latency (Ms)');
       latencyFolder.add(Transport, "fromServer", 0, 2000);
       latencyFolder.add(Transport, "toServer", 0, 2000);
+      $("#devTools").append(this.el);
+      this.$el.html(datgui.domElement);
     }
+
+
   });
 
   return datguiView;
