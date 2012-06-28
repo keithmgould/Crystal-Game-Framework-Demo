@@ -26,12 +26,12 @@ define(['backbone', 'common/utility'], function (Backbone, Utility) {
       var linVel = this.get('body').GetLinearVelocity();
       return {
         id: this.id,
-        x: Utility.round(this.get('xPos'),4),
-        y: Utility.round(this.get('yPos'),4),
-        a: Utility.round(this.get('angle'),4),
-        xv: Utility.round(linVel.x,4),
-        yv: Utility.round(linVel.y,4),
-        av: Utility.round(angVel,4),
+        x: this.get('xPos'),
+        y: this.get('yPos'),
+        a: this.get('angle'),
+        xv: linVel.x,
+        yv: linVel.y,
+        av: angVel,
         type: this.get('entityType'),
         ownerId: 69 // fix
       };
