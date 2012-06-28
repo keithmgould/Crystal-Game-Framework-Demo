@@ -37,16 +37,18 @@ require.config({
 require(['space',
          'crystaljs/crystal',
          'widgets/pilot/view',
+         'widgets/debug/view',
          'widgets/map/view',
          'widgets/stats/view',
-         'widgets/datgui/view'], function (Space, Crystal, PilotWidget, MapWidget, StatsWidget, DatguiWidget) {
+         'widgets/datgui/view'], function (Space, Crystal, PilotWidget, DebugWidget, MapWidget, StatsWidget, DatguiWidget) {
 
 
   Crystal.initialize();   // 1) Initialize Crystaljs
   Space.initialize();     // 2) Initialize your game
 
   // note: I don't like that I'm declaring variables and not using them.
-  var mapWidget     = new MapWidget();
+  var debugWidget   = new DebugWidget();
+  var MapWidget     = new MapWidget();
   var pilotWidget   = new PilotWidget();
   var statsWidget   = new StatsWidget();
   var datguiWidget  = new DatguiWidget();

@@ -38,7 +38,7 @@ define(['crystaljs/api'], function (CrystaljsApi) {
   }
 
   var update = function () {
-    CrystaljsApi.Publish("update");
+    CrystaljsApi.Publish("update", {tickCount: tickCount});
   };
 
   return {

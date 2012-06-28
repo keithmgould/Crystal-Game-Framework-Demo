@@ -49,7 +49,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(!_.isUndefined(ship)){
       ship.pilotControl(data.message.key);
-      broadcastSnapshotFlag = true;
     }else{
       console.log("got a pilot control for a non-existant ship");
     }
@@ -75,12 +74,11 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     CrystaljsApi.Publish('messageToClient', response);
   }
 
-  var updateSpace = function () {
+  var updateSpace = function (data) {
     world.Step(1/60, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
     updateEntities();
-    if(broadcastSnapshotFlag){
-      broadcastSnapshotFlag = false;
+    if(data.tickCount % 20 === 0){
       broadcastSnapshot();
     }
   }
@@ -154,7 +152,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
     var ship = clients[data.socketId];
     if(_.isObject(ship)){
       destroyEntity(ship);
-      broadcastSnapshotFlag = true;
     }
   }
 

@@ -12,11 +12,6 @@ define(['dat', 'backbone', 'crystaljs/transport', 'crystaljs/loop'], function (d
       latencyFolder.add(Transport, "fromServer", 0, 2000);
       latencyFolder.add(Transport, "toServer", 0, 2000);
 
-      // prep slowfast algorithm controls
-      var slowfastFolder = datgui.addFolder('slowfast algorithm');
-      slowfastFolder.add(Loop, "useSlowfast");
-
-
       // render
       $("#devTools").append(this.el);
       this.$el.html(datgui.domElement);

@@ -19,7 +19,8 @@ Add and adhere to a "widget API", aka Nicholas Z's "sandbox" (facade pattern)
 
 ## Current Goal:
 
-introduce first method to compensate for lag
+calculate latency based on bi-directional updates with associated tick
+counts.
 
 ## Box2D Components refresher:
 

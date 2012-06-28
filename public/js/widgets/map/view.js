@@ -1,56 +1,49 @@
-define(['common/constants','space', 'backbone', 'text!widgets/map/templates/screen.html', 'underscore', 'common/utility'], function (Constants, Space, Backbone, Screen, _, Utility) {
-
-   var canvas,
-       ctx,
-       canvasWidth,
-       canvasHeight,
-       scale,
-       world;
+define(['common/constants', 'space', 'kinetic', 'backbone'], function  (Constants, Space, Kinetic, Backbone) {
+	var stage,
+      selfShipLayer,
+      // kineticObjs = [],
+      scale;
 
   var mapView = Backbone.View.extend({
-    el : $("#mapWidget"),
-    initialize : function () {
+    initialize: function () {
       scale = Constants.physics.scale;
-      this.render();
-      canvas = this.$el.find("#mapCanvas")[0];
-      ctx = canvas.getContext("2d");
-      canvasWidth = ctx.canvas.width;
-      canvasHeight = ctx.canvas.height;
-      world = Space.getWorld();
-      Space.enableDebugDraw(ctx);
-      Space.addToLoopCallbacks(this, this.drawDebug);
-    },
-    render : function (event) {
-      var data = {},
-          compiled_template;
-      data.canvasHeight = Constants.physics.height;
-      data.canvasWidth = Constants.physics.width;
-
-      compiled_template = _.template(Screen, data);
-      this.$el.html(compiled_template);
-    },
-    drawDebug : function () {
-      world.DrawDebugData();
-    },
-    drawEntityFlightInfo : function () {
-      var entities = Space.getEntities(),
-          x,
-          y,
-          snapshot,
-          text;
-
-      _.each(entities, function (entity) {
-        snapshot = entity.getSnapshot();
-        x = scale * entity.get('xPos') + 10;
-        y = scale * entity.get('yPos') - 25;
-        ctx.fillText("x:" + Utility.round(snapshot.x), x, y);
-        ctx.fillText("y:" + Utility.round(snapshot.y), x, y + 10);
-        ctx.fillText("xv:" + Utility.round(snapshot.xv), x, y + 20);
-        ctx.fillText("yv:" + Utility.round(snapshot.yv), x, y + 30);
-        ctx.fillText("a:" + Utility.round(snapshot.a), x, y + 40);
-        ctx.fillText("av:" + Utility.round(snapshot.av), x, y + 50);
+      stage = new Kinetic.Stage({
+        container : "mapWidget",
+        width: Constants.physics.width,
+        height: Constants.physics.height
       });
+      selfShipLayer = new Kinetic.Layer();
+      stage.add(selfShipLayer);
+      this.placeSelfShip();
+      Space.addToLoopCallbacks(this, this.drawElements);
+    },
+
+    placeShip : function (entity, x, y, rotation, color, layer) {
+      var nose      = { x : 0, y : -20},
+          rearLeft  = { x : -5, y : 0},
+          rearRight = { x : 5, y : 0},
+          screenWidth = Constants.physics.width,
+          screenHeight = Constants.physics.height,
+          poly;
+
+      poly = new Kinetic.Polygon({
+          x: (screenWidth / 2) + ( scale * x ),
+          y: (screenHeight / 2) + ( scale * y ),
+          fill: color,
+          stroke: "red",
+          strokeWidth: 1,
+          rotationDeg: 0,
+          draggable: true
+      });
+      poly.setPoints([nose, rearLeft, rearRight]);
+      layer.add(poly);
+    },
+    placeSelfShip : function () {
+      this.placeShip({}, 0, 0, 0, "blue", selfShipLayer);
+    },
+    drawElements: function () {
+      selfShipLayer.draw();
     }
   });
-  return mapView;
+  return mapView;	
 });
