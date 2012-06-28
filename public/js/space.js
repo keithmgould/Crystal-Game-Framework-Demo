@@ -76,9 +76,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     }
     world.Step(myStep, 10, 10); // Hz, Iteration, Position
     world.ClearForces();
-    checkForSnapshot();
     updateEntities();
     runLoopCallbacks();
+    checkForSnapshot();
   };
 
   var updateEntities = function () {
