@@ -9,7 +9,7 @@ require.config({
     kinetic: 'lib/kinetic_3.9.8-min',
     stats: 'lib/stats_r10-min',
     dat: 'lib/dat.gui.min',
-    crystaljs: 'lib/crystaljs'
+    crystal: 'lib/crystal'
   },
   shim: {
     'stats': {
@@ -35,7 +35,7 @@ require.config({
 });
 
 require(['space',
-         'crystaljs/crystal',
+         'crystal/crystal',
          'widgets/pilot/view',
          'widgets/debug/view',
          'widgets/map/view',
@@ -43,7 +43,7 @@ require(['space',
          'widgets/datgui/view'], function (Space, Crystal, PilotWidget, DebugWidget, MapWidget, StatsWidget, DatguiWidget) {
 
 
-  Crystal.initialize();   // 1) Initialize Crystaljs
+  Crystal.initialize();   // 1) Initialize crystal
   Space.initialize();     // 2) Initialize your game
 
   // note: I don't like that I'm declaring variables and not using them.

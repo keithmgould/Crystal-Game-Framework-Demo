@@ -1,15 +1,15 @@
-define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi, CrystaljsLoop, _) {
+define(['crystal/api', 'crystal/loop', 'underscore'], function (CrystalApi, crystalLoop, _) {
 
   var initialize = function (io) {
     listenForApi(io);
     listenForClient(io);
-    CrystaljsApi.Publish("start");
+    CrystalApi.Publish("start");
   }
 
   var listenForApi = function (io) {
 
     // Listen for Api Broadcast Request
-    CrystaljsApi.Subscribe('broadcast', function (data) {
+    CrystalApi.Subscribe('broadcast', function (data) {
       var socket, x;
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
@@ -18,7 +18,7 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
     });
 
     // Listen for Api sending message to single client
-    CrystaljsApi.Subscribe('messageToClient', function (data) {
+    CrystalApi.Subscribe('messageToClient', function (data) {
       var socket, x;
       // could not get _.find() to work!?
       //socket = _.find(io.sockets.sockets, function (s) {s.id === data.socketId});
@@ -35,11 +35,11 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
   var listenForClient = function (io) {
     io.sockets.on('connection', function (socket) {
       // Tell API we have a new connection
-      CrystaljsApi.Publish('socketConnected', { socketId: socket.id });
+      CrystalApi.Publish('socketConnected', { socketId: socket.id });
 
       // Listen for client disconnection.
       socket.on('disconnect', function () {
-        CrystaljsApi.Publish('socketDisconnected', {socketId: socket.id});
+        CrystalApi.Publish('socketDisconnected', {socketId: socket.id});
       });
 
       // Listen for client messages
@@ -49,7 +49,7 @@ define(['crystaljs/api', 'crystaljs/loop', 'underscore'], function (CrystaljsApi
           publishTo += ":" + data.target;
         }
         data.socketId = socket.id;
-        CrystaljsApi.Publish(publishTo, data);
+        CrystalApi.Publish(publishTo, data);
       });
     });
   }

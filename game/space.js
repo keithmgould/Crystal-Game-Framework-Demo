@@ -1,4 +1,4 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/utility', 'underscore', 'crystaljs/api'], function (Constants, Physics, Ship, Utility, _, CrystaljsApi) {
+define(['common/constants', 'common/physics', 'common/entities/ship', 'common/utility', 'underscore', 'crystal/api'], function (Constants, Physics, Ship, Utility, _, CrystalApi) {
   var world,
       entities = [],
       clients = {},
@@ -12,11 +12,11 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   var apiSubscribe = function () {
 
     // COMMUNICATION API SUBSCRIPTIONS
-    CrystaljsApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
-    CrystaljsApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
+    CrystalApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
+    CrystalApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
 
     // GAME LOOP API SUBSCRIPTIONS
-    CrystaljsApi.Subscribe('update', function (data) {updateSpace(data);});
+    CrystalApi.Subscribe('update', function (data) {updateSpace(data);});
   }
 
   /**
@@ -26,7 +26,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
    * the snapshot captures changes in the physics engine
    */
   var broadcastSnapshot = function () {
-    CrystaljsApi.Publish('broadcast', {target: 'game', type: 'snapshot', message: generateSnapshot()} );
+    CrystalApi.Publish('broadcast', {target: 'game', type: 'snapshot', message: generateSnapshot()} );
   }
 
   var handleMessage = function (data) {
@@ -71,7 +71,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
       type: 'shipDelivery',
       message: ship.getSnapshot()
     };
-    CrystaljsApi.Publish('messageToClient', response);
+    CrystalApi.Publish('messageToClient', response);
   }
 
   var updateSpace = function (data) {

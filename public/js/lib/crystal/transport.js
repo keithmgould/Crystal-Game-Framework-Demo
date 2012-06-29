@@ -1,4 +1,4 @@
-define(['underscore', 'crystaljs/api'], function (_, CrystaljsApi) {
+define(['underscore', 'crystal/api'], function (_, CrystalApi) {
 
   var socket = io.connect("collabfighter.local:3000"),
       socketOnLatency   = 0, // Ms
@@ -21,7 +21,7 @@ define(['underscore', 'crystaljs/api'], function (_, CrystaljsApi) {
   var initialize = function () {
 
     // Listen for client sending message to server
-    CrystaljsApi.Subscribe('messageToServer', function (data) {
+    CrystalApi.Subscribe('messageToServer', function (data) {
       delayedSocketEmit('message', data);
     });
 
@@ -31,7 +31,7 @@ define(['underscore', 'crystaljs/api'], function (_, CrystaljsApi) {
         if(data.target){
           publishTo += ":" + data.target;
         }
-      CrystaljsApi.Publish(publishTo, data);
+      CrystalApi.Publish(publishTo, data);
     });
   }
 
@@ -39,7 +39,7 @@ define(['underscore', 'crystaljs/api'], function (_, CrystaljsApi) {
     initialize: function () {
       initialize();
 
-      // added these to accomodate dat.gui
+      // added these to accomodate dat.gui widget
       // http://code.google.com/p/dat-gui/
       this.__defineGetter__("fromServer", function () {
         return socketOnLatency;

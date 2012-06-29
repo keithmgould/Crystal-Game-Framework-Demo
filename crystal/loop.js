@@ -1,8 +1,8 @@
 /**
- * Crystaljs Main Server Loop.
+ * crystal Main Server Loop.
  */
 
-define(['crystaljs/api'], function (CrystaljsApi) {
+define(['crystal/api'], function (CrystalApi) {
   var updateInterval = 1000 / 60,     // how many MS before another call to update()
       tickCount = 0,                  // how many ticks have transpired
       startedAt;                      // Time the loop started
@@ -14,7 +14,7 @@ define(['crystaljs/api'], function (CrystaljsApi) {
   }
 
   var listenForPing = function () {
-    CrystaljsApi.Subscribe("messageFromClient:loop", function (data) {
+    CrystalApi.Subscribe("messageFromClient:loop", function (data) {
       if(data.type === "ping"){
         var response = {
           socketId: data.socketId,
@@ -22,7 +22,7 @@ define(['crystaljs/api'], function (CrystaljsApi) {
           message: data.message,
           target: 'loop'
         };
-        CrystaljsApi.Publish('messageToClient', response);
+        CrystalApi.Publish('messageToClient', response);
       }
     });
   }
@@ -38,7 +38,7 @@ define(['crystaljs/api'], function (CrystaljsApi) {
   }
 
   var update = function () {
-    CrystaljsApi.Publish("update", {tickCount: tickCount});
+    CrystalApi.Publish("update", {tickCount: tickCount});
   };
 
   return {

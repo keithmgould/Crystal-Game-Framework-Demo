@@ -1,4 +1,4 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'common/utility', 'underscore', 'mediator', 'crystaljs/api'], function (Constants, Physics, Ship, Missile, Utility, _, Mediator, CrystaljsApi) {
+define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'common/utility', 'underscore', 'mediator', 'crystal/api'], function (Constants, Physics, Ship, Missile, Utility, _, Mediator, CrystalApi) {
 
   var world,                          // holds the box2d instance
       entities = [],                  // holds all entities
@@ -12,9 +12,9 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   /**
    * initPubSub
    *
-   * both game internal communication, as well as game commuication with CrystalJS framework
+   * both game internal communication, as well as game commuication with crystal framework
    * is done using the mediator pattern.  There are two mediator instances below.  One owned
-   * by this Space module, and one owned by CrystalJS.  The initPubSub initializes Publishers
+   * by this Space module, and one owned by crystal.  The initPubSub initializes Publishers
    * and Subscriptions to both mediator instances.
    */
 
@@ -25,23 +25,23 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
         // tell local ship for prediction
         selfShip.pilotControl(data.keystroke);
         // tell server.  (This game has an Authorative Server!)
-        CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
+        CrystalApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
       }else{
         throw new Error("received pilot control but selfship is: " + typeof(selfShip));
       }
     });
 
-    // listen for messages from CrystalJS's Loop
-    CrystaljsApi.Subscribe('update', function (data) {
+    // listen for messages from crystal's Loop
+    CrystalApi.Subscribe('update', function (data) {
       update(data);
     });
 
-    CrystaljsApi.Subscribe('avgLag', function (alag) {
+    CrystalApi.Subscribe('avgLag', function (alag) {
       avgLag = alag;
     });
 
-    // listen for messages from the server (via CrystalJS's Transport)
-    CrystaljsApi.Subscribe('messageFromServer:game', function (data) {
+    // listen for messages from the server (via crystal's Transport)
+    CrystalApi.Subscribe('messageFromServer:game', function (data) {
       switch(data.type){
         case "shipDelivery":
           generateSelfShip(data.message);
@@ -59,13 +59,13 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   var requestSelfShip = function () {
-    CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'requestShip', message: {}});
+    CrystalApi.Publish('messageToServer', {target: 'game', type: 'requestShip', message: {}});
   }
 
   var generateSelfShip = function (data){
     console.log("generating selfship!");
     addShip(true, data.x, data.y, data.a, data.id);
-    CrystaljsApi.Publish('messageToServer', {target: 'game', type: 'requestSnapshot', message: {}});
+    CrystalApi.Publish('messageToServer', {target: 'game', type: 'requestSnapshot', message: {}});
   }
 
   var update = function (data) {
@@ -140,7 +140,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     if(!snapshotTank){
       return;
     }
-    CrystaljsApi.Publish("performFastForward");
+    CrystalApi.Publish("performFastForward");
     snapshot = snapshotTank;
     snapshotTank = false;
 

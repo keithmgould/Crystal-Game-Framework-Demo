@@ -1,4 +1,4 @@
-define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
+define(['crystal/api', 'underscore'], function (CrystalApi, _) {
   var request = window.requestAnimationFrame       ||
                 window.webkitRequestAnimationFrame ||
                 window.mozRequestAnimationFrame    ||
@@ -11,7 +11,6 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   var tickCount = 0,
       updateInterval = 1000 /60,
       startedAt;
-
 
   var accurateInterval = function () {
     while(performTickCheck()){
@@ -27,7 +26,7 @@ define(['crystaljs/api', 'underscore'], function (CrystaljsApi, _) {
   }
 
   var update = function () {
-    CrystaljsApi.Publish("update", {});
+    CrystalApi.Publish("update", {});
   }
 
   var initialize = function () {
