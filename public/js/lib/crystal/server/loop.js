@@ -2,7 +2,7 @@
  * crystal Main Server Loop.
  */
 
-define(['crystal/api'], function (CrystalApi) {
+define(['crystal/common/api'], function (CrystalApi) {
   var updateInterval = 1000 / 60,     // how many MS before another call to update()
       tickCount = 0,                  // how many ticks have transpired
       startedAt;                      // Time the loop started

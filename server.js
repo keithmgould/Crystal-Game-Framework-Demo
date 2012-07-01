@@ -17,15 +17,13 @@ function handler (req, res) {
 requirejs.config({
   baseUrl: 'public/js',
   paths: {
-    box2d: 'lib/Box2dWeb-2.1.a.3.min',
     game: '../../game',
-    crystal: '../../crystal'
+    crystal: './lib/crystal'
   },
   nodeRequire: require
 });
 
-requirejs(['crystal/loop', 'crystal/transport', 'game/space'], function (Loop, Transport, Space) {
-  Space.initialize();         // 1) initialize your game
-  Transport.initialize(io);   // 2) initialize crystal transport
-  Loop.start();               // 3) begin crystal game loop
+requirejs(['crystal/server/init', 'game/space'], function (Crystal, Space) {
+  Crystal.initialize(io);       // 1) Initialize Crystal Server
+  Space.initialize();           // 2) initialize your game
 });

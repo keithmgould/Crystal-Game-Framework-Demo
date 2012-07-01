@@ -1,9 +1,8 @@
-define(['crystal/api', 'crystal/loop', 'underscore'], function (CrystalApi, crystalLoop, _) {
+define(['crystal/common/api', 'crystal/server/loop', 'underscore'], function (CrystalApi, crystalLoop, _) {
 
   var initialize = function (io) {
     listenForApi(io);
     listenForClient(io);
-    CrystalApi.Publish("start");
   }
 
   var listenForApi = function (io) {

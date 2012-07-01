@@ -26,7 +26,7 @@ define(['crystal/api', 'underscore'], function (CrystalApi, _) {
   }
 
   var update = function () {
-    CrystalApi.Publish("update", {});
+    CrystalApi.Publish('update');
   }
 
   var initialize = function () {

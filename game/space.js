@@ -1,12 +1,11 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/utility', 'underscore', 'crystal/api'], function (Constants, Physics, Ship, Utility, _, CrystalApi) {
-  var world,
-      entities = [],
+define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/common/api'], function (Constants, Ship, _, CrystalApi) {
+  var entities = [],
       clients = {},
       broadcastSnapshotFlag = false;
 
   var initialize = function () {
     apiSubscribe();
-    world = Physics.generateWorld();
+    CrystalApi.Publish('generateWorld');
   }
 
   var apiSubscribe = function () {
@@ -26,7 +25,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
    * the snapshot captures changes in the physics engine
    */
   var broadcastSnapshot = function () {
-    CrystalApi.Publish('broadcast', {target: 'game', type: 'snapshot', message: generateSnapshot()} );
+    CrystalApi.Publish('broadcast', {target: 'crystal', type: 'snapshot', message: generateSnapshot()} );
   }
 
   var handleMessage = function (data) {
@@ -36,9 +35,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
         break;
       case "requestShip":
         handleRequestShip(data);
-        break;
-      case "requestSnapshot":
-        broadcastSnapshotFlag = true;
         break;
       default:
         console.log("received unknown message type: " + data.type);
@@ -75,10 +71,10 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   }
 
   var updateSpace = function (data) {
-    world.Step(1/60, 10, 10); // Hz, Iteration, Position
-    world.ClearForces();
     updateEntities();
-    if(data.tickCount % 20 === 0){
+    // receive 60 ticks / sec, 
+    // so % 10 yields 6 broadcasts / sec
+    if(data.tickCount % 10 === 0){
       broadcastSnapshot();
     }
   }
@@ -95,17 +91,18 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   };
 
   var addShip = function (xPos, yPos, angle) {
-    var ship = new Ship({ xPos: xPos, yPos: yPos, id: Utility.guidGenerator(), angle: angle });
+    var ship = new Ship({ xPos: xPos, yPos: yPos, angle: angle });
+    ship.set({id: ship.guidGenerator()}); // todo: handle via initializer inheritance
     entities.push(ship);
-    Physics.placeEntities([ship], world);
+    CrystalApi.Publish("addEntity", ship);
     return ship;
   };
 
   var addMissile = function (ship) {
     var missile = ship.fireMissile();
-    missile.set({ id: Utility.guidGenerator() });
+    missile.set({ id: missile.guidGenerator() }); // todo: handle via initialize inheriteance
     entities.push(missile);
-    Physics.placeEntities([missile], world);
+    CrystalApi.Publish("addEntity", missile);
   }
 
   var findEntityById = function (entityId) {
@@ -143,7 +140,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/ut
   var destroyEntity = function (entity) {
     console.log('before destroying entity, entity count: ' + entities.length);
     entities = _.without(entities, entity);
-    Physics.removeEntity(entity, world);
+    CrystalApi.Publish("removeEntity", entity);
     console.log('destroyed entity from entities and world: ' + entity.id);
     console.log('entity count after destroy: ' + entities.length);
   }

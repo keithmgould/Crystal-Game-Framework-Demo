@@ -1,4 +1,4 @@
-define(['common/entity', 'common/physics'], function (Entity, Physics) {
+define(['crystal/common/entity'], function (Entity) {
   var Missile = Entity.extend({
     shape: "circle",
     initialize: function () {

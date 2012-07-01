@@ -1,7 +1,13 @@
-define(['backbone', 'common/utility'], function (Backbone, Utility) {
+define(['backbone'], function (Backbone) {
   var Entity = Backbone.Model.extend({
 
     shape: "box",
+    guidGenerator: function () {
+      var S4 = function() {
+         return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+      };
+      return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    },
     update: function(){
       if(this.suicideIfGeriatric()){
         return {status: 'suicide'};

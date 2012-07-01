@@ -1,11 +1,9 @@
-define(['common/constants', 'common/physics', 'common/entities/ship', 'common/entities/missile', 'common/utility', 'underscore', 'mediator', 'crystal/api'], function (Constants, Physics, Ship, Missile, Utility, _, Mediator, CrystalApi) {
+define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, Missile, Utility, _, Mediator, CrystalApi) {
 
-  var world,                          // holds the box2d instance
-      entities = [],                  // holds all entities
+  var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
       mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      avgLag = 0,                     // holds the last known lag.  used by timing techniques.
       snapshotTank = false;           // Snapshots held here until they are ready to be applied
 
   
@@ -23,7 +21,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     mediator.Subscribe('pilotControl', function (data) {
       if(_.isObject(selfShip)){
         // tell local ship for prediction
-        selfShip.pilotControl(data.keystroke);
+        // selfShip.pilotControl(data.keystroke);
         // tell server.  (This game has an Authorative Server!)
         CrystalApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
       }else{
@@ -69,13 +67,6 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
   }
 
   var update = function (data) {
-    var myStep = 1/60;
-
-    if(data.stepMultiplier){
-      myStep *= data.stepMultiplier;
-    }
-    world.Step(myStep, 10, 10); // Hz, Iteration, Position
-    world.ClearForces();
     updateEntities();
     runLoopCallbacks();
     checkForSnapshot();
@@ -105,7 +96,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       ship.set({ color : "red" });
     }
     entities.push(ship);
-    Physics.placeEntities([ship], world);
+    CrystalApi.Publish("placeEntity", ship);
     return ship;
   };
 
@@ -116,7 +107,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       id:   snapshot.id,
       ownerId: snapshot.ownerId});
     entities.push(missile);
-    Physics.placeEntities([missile], world);
+    CrystalApi.Publish("placeEntity", missile);
     return missile;
   }
 
@@ -124,7 +115,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     var missile = ship.fireMissile();
     missile.set({id: Utility.guidGenerator()});
     entities.push(missile);
-    Physics.placeEntities([missile], world);
+    CrystalApi.Publish("placeEntity", missile);
     return missile;
   }
 
@@ -140,11 +131,10 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     if(!snapshotTank){
       return;
     }
-    CrystalApi.Publish("performFastForward");
     snapshot = snapshotTank;
     snapshotTank = false;
 
-    console.log('applying a snapshot: ' + JSON.stringify(snapshot));
+    // console.log('applying a snapshot: ' + JSON.stringify(snapshot));
 
     _.each(snapshot.entities, function (entitySnapshot) {
       var entity = findEntityById(entitySnapshot.id);
@@ -175,25 +165,24 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
     });
   }
 
-  // remove entity from entities array and from physics engine
+  // remove entity from entities array and from world (physics engine)
   var destroyEntity = function (entity) {
       if(_.isUndefined(entity)){
         throw new Error("entity undefined in Space#destroyEntity");
       }
       entities = _.without(entities, entity);
-      Physics.removeEntity(entity, world);
+      CrystalApi.Publish("removeEntity", entity);
   }
 
   return {
     mediator: mediator,
-    getWorld: function () { return world; },
     getEntities: function () { return entities; },
     getSelfShip: function () { return selfShip; },
     hasSelfShip: function () {
       return !(typeof selfShip === 'undefined');
     },
     initialize: function () {
-      world = Physics.generateWorld();
+      CrystalApi.Publish("generateWorld");
       initPubSub();
       requestSelfShip();
     },
@@ -201,7 +190,7 @@ define(['common/constants', 'common/physics', 'common/entities/ship', 'common/en
       loopCallbacks.push({ scope : scope, fn : fn});
     },
     enableDebugDraw: function (context) {
-      Physics.enableDebugDraw(world, context);
+      CrystalApi.Publish("enableDebugDraw", {context: context});
     },
     avgLag: function () { return avgLag; }
 
