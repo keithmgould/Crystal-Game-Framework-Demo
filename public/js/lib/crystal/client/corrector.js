@@ -1,6 +1,6 @@
 // MAJOR TODO: bring physics engine into Crystal.
 
-define(['crystal/api', 'underscore'], function (CrystalApi, _) {
+define(['crystal/common/api', 'underscore'], function (CrystalApi, _) {
   var snapshots = [],
       correctedSnapshot,
       lastPublishedSnapshot;

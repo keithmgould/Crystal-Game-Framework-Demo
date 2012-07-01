@@ -3,7 +3,6 @@ require.config({
     backbone: 'lib/backbone_0.9.2-min',
     jquery: 'lib/jquery_1.7.2-min',
     underscore: 'lib/underscore_1.3.3-min',
-    box2d: 'lib/Box2dWeb-2.1.a.3.min',
     text: 'lib/text_2.0.0.requirejs',
     mediator: 'lib/mediator_0.7.0',
     kinetic: 'lib/kinetic_3.9.8-min',
@@ -35,7 +34,7 @@ require.config({
 });
 
 require(['space',
-         'crystal/crystal',
+         'crystal/client/init',
          'widgets/pilot/view',
          'widgets/debug/view',
          'widgets/map/view',

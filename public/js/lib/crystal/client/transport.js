@@ -1,4 +1,4 @@
-define(['underscore', 'crystal/api'], function (_, CrystalApi) {
+define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
 
   var socket = io.connect("collabfighter.local:3000"),
       socketOnLatency   = 0, // Ms

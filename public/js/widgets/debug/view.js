@@ -16,9 +16,7 @@ define(['common/constants','space', 'backbone', 'text!widgets/debug/templates/sc
       ctx = canvas.getContext("2d");
       canvasWidth = ctx.canvas.width;
       canvasHeight = ctx.canvas.height;
-      world = Space.getWorld();
       Space.enableDebugDraw(ctx);
-      Space.addToLoopCallbacks(this, this.drawDebug);
     },
     render : function (event) {
       var data = {},
@@ -28,28 +26,6 @@ define(['common/constants','space', 'backbone', 'text!widgets/debug/templates/sc
 
       compiled_template = _.template(Screen, data);
       this.$el.html(compiled_template);
-    },
-    drawDebug : function () {
-      world.DrawDebugData();
-    },
-    drawEntityFlightInfo : function () {
-      var entities = Space.getEntities(),
-          x,
-          y,
-          snapshot,
-          text;
-
-      _.each(entities, function (entity) {
-        snapshot = entity.getSnapshot();
-        x = scale * entity.get('xPos') + 10;
-        y = scale * entity.get('yPos') - 25;
-        ctx.fillText("x:" + Utility.round(snapshot.x), x, y);
-        ctx.fillText("y:" + Utility.round(snapshot.y), x, y + 10);
-        ctx.fillText("xv:" + Utility.round(snapshot.xv), x, y + 20);
-        ctx.fillText("yv:" + Utility.round(snapshot.yv), x, y + 30);
-        ctx.fillText("a:" + Utility.round(snapshot.a), x, y + 40);
-        ctx.fillText("av:" + Utility.round(snapshot.av), x, y + 50);
-      });
     }
   });
   return debugView;

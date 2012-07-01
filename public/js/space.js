@@ -1,4 +1,4 @@
-define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, Missile, Utility, _, Mediator, CrystalApi) {
+define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, Missile, _, Mediator, CrystalApi) {
 
   var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
@@ -96,7 +96,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       ship.set({ color : "red" });
     }
     entities.push(ship);
-    CrystalApi.Publish("placeEntity", ship);
+    CrystalApi.Publish("addEntity", ship);
     return ship;
   };
 
@@ -107,7 +107,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       id:   snapshot.id,
       ownerId: snapshot.ownerId});
     entities.push(missile);
-    CrystalApi.Publish("placeEntity", missile);
+    CrystalApi.Publish("addEntity", missile);
     return missile;
   }
 
@@ -115,7 +115,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     var missile = ship.fireMissile();
     missile.set({id: Utility.guidGenerator()});
     entities.push(missile);
-    CrystalApi.Publish("placeEntity", missile);
+    CrystalApi.Publish("addEntity", missile);
     return missile;
   }
 
@@ -190,9 +190,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       loopCallbacks.push({ scope : scope, fn : fn});
     },
     enableDebugDraw: function (context) {
-      CrystalApi.Publish("enableDebugDraw", {context: context});
-    },
-    avgLag: function () { return avgLag; }
-
+      CrystalApi.Publish("enableDebugDraw", context);
+    }
   };
 });

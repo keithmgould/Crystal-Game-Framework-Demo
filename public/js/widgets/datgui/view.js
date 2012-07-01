@@ -1,7 +1,7 @@
 // NOTE: this widget is breaking the sandbox rule by accessing crystal directly,
 // but its not part of the official game or framework, its just for debugging.
 // So I'm OK with this for now.
-define(['dat', 'backbone', 'crystal/transport', 'crystal/loop'], function (dat, Backbone, Transport, Loop) {
+define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/loop'], function (dat, Backbone, Transport, Loop) {
   var datgui;
   var datguiView = Backbone.View.extend({
     initialize: function () {

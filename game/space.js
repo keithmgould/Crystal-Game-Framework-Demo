@@ -95,6 +95,7 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
     ship.set({id: ship.guidGenerator()}); // todo: handle via initializer inheritance
     entities.push(ship);
     CrystalApi.Publish("addEntity", ship);
+
     return ship;
   };
 

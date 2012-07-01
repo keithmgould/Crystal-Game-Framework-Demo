@@ -1,9 +1,10 @@
-define(['crystal/transport', 'crystal/loop','crystal/corrector', '/../../movie.js'], function (Transport, Loop, Corrector, Movie) {
+define(['crystal/client/transport', 'crystal/client/loop','crystal/client/corrector', 'crystal/common/Physics'], function (Transport, Loop, Corrector, Physics) {
 
   var initialize = function () {
     Loop.initialize();
     Corrector.initialize();
     Transport.initialize();
+    Physics.initialize();
   }
 
   return {

@@ -1,4 +1,4 @@
-define(['crystal/api', 'underscore'], function (CrystalApi, _) {
+define(['crystal/common/api', 'underscore'], function (CrystalApi, _) {
   var request = window.requestAnimationFrame       ||
                 window.webkitRequestAnimationFrame ||
                 window.mozRequestAnimationFrame    ||

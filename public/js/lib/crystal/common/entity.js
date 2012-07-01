@@ -12,9 +12,13 @@ define(['backbone'], function (Backbone) {
       if(this.suicideIfGeriatric()){
         return {status: 'suicide'};
       }else{
-        this.set({xPos : this.get('body').GetPosition().x});
-        this.set({yPos : this.get('body').GetPosition().y});
-        this.set({angle : this.get('body').GetAngle()});
+        if(!!this.get('body')){
+          this.set({xPos : this.get('body').GetPosition().x});
+          this.set({yPos : this.get('body').GetPosition().y});
+          this.set({angle : this.get('body').GetAngle()});
+        }else{
+          console.log('no body found');
+        }
         return {status: 'ok'}
       }
     },
@@ -45,6 +49,8 @@ define(['backbone'], function (Backbone) {
     applySnapshot: function (snapshot) {
       var body = this.get('body'),
           linVel;
+
+      if(!body){ return; }
       body.SetPositionAndAngle({x: snapshot.x, y: snapshot.y}, snapshot.a);
 
       // not sure why but I can't Set Angular Velocity or 
