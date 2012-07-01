@@ -1,3 +1,12 @@
+/**
+  Box2D Components refresher:
+
+- Body:     owns mass and velocity
+- Shape:    owns collision geometry, friction and restitution.
+- Fixture:  binds shapes to bodies.
+
+*/
+
 define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api", "underscore"], function (Constants, Box, CrystalApi, _) {
 
     // Prep our Box2D variables

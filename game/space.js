@@ -18,12 +18,6 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
     CrystalApi.Subscribe('update', function (data) {updateSpace(data);});
   }
 
-  /**
-   * broadcastSnapshot
-   *
-   * this is called in update AFTER the world STEP method is called to ensure
-   * the snapshot captures changes in the physics engine
-   */
   var broadcastSnapshot = function () {
     CrystalApi.Publish('broadcast', {target: 'crystal', type: 'snapshot', message: generateSnapshot()} );
   }
