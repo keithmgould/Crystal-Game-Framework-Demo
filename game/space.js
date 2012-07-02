@@ -8,6 +8,12 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
     CrystalApi.Publish('generateWorld');
   }
 
+  /**
+    apiSubscribe
+
+    Here is where we hook into the Crystal Api.  All communication with Crystal is done 
+    via Publish / Subscribe.  To learn more see Crystal Api Documentation.
+  */
   var apiSubscribe = function () {
 
     // COMMUNICATION API SUBSCRIPTIONS
@@ -42,7 +48,6 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
     }else{
       console.log("got a pilot control for a non-existant ship");
     }
-
   }
 
   var handleRequestShip = function (data) {
@@ -133,11 +138,8 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
   }
 
   var destroyEntity = function (entity) {
-    console.log('before destroying entity, entity count: ' + entities.length);
     entities = _.without(entities, entity);
     CrystalApi.Publish("removeEntity", entity);
-    console.log('destroyed entity from entities and world: ' + entity.id);
-    console.log('entity count after destroy: ' + entities.length);
   }
 
   var socketDisconnected = function (data) {

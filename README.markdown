@@ -17,11 +17,13 @@ Crystal brings these solutions to browser based games written in javascript.
 
 Node, Socket.io, RequireJS, Underscore
 
-## Client:
+### Client:
 
 Backbone, Underscore
 
 ## Timing refresher:
+
+Timing is everything.  There are a few different timing concepts needed to understand what is going on with Crystal.
 
 - Game Loop:        This is the fastest loop.  It runs faster than all loops, so for each iteration we have to check if its time to run
                     the actual update method(s).  With Crystal, the server and client side loop.js files handle this.
@@ -31,4 +33,20 @@ Backbone, Underscore
                     So 1/30 would mean 1/30th of a second per step.  1/60 would mean 1/60th of a second per step.
                     Given a constant rate of calling Step, increasing this number number will cause the world to "speed up."
 
+
+## Crystal Api
+
+Crystal uses the mediator pattern to power its Api.  
+To learn more about mediator, check out: https://github.com/ajacksified/Mediator.js
+
+### Example Calls
+
+CrystalApi.Publish("addEntity", entity);
+CrystalApi.Subscribe("update", function (data) { renderStuff(); });
+
+### Api Docs
+
+#### Publish("addEntity", entity)
+
+This adds an entity to the physics engine.
 
