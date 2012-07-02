@@ -78,38 +78,13 @@
       font-size: 16px;
       line-height: 30px;
     }
-    span.alias {
-      font-size: 14px;
-      font-style: italic;
-      margin-left: 20px;
-    }
 
-    code, pre, tt {
+    code{
       font-family: Monaco, Consolas, "Lucida Console", monospace;
       font-size: 12px;
       line-height: 18px;
       font-style: normal;
-    }
-    tt {
-      padding: 0px 3px;
-      background: #fff;
-      border: 1px solid #ddd;
-      zoom: 1;
-    }
-    code {
       margin-left: 20px;
     }
-    pre {
-      font-size: 12px;
-      padding: 2px 0 2px 15px;
-      border-left: 5px solid #bbb;
-      margin: 0px 0 30px;
-    }
-    p, section#content ul {
-      max-width: 98%;
-      overflow-x: scroll;
-    }
-    pre {
-      overflow: scroll;
-    }
+
     

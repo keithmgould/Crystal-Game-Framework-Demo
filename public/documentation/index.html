@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <title>Crystal Api</title>
-  <link rel="stylesheet" type="text/css" href="stylesheets/documentation.css" />
+  <link rel="stylesheet" type="text/css" href="./stylesheets/index.css" />
  </head>
  <body>
   <section id="sidebar">
@@ -39,7 +39,7 @@
   <section id="content">
     <h1>CRYSTAL.JS</h1>
     <p>
-      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, entity interpolation and server-side lag compensation.  It utilizes the mediator pattern to communicate with your game, and the API is described below.
+      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, entity interpolation and server-side lag compensation.  You can read more about these features below.  Crystal utilizes the mediator pattern to communicate with your game, and the API is also described below.
     </p>
     <h2>Server Side API</h2>
     <p id="socketConnected">
@@ -117,6 +117,27 @@
       <b class="header">update</b><code>Subscribe("update", data)</code>
       <br />
       The update is published sixty times per second.  The data object includes the tick count, so if you want something to happen three times per second you could do: <code>if(data.tickCount % 20 === 0)</code>
+    </p>
+    <h2>Achieving Twitch Gameplay</h2>
+    <p id="twitchIntro">
+      <b class="header"> Introduction</b>
+      "Twitch" gameplay means the gameplay is so fast that responsiveness within a few milliseconds matters.  When dealing with internet lag times (let's say 500 Ms), twitch gameplay can only be achieved with some fun slight-of hand.  Read below to see the solutions Crystal utilizes to achieve "twitch" gameplay in the browser even when facing crappy internet speeds.  And please note I did not come up with any of these tricks.  Really smart people did years ago.  I just did my best to bring these solutions to the browser.
+    </p>
+    <p id="authorative">
+      <b class="header">Authorative Server</b>
+      A common question is why have an authorative server.  Why not have peer-to-peer connections?  That would be faster right?  Yes.  But it would allow for cheating.  And even if you knew the other player was cheating, who would you tell?  An authorative server prevents cheating (as best as it can).  This is especially crucial for Javascript based games where the code is out there, ready to be analysed and tampered with.  Crystal sports an authorative server, and any time the client tries something "not cool", the server comes down and obliterates the move in question.  You might be able to tamper with where a tank is on your own browser, but the rest of the players will see where your tank is SUPPOSED to be.  So stop cheating and just get better, K?
+    </p>
+    <p id="clientPrediction">
+      <b class="header">Client Side Prediction</b>
+      Assuming we have a 500 Ms (half second) lag time, that means if we press the right arrow to rotate right, it will take roughtly 250 Ms to get to the server and another 250 Ms to get back.  If you are trying to aim at a moving target, this type of lag will make you grind your teeth, and then smash in your monitor.  So Crystal helps you out with something called client-side prediction.  This means Crystal has a working copy of the physics engine, and is running the same simulation as the server.  THAT means client-side (in your browser), Crystal can predict how you will move when you try to rotate right, and it will do so Immediately.  Naturally, it will also fire off a message to the server, and when the client gets the response from the server, Crystal will make sure make sure everything is in sync.  The end result is you have ZERO lag time when you move around.
+    </p>
+    <p id="interpolation">
+      <b class="header">Interpolation</b>
+      Crystal sends down "snapshots" of the game 6 times a second (by default) from the server to the client.  If the client only rendered a frame once every six seconds, things would look jerky.  So Crystal leverages it's client-side physics engine to keep objects moving the way it thinks they will move on the server, inbetween receiving snapshots.  For example if the server tells the client there is a rock at such-and-such coordinates with a rotational veloctiy of blah, Crystal will obey Newtons first law and keep the movement going until it receives another snapshot.  This is actually similar to client-side prediction.  Technical note:  Crystal does not need to perform the classical cubic-spline or linear interpolation (lerp), because the physics engine does the same work.
+    </p>
+    <p id="lagCompensation">
+      <b class="header">Lag Compensation</b>
+      Given lag and the prediction trick stated above, we find the client out of sync with the server.  The client might fire a weapon directly at the moving target, but due to lag, the server might see that the client missed hitting the moving target.  To correct for this, Crystal employs what is called server-side lag compensation.  This basically means the server looks at all the time-stamps and replays the same situation from the clients perspective.  It can then say, "hey, from your perspective you were aimed right at the target and fired at the right time.  I'm calling that a hit!"  
     </p>
 
   </section>
