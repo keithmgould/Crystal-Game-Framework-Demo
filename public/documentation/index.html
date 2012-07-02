@@ -7,7 +7,7 @@
  </head>
  <body>
   <section id="sidebar">
-    <a class="toc_title" href="#server">Server</a>
+    <a class="toc_title" href="#server">Server Api</a>
     <ul class="toc_section">
       <li>- <a href="#socketConnected">s socketConnected</a></li>
       <li>- <a href="#socketDisconnected">s socketDisconnected</a></li>
@@ -15,21 +15,28 @@
       <li>- <a href="#messageToClient">p messageToClient</a></li>
       <li>- <a href="#broadcast">p broadcast</a></li>
     </ul> 
-    <a class="toc_title" href="#client">Client</a>
+    <a class="toc_title" href="#client">Client Api</a>
     <ul class="toc_section">
       <li>- <a href="#messageToServer">p messageToServer</a></li>
       <li>- <a href="#messageFromServer">s messageFromServer</a></li>
       <li>- <a href="#enableDebugDraw">p enableDebugDraw</a></li>
     </ul>
-    <a class="toc_title" href="#common">Common</a>
+    <a class="toc_title" href="#common">Common Api</a>
     <ul class="toc_section">
       <li>- <a href="#addEntity">p addEntity</a></li>
       <li>- <a href="#removeEntity">p removeEntity</a></li>
       <li>- <a href="#update">s update</a></li>
     </ul>
-    <a class="toc_title" href="#achievingTwichGameplay">Achieving Twich Gameplay</a>
+    <a class="toc_title" href="#entities">Entities</a>
+    <ul>
+      <li>- <a href="#concepts">Concepts</a> </li>
+      <li>- <a href="#circle">Circle</a> </li>
+      <li>- <a href="#rectangle">Box</a> </li>
+      <li>- <a href="#polygon">Polygon</a> </li>
+    </ul>
+    <a class="toc_title" href="#snapshots">Snapshots</a>
+    <a class="toc_title" href="#achievingTwitchGameplay">Achieving Twich Gameplay</a>
     <ul class="toc_section">
-      <li>- <a href="#twitchIntro">Introduction</a> </li>
       <li>- <a href="#authorative">Authorative Server</a> </li>
       <li>- <a href="#clientPrediction">Client-side Prediction</a> </li>
       <li>- <a href="#interpolation">Interpolation</a> </li>
@@ -39,9 +46,9 @@
   <section id="content">
     <h1>CRYSTAL.JS</h1>
     <p>
-      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, entity interpolation and server-side lag compensation.  You can read more about these features below.  Crystal utilizes the mediator pattern to communicate with your game, and the API is also described below.
+      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, position interpolation and server-side lag compensation.  You can read more about these features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
     </p>
-    <h2>Server Side API</h2>
+    <h2 id="server">Server Side API</h2>
     <p id="socketConnected">
       <b class="header">socketConnected</b><code>Subscribe("socketConnected", function (data) {})</code>
       data object contains:
@@ -83,7 +90,7 @@
         <li>message: JS object</li>
       </ul>
     </p>
-    <h2>Client Side API</h2>
+    <h2 id="client">Client Side API</h2>
     <p id="messageToServer">
       <b class="header">messageToServer</b><code>Publish("messageToServer", messageObject)</code>
       <br />
@@ -102,7 +109,7 @@
         <li>type: string.  type or category of message</li>
       </ul>
     </p>
-    <h2>Common</h2>
+    <h2 id="common">Common</h2>
     <p id="addEntity">
       <b class="header">addEntity</b><code>Publish("addEntity", entity)</code>
       <br />
@@ -118,8 +125,26 @@
       <br />
       The update is published sixty times per second.  The data object includes the tick count, so if you want something to happen three times per second you could do: <code>if(data.tickCount % 20 === 0)</code>
     </p>
-    <h2>Achieving Twitch Gameplay</h2>
-    <p id="twitchIntro">
+    <h2 id="entities">Entities</h2>
+    <p>
+      Any object in the physics engine simulation is referred to as an entity.  Crystal comes with a base "class" found in crystal/common/entity.js.  This extends the Backbone Model class, and thusly comes with lots of goodies.  I suggest you further extend the entity class into a js/common/entites/ folder, which can be read by both client and server. An entity model must have a few attributes to prepare it for the physics engine simulation, and these differ based on the shape of the entity.  Crystal comes with three shapes you can use: circle, rectangle, polygon.  The steps for making an entity and placing it in the simulation are as follows:
+      <ul>
+        <li>1) create the entity. </li>
+        <li>2) tell the physics engine about it with the addEntity Api method.</li>
+      </ul>
+      <div class="example">
+        myTank = new Tank();<br>
+        CrystalApi.Publish("addEntity", myTank);
+      </div>
+      TODO: talk about what each shape requires.
+
+    </p>
+    <h2 id="snapshots">Snapshots</h2>
+    <p>
+      Snapshots are descriptions of whats going on in the physics engine at a moment in time.  If there is a ship in space, the snapshot will convey the ships coordinates, its orientation, and its velocity.  The snapshot will contain this information for every entity in the simulation.  Crystal Server sends the Crystal client these snapshots 6 times per second (by default).  On the client side, these snapshots are processed by Crystal to ensure smoothe game play.  All of this is transparent to the game developer.  Your objects will just appear to move as they should, despite lag.
+    </p>
+    <h2 id="achievingTwitchGameplay">Achieving Twitch Gameplay</h2>
+    <p>
       <b class="header"> Introduction</b>
       "Twitch" gameplay means the gameplay is so fast that responsiveness within a few milliseconds matters.  When dealing with internet lag times (let's say 500 Ms), twitch gameplay can only be achieved with some fun slight-of hand.  Read below to see the solutions Crystal utilizes to achieve "twitch" gameplay in the browser even when facing crappy internet speeds.  And please note I did not come up with any of these tricks.  Really smart people did years ago.  I just did my best to bring these solutions to the browser.
     </p>
