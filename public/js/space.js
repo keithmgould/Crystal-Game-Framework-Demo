@@ -182,7 +182,6 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       return !(typeof selfShip === 'undefined');
     },
     initialize: function () {
-      CrystalApi.Publish("generateWorld");
       initPubSub();
       requestSelfShip();
     },

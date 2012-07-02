@@ -37,9 +37,9 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
     fixDef.restitution = 0.5; // 0 = no energy transfer (no bounce).  1 = 100% transfer
 
     var initialize = function () {
-      CrystalApi.Subscribe("generateWorld", function () {
-        generateWorld();
-      });
+      
+      generateWorld();
+     
 
       CrystalApi.Subscribe("addEntity", function (entity) {
         placeEntity(entity);

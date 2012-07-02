@@ -5,7 +5,6 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
 
   var initialize = function () {
     apiSubscribe();
-    CrystalApi.Publish('generateWorld');
   }
 
   /**
