@@ -4,22 +4,9 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
       broadcastSnapshotFlag = false;
 
   var initialize = function () {
-    apiSubscribe();
-  }
-
-  /**
-    apiSubscribe
-
-    Here is where we hook into the Crystal Api.  All communication with Crystal is done 
-    via Publish / Subscribe.  To learn more see Crystal Api Documentation.
-  */
-  var apiSubscribe = function () {
-
-    // COMMUNICATION API SUBSCRIPTIONS
+    // CRYSTAL API SUBSCRIPTIONS
     CrystalApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
     CrystalApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
-
-    // GAME LOOP API SUBSCRIPTIONS
     CrystalApi.Subscribe('update', function (data) {updateSpace(data);});
   }
 
