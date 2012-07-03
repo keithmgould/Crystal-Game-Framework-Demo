@@ -1,17 +1,12 @@
 define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/common/api'], function (Constants, Ship, _, CrystalApi) {
   var entities = [],
-      clients = {},
-      broadcastSnapshotFlag = false;
+      clients = {};
 
   var initialize = function () {
     // CRYSTAL API SUBSCRIPTIONS
     CrystalApi.Subscribe('messageFromClient:game', function (message) { handleMessage(message); });
     CrystalApi.Subscribe('socketDisconnected', function (data) { socketDisconnected(data); });
     CrystalApi.Subscribe('update', function (data) {updateSpace(data);});
-  }
-
-  var broadcastSnapshot = function () {
-    CrystalApi.Publish('broadcast', {target: 'crystal', type: 'snapshot', message: generateSnapshot()} );
   }
 
   var handleMessage = function (data) {
@@ -57,11 +52,6 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
 
   var updateSpace = function (data) {
     updateEntities();
-    // receive 60 ticks / sec, 
-    // so % 10 yields 6 broadcasts / sec
-    if(data.tickCount % 10 === 0){
-      broadcastSnapshot();
-    }
   }
 
   var updateEntities = function () {
@@ -111,16 +101,6 @@ define(['common/constants', 'common/entities/ship', 'underscore', 'crystal/commo
         angle  = Math.random() * 2 * Math.PI;
         ship   = addShip(coords.x, coords.y, angle);
     return ship;
-  }
-
-  var generateSnapshot = function () {
-    var snapshot = {
-      entities: []
-    };
-    _.each(entities, function (entity) {
-      snapshot.entities.push(entity.getSnapshot());
-    });
-    return snapshot;
   }
 
   var destroyEntity = function (entity) {
