@@ -9,22 +9,7 @@ define(['crystal/common/api'], function (CrystalApi) {
 
   var start = function () {
     startedAt = Date.now();
-    listenForPing();
     accurateInterval();
-  }
-
-  var listenForPing = function () {
-    CrystalApi.Subscribe("messageFromClient:loop", function (data) {
-      if(data.type === "ping"){
-        var response = {
-          socketId: data.socketId,
-          type: 'pong',
-          message: data.message,
-          target: 'loop'
-        };
-        CrystalApi.Publish('messageToClient', response);
-      }
-    });
   }
 
   var accurateInterval = function () {

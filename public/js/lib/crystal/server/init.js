@@ -1,8 +1,9 @@
-define(['crystal/server/transport', 'crystal/server/loop', 'crystal/common/physics'], function (Transport, Loop, Physics) {
+define(['crystal/server/transport', 'crystal/server/loop', 'crystal/common/physics', 'crystal/server/photographer'], function (Transport, Loop, Physics, Photographer) {
   var initialize = function (io) {
     Transport.initialize(io);
-    Loop.start();
     Physics.initialize();  
+    Photographer.initialize();
+    Loop.start();
   }
   return {
     initialize: initialize
