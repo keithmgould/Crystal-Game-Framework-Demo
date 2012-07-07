@@ -41,7 +41,6 @@ require(['space',
          'widgets/stats/view',
          'widgets/datgui/view'], function (Space, Crystal, PilotWidget, DebugWidget, MapWidget, StatsWidget, DatguiWidget) {
 
-
   Crystal.initialize();   // 1) Initialize crystal
   Space.initialize();     // 2) Initialize your game
 

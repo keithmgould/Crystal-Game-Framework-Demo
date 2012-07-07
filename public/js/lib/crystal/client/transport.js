@@ -19,7 +19,8 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
   }
 
   var initialize = function () {
-
+    console.log("initializing Transport");
+    
     // Listen for client sending message to server
     CrystalApi.Subscribe('messageToServer', function (data) {
       delayedSocketEmit('message', data);

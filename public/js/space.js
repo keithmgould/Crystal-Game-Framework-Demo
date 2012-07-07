@@ -4,7 +4,8 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
       mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      snapshotTank = false;           // Snapshots held here until they are ready to be applied
+      snapshotTank = false,           // Snapshots held here until they are ready to be applied
+      usePrediction = true;           // Should Crystal use prediction.  Todo: move this to a better place
 
   
   /**
@@ -21,8 +22,10 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     mediator.Subscribe('pilotControl', function (data) {
       if(_.isObject(selfShip)){
         // tell local ship for prediction
-        // selfShip.pilotControl(data.keystroke);
-        // tell server.  (This game has an Authorative Server!)
+        if(usePrediction){
+          selfShip.pilotControl(data.keystroke);
+        }
+        // tell server.
         CrystalApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
       }else{
         throw new Error("received pilot control but selfship is: " + typeof(selfShip));
@@ -63,7 +66,6 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
   var generateSelfShip = function (data){
     console.log("generating selfship!");
     addShip(true, data.x, data.y, data.a, data.id);
-    CrystalApi.Publish('messageToServer', {target: 'game', type: 'requestSnapshot', message: {}});
   }
 
   var update = function (data) {
@@ -87,7 +89,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
   };
 
   var addShip = function (isSelfShip, xPos, yPos, angle, id) {
-    console.log('adding ship!');
+    console.log('Space#addShip with scope: ' + this);
     var ship = new Ship({ xPos: xPos, yPos : yPos, angle: angle, id: id});
     if(isSelfShip) {
       ship.set({ selfShip : true, color : "blue"});
@@ -128,16 +130,17 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
 
   var checkForSnapshot = function () {
     var snapshot;
+    console.log("checking for snapshot");
     if(!snapshotTank){
       return;
     }
+    console.log("have a snapshot! " + JSON.stringify(snapshotTank));
     snapshot = snapshotTank;
     snapshotTank = false;
 
-    // console.log('applying a snapshot: ' + JSON.stringify(snapshot));
-
-    _.each(snapshot.entities, function (entitySnapshot) {
+    _.each(snapshot.message.entities, function (entitySnapshot) {
       var entity = findEntityById(entitySnapshot.id);
+      // if entity is not found, create it
       if(typeof entity === "undefined"){
          switch(entitySnapshot.type) {
           case "Ship":
@@ -152,6 +155,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
             throw new Error("trying to apply snapshot but no entity found and snapshot.type not supported: " + entitySnapshot.type);
          }
       }
+      console.log("applying snapshot");
       entity.applySnapshot(entitySnapshot);
     });
     // now find all ships that were not in the snapshot and destroy them.
@@ -160,7 +164,11 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     });
     _.each(entities, function (entity) {
       if(_.include(entityIds, entity.id) === false){
-        destroyEntity(entity);
+        // dont destroy selfShip.
+        // todo: this check should go away once snapshots are properly handled, ie entirely by Crystal
+        if(selfShip.id != entity.id){
+          destroyEntity(entity);
+        }
       }
     });
   }
@@ -184,6 +192,15 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     initialize: function () {
       initPubSub();
       requestSelfShip();
+      
+      // added these to accomodate dat.gui widget
+      // http://code.google.com/p/dat-gui/
+      this.__defineGetter__("usePrediction", function () {
+        return usePrediction;
+      });
+      this.__defineSetter__("usePrediction", function (val) {
+        usePrediction = val;
+      });
     },
     addToLoopCallbacks: function (scope, fn) {
       loopCallbacks.push({ scope : scope, fn : fn});

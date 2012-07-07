@@ -30,6 +30,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
     var width = Constants.physics.width;
 
     var world;
+    var crystalEntities = []; // Crystal also keeps track of entities
 
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
@@ -40,9 +41,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       
       generateWorld();
      
-
       CrystalApi.Subscribe("addEntity", function (entity) {
-        placeEntity(entity);
+        addEntity(entity);
       });
 
       CrystalApi.Subscribe("removeEntity", function (entity) {
@@ -56,8 +56,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
         });
       });  
 
-      CrystalApi.Subscribe("update", function () {
-        step();
+      CrystalApi.Subscribe("update", function (data) {
+        worldStep();
       });
 
     }
@@ -66,7 +66,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       world.DrawDebugData();
     }
 
-    var step = function () {
+    var worldStep = function () {
       world.Step(1/60, 10, 10); // Hz, Iteration, Position
       world.ClearForces();
     }
@@ -99,9 +99,12 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       return shape;
     }
 
-    var placeEntity = function (entity) {
+    var addEntity = function (entity) {
       var body = buildBody(entity);
       entity.set( { body: body } );
+      crystalEntities.push(entity);
+
+      console.log("addEntity scope is: " + this);
       switch (entity.shape) {
         case "polygon":
           fixDef.shape = registerPolygonShape(entity);
@@ -113,21 +116,17 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
           fixDef.shape = registerBoxShape(entity);
           break;
         default:
-          throw new Error("unknown entity shape in physics#placeEntites: " + entity.shape);
+          throw new Error("unknown entity shape in physics#addEntites: " + entity.shape);
           break;
       }
       body.CreateFixture(fixDef);      
     }
 
-    var placeEntities = function (entities) {
-      _.each(entities, function(entity){
-        placeEntity(entity);
-      });
-    }
-
     var removeEntity = function (entity) {
       var body = entity.get('body');
       world.DestroyBody(body);
+      crystalEntities = _.without(crystalEntities, entity);
+      console.log("removed entity from physics entities.  count now: " + crystalEntities.length);
     }
 
     var enableDebugDraw = function (context) {
@@ -140,6 +139,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       world.SetDebugDraw(debugDraw);
     }
 
+    // TODO: bring this out of Physics and into Game
     var generateWalls = function () {
       var scale = Constants.physics.scale,
           cwidth = Constants.physics.width / scale,
@@ -177,7 +177,16 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       generateWalls();
     }
 
+    var getEntities = function () {
+      return crystalEntities;
+    }
+
+    var getFoobar = function () {
+      return foobar;
+    }
+
     return {
-      initialize: initialize
+      initialize: initialize,
+      getEntities: getEntities
     }
 });

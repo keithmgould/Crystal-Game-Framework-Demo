@@ -2,7 +2,7 @@ define(['crystal/common/physics', 'crystal/common/api', 'underscore'], function 
   
   var generateSnapshot = function () {
     var snapshot = { entities: [] };
-    _.each(Physics.getEntities(), function (entity) {
+    _.each(Physics.getEntities("photo: genSnap"), function (entity) {
       snapshot.entities.push(entity.getSnapshot());
     });
     return snapshot;

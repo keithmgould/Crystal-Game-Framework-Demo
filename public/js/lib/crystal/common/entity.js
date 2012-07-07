@@ -32,6 +32,7 @@ define(['backbone'], function (Backbone) {
       }
     },
     getSnapshot: function () {
+      if(!this.get('body')) { return {}; }
       var angVel = this.get('body').GetAngularVelocity();
       var linVel = this.get('body').GetLinearVelocity();
       return {

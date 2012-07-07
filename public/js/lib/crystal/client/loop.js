@@ -1,4 +1,4 @@
-define(['crystal/common/api', 'underscore'], function (CrystalApi, _) {
+define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function (CrystalApi, Physics, _) {
   var request = window.requestAnimationFrame       ||
                 window.webkitRequestAnimationFrame ||
                 window.mozRequestAnimationFrame    ||
@@ -26,10 +26,14 @@ define(['crystal/common/api', 'underscore'], function (CrystalApi, _) {
   }
 
   var update = function () {
-    CrystalApi.Publish('update');
+    // if(tickCount > 100){
+    //   debugger;
+    // }
+    CrystalApi.Publish('update', {tickCount: tickCount});
   }
 
   var initialize = function () {
+    console.log("initializing Loop");
     startedAt = Date.now();
     request(accurateInterval);
   }
