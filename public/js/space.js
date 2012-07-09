@@ -130,7 +130,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
 
   var checkForSnapshot = function () {
     var snapshot;
-    console.log("checking for snapshot");
+    // console.log("checking for snapshot");
     if(!snapshotTank){
       return;
     }
@@ -155,7 +155,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
             throw new Error("trying to apply snapshot but no entity found and snapshot.type not supported: " + entitySnapshot.type);
          }
       }
-      console.log("applying snapshot");
+      // console.log("applying snapshot");
       entity.applySnapshot(entitySnapshot);
     });
     // now find all ships that were not in the snapshot and destroy them.

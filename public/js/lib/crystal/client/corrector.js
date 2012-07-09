@@ -1,7 +1,8 @@
 define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function (CrystalApi, Physics, _) {
   var snapshots = [],
       lastPublishedSnapshotAt,
-      useCorrector = true;
+      useCorrector = true,
+      skew = 0.95;
 
   var generateCorrectedSnapshot = function () {
 
@@ -33,16 +34,35 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
       console.log("cant find the entity from the id in the snapshot: " + JSON.stringify(rawEntity.id));
       return rawEntity;
     }
-    rawEntity.x = getAvg([rawEntity.x, localEntity.get('xPos')]);
-    rawEntity.y = getAvg([rawEntity.y, localEntity.get('yPos')]);
+    var body = localEntity.get('body');
+    var position = body.GetPosition();
+
+    rawEntity.x = getSkew(rawEntity.x, position.x);
+    rawEntity.y = getSkew(rawEntity.y, position.y);
+    rawEntity.a = getSkew(rawEntity.a, body.GetAngle());
+    rawEntity.av = getSkew(rawEntity.av, body.GetAngularVelocity());
 
     return rawEntity;
   }
 
-  var getAvg = function (list) {
-    sum = _.reduce(list, function(memo, num){ return memo + num; }, 0);
-    return sum / list.length;
+  // a = 10, b = 20, skew = .10 => c = 10, skewed = 1, return 11
+  // a = 20, b = 10, skew = .10 => c = -10, skewed = -10 * .10 = -1, return 19
+  // skew ranges from 0 to 1, where 0 is completely a and 1 is completely b.
+  var getSkew = function (a,b) {
+    var c = b - a;
+    var skewed = c * skew;
+    var result = a + skewed;
+    var r = Math.random();
+    if(r > 0.95){
+      console.log("a: " + a + ", b: " + b + ", result: " + result);
+    }
+    return result;
   }
+
+  // var getAvg = function (list) {
+  //   sum = _.reduce(list, function(memo, num){ return memo + num; }, 0);
+  //   return sum / list.length;
+  // }
 
   var publishCorrectedSnapshot = function (correctedSnapshot) {
     // don't publish the same snapshot twice
@@ -64,6 +84,13 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
       });
       this.__defineSetter__("useCorrector", function (val) {
         useCorrector = val;
+      });
+
+      this.__defineGetter__("skew", function () {
+        return skew;
+      });
+      this.__defineSetter__("skew", function (val) {
+        skew = val;
       });
 
     // Generate and publish a corrected snapshot on Update
