@@ -22,27 +22,28 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
     return snapshot;
   }
 
-  var correctEntity = function (rawEntity) {
+  var correctEntity = function (newEntitySnapshot) {
     // console.log("Physics.ents: " + Physics.getEntities().length );
     var entities = Physics.getEntities();
     var localEntity = _.find(entities, function (entity) {
-        // console.log("comparing " + rawEntity.id + " to " + entity.id);
-        return rawEntity.id === entity.id;
+        // console.log("comparing " + newEntitySnapshot.id + " to " + entity.id);
+        return newEntitySnapshot.id === entity.id;
     });
 
     if(_.isUndefined(localEntity)){
-      console.log("cant find the entity from the id in the snapshot: " + JSON.stringify(rawEntity.id));
-      return rawEntity;
+      console.log("cant find the entity from the id in the snapshot: " + JSON.stringify(newEntitySnapshot.id));
+      return newEntitySnapshot;
     }
-    var body = localEntity.get('body');
-    var position = body.GetPosition();
+    var localEntitySnapshot = localEntity.getSnapshot();
 
-    rawEntity.x = getSkew(rawEntity.x, position.x);
-    rawEntity.y = getSkew(rawEntity.y, position.y);
-    rawEntity.a = getSkew(rawEntity.a, body.GetAngle());
-    rawEntity.av = getSkew(rawEntity.av, body.GetAngularVelocity());
+    newEntitySnapshot.x = getSkew(newEntitySnapshot.x, localEntitySnapshot.x);
+    newEntitySnapshot.y = getSkew(newEntitySnapshot.y, localEntitySnapshot.y);
+    newEntitySnapshot.a = getSkew(newEntitySnapshot.a, localEntitySnapshot.a);
+    newEntitySnapshot.xv = getSkew(newEntitySnapshot.xv, localEntitySnapshot.xv);
+    newEntitySnapshot.yv = getSkew(newEntitySnapshot.yv, localEntitySnapshot.yv);
+    newEntitySnapshot.av = getSkew(newEntitySnapshot.av, localEntitySnapshot.av);
 
-    return rawEntity;
+    return newEntitySnapshot;
   }
 
   // a = 10, b = 20, skew = .10 => c = 10, skewed = 1, return 11
