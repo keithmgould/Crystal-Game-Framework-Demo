@@ -37,7 +37,7 @@ define(['backbone'], function (Backbone) {
       var angVel    = body.GetAngularVelocity();
       var linVel    = body.GetLinearVelocity();
       var position  = body.GetPosition();
-      return {
+      response = {
         id: this.id,
         x: position.x,
         y: position.y,
@@ -45,9 +45,12 @@ define(['backbone'], function (Backbone) {
         xv: linVel.x,
         yv: linVel.y,
         av: angVel,
-        type: this.get('entityType'),
-        ownerId: 69 // fix
+        type: this.get('entityType')
       };
+      if(this.get('selfEntity') === true){
+        response.selfEntity = true;
+      }
+      return response;
     },
     applySnapshot: function (snapshot) {
       var body = this.get('body'),

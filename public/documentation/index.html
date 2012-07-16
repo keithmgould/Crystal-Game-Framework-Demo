@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
  <head>
   <meta charset="UTF-8">
@@ -7,6 +7,11 @@
  </head>
  <body>
   <section id="sidebar">
+    <a class="toc_title" href="#setup">Setup</a>
+    <ul class="toc_section">
+      <li>- <a href="#entitiesFolder">Entities Folder</a></li>
+      <li>- <a href="#entityLoader">Entity Loader</a></li>
+    </ul>
     <a class="toc_title" href="#server">Server Api</a>
     <ul class="toc_section">
       <li>- <a href="#socketConnected">s socketConnected</a></li>
@@ -20,6 +25,7 @@
       <li>- <a href="#messageToServer">p messageToServer</a></li>
       <li>- <a href="#messageFromServer">s messageFromServer</a></li>
       <li>- <a href="#enableDebugDraw">p enableDebugDraw</a></li>
+      <li>- <a href="#crystalDebug">s crystalDebug</a></li>
     </ul>
     <a class="toc_title" href="#common">Common Api</a>
     <ul class="toc_section">
@@ -46,7 +52,19 @@
   <section id="content">
     <h1>CRYSTAL.JS</h1>
     <p>
-      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, position interpolation and server-side lag compensation.  You can read more about these features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
+      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as client side prediction, position interpolation and is powered by a great 2D Physics engine.  You can read more about these features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
+    </p>
+    <h2 id="setup">Setup</h2>
+    <p>
+      Crystal shares some files with your game.  These shared files must be in a certain place so Crystal can find them.  The directory where these shared files reside is requireRoot/common/
+    </p>
+    <p id="entitiesFolder">
+      <b class="header">Entities Folder</b>
+      The location of the game's entities must be in requireRoot/common/entities.  For more information about entities, see <a href="#entities">entities</a> below.
+    </p>
+    <p id="entityLoader">
+      <b class="header">Entity Loader</b>
+      EntityLoader is a required module that you must write.  It tells Crystal about the entities in the game. TODO: reference example.
     </p>
     <h2 id="server">Server Side API</h2>
     <p id="socketConnected">
@@ -107,6 +125,15 @@
       <ul>  
         <li>message: JS object</li>
         <li>type: string.  type or category of message</li>
+      </ul>
+    </p>
+    <p id="crystalDebug">
+      <b class="header">crystalDebug</b><code>Subscribe("crystalDebug", data)</code>
+      <br />
+      Sends out debug data.  You should not normally need this.  the data payload is a hash and the key 'type' will be:
+      <ul>
+        <li>- lagInfo: holds the current and average (last 5 secs) lag</li>
+        <li>- selfEntityError: difference between local self Entity (.5 avgLag ago) and the server entity in last snapshot</li>
       </ul>
     </p>
     <h2 id="common">Common</h2>

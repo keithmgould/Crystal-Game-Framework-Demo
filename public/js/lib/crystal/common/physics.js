@@ -31,6 +31,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
 
     var world;
     var crystalEntities = []; // Crystal also keeps track of entities
+    var doWorldStep = true;
+    var catchup = 0;
 
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
@@ -66,9 +68,27 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       world.DrawDebugData();
     }
 
+    var stopUpdates = function () {
+      doWorldStep = false;
+    }
+
+    var continueUpdates = function (avgLag) {
+      catchup = avgLag / 2;
+      doWorldStep = true;
+    }
+
     var worldStep = function () {
-      world.Step(1/60, 10, 10); // Hz, Iteration, Position
-      world.ClearForces();
+      var stepSize = 1/60;
+      var msStepSize = stepSize * 1000;
+      if(doWorldStep){
+        world.Step(stepSize, 10, 10); // Hz, Iteration, Position
+        world.ClearForces();
+        if(catchup > 0){
+          console.log("Doing a catchup! " + catchup +"---------------------------------------");
+          catchup -= msStepSize;
+          worldStep();
+        }
+      }
     }
 
     // Register the positon and dynamics
@@ -103,8 +123,6 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       var body = buildBody(entity);
       entity.set( { body: body } );
       crystalEntities.push(entity);
-
-      console.log("addEntity scope is: " + this);
       switch (entity.shape) {
         case "polygon":
           fixDef.shape = registerPolygonShape(entity);
@@ -187,6 +205,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
 
     return {
       initialize: initialize,
-      getEntities: getEntities
+      getEntities: getEntities,
+      stopUpdates: stopUpdates,
+      continueUpdates: continueUpdates
     }
 });

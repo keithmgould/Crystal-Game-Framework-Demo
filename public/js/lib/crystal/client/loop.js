@@ -26,9 +26,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
   }
 
   var update = function () {
-    // if(tickCount > 100){
-    //   debugger;
-    // }
     CrystalApi.Publish('update', {tickCount: tickCount});
   }
 

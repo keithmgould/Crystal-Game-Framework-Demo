@@ -1,8 +1,8 @@
 define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
 
   var socket = io.connect("collabfighter.local:3000"),
-      socketOnLatency   = 0, // Ms
-      socketEmitLatency = 0; // Ms
+      socketOnLatency   = 250, // Ms
+      socketEmitLatency = 250; // Ms
 
   // For testing: Add artificial latency when receiving server messages
   var delayedSocketOn = function (message, fn) {
@@ -19,7 +19,6 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
   }
 
   var initialize = function () {
-    console.log("initializing Transport");
     
     // Listen for client sending message to server
     CrystalApi.Subscribe('messageToServer', function (data) {
