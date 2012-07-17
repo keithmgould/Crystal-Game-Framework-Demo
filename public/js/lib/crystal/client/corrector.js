@@ -66,12 +66,15 @@ define(['crystal/common/api', 'crystal/client/photographer', 'underscore'], func
     });
     if(_.isUndefined(serverSnapshot)){ return false; }
     // now compare each attribute...
+    CrystalApi.Publish('serverSelfEntitySnapshot', serverSnapshot);
+    CrystalApi.Publish('clientHalfLagSelfEntitySnapshot', client);
+
     var results = {};
     results.x = compareAttribute(client.x, serverSnapshot.x);
     results.y = compareAttribute(client.y, serverSnapshot.y);
     results.a = compareAttribute(client.a, serverSnapshot.a);
     CrystalApi.Publish("crystalDebug", {type: 'selfEntityError', error: results});
-    if(results.x > 5 || results.y > 5 || results.a > 5){
+    if(results.x > 3 || results.y > 3 || results.a > 3){
       console.log("============================================================");
       console.log("x: " + results.x + ", y: " + results.y + ", " + results.a);
       return true;
