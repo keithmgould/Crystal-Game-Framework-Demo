@@ -12,6 +12,7 @@ define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 
     initialize: function () {
       this.set({
         entityType: 'Ship',
+        angularVel: 0,
         xVel: 0,
         yVel: 0,
         height: 2,
@@ -57,14 +58,14 @@ define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 
       y = -Math.cos(angle).toFixed(2);
       x = Math.sin(angle).toFixed(2);
 
-      var missile = new Missile({
-        xPos:  this.get('xPos') + (1.5 * this.get('height')) * x,
-        yPos: this.get('yPos') + (1.5 * this.get('height')) * y,
-        xVel: x * power,
-        yVel: y * power,
-        ownerId: this.id
-      });
-      return missile;
+      // var missile = new Missile({
+      //   xPos:  this.get('xPos') + (1.5 * this.get('height')) * x,
+      //   yPos: this.get('yPos') + (1.5 * this.get('height')) * y,
+      //   xVel: x * power,
+      //   yVel: y * power,
+      //   ownerId: this.id
+      // });
+      // return missile;
     },
 
     rotateRight: function () {

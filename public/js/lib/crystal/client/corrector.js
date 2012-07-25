@@ -4,8 +4,9 @@
 
   If they are not similar enough, then there will be a Correction.
 */
-define(['crystal/common/api', 'crystal/client/photographer', 'underscore'], function (CrystalApi, Photographer, _) {
+define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function (CrystalApi, Physics, _) {
   var avgLag = 0,
+      selfEntity,
       usePrediction = true;
 
   var initialize = function () {
@@ -41,42 +42,63 @@ define(['crystal/common/api', 'crystal/client/photographer', 'underscore'], func
   }
 
   var handleSnapshotWithPrediction = function (data) {
-      var now = Date.now();
-      var then = now - avgLag;
-      // console.log("received new snapshot.  avg lag: " + avgLag + ".  its now: " + now+ ", so looking back to: " + then);
-      var closest = Photographer.findClosest(then);
-      if(closest === false){
-        // console.log("Photographer.findClosest() did not turn up a snapshot from timestamp: " + then);
-        return false;
+
+      if(_.isUndefined(selfEntity)){
+        selfEntity = _.find(Physics.getEntities(), function (entity) {
+          return entity.get('selfEntity') === true;
+        });
+        if(_.isUndefined(selfEntity)){
+          return;
+        }
       }
-      // console.log("Found closest!: " + closest.timestamp + ", with dif: " + (then - closest.timestamp));
-      var resetSelfEntity = compareSnapshots(closest, data.message);
+
+      var lastClientSnapshot = selfEntity.getSnapshot();
+      if(_.isUndefined(lastClientSnapshot)){
+        console.log("no snapshot yet");
+        return;
+      }
+
+      // Extract the selfEntity from the snapshot
+      var serverEntitySnapshot = _.find(data.message.entities, function (entity) {
+        return entity.id === lastClientSnapshot.id;
+      });
+      if(_.isUndefined(serverEntitySnapshot)){ return false; }
+      
+      var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, avgLag);
+      // used for debugging...
+      CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
+      CrystalApi.Publish('serverSelfEntitySnapshot', serverEntitySnapshot);
+
+      var resetSelfEntity = compareSnapshots(lastClientSnapshot, futureSnapshot);
       if(resetSelfEntity){
-        data.message.avgLag = avgLag;
-        Photographer.clearSnapshots();
-        // console.log(JSON.stringify(data.message));
-        CrystalApi.Publish('correctedSnapshot', data.message);
+        CrystalApi.Publish('correctedSnapshot', futureSnapshot);
+      }else{
+        // CrystalApi.Publish('correctedSnapshot', mergeSnapshots(lastClientSnapshot, futureSnapshot));
       }
   }
 
-  var compareSnapshots = function (client, server) {
-    // console.log("Comparing: client: " + JSON.stringify(client) + ", server: " + JSON.stringify(server));
-    var serverSnapshot = _.find(server.entities, function (entity) {
-      return entity.id === client.id;
+  var mergeSnapshots = function (snapshotOne, snapshotTwo) {
+    var newSnapshot = {id: snapshotOne.id, type: snapshotOne.type};
+    var attributes = ["x", "y", "a", "xv", "yv", "av"];
+    _.each(attributes, function (attribute) {
+      newSnapshot[attribute] = mergeSnapshot(snapshotOne[attribute], snapshotTwo[attribute]);
     });
-    if(_.isUndefined(serverSnapshot)){ return false; }
-    // now compare each attribute...
-    CrystalApi.Publish('serverSelfEntitySnapshot', serverSnapshot);
-    CrystalApi.Publish('clientHalfLagSelfEntitySnapshot', client);
+    debugger;
+    return newSnapshot;
+  }
 
+  var mergeSnapshot = function (attributeOne, attributeTwo) {
+    return (attributeOne + attributeTwo) / 2;
+  }
+
+  var compareSnapshots = function (client, server) {
     var results = {};
-    results.x = compareAttribute(client.x, serverSnapshot.x);
-    results.y = compareAttribute(client.y, serverSnapshot.y);
-    results.a = compareAttribute(client.a, serverSnapshot.a);
+    
+    results.x = compareAttribute(client.x, server.x);
+    results.y = compareAttribute(client.y, server.y);
+    results.a = compareAttribute(client.a, server.a);
     CrystalApi.Publish("crystalDebug", {type: 'selfEntityError', error: results});
-    if(results.x > 3 || results.y > 3 || results.a > 3){
-      console.log("============================================================");
-      console.log("x: " + results.x + ", y: " + results.y + ", " + results.a);
+    if(results.x > 1 || results.y > 1 || results.a > 1){
       return true;
     }else{ 
       return false;

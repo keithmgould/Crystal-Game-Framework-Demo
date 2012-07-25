@@ -2,17 +2,13 @@ define(['crystal/common/api', 'crystal/common/physics', 'common/entityLoader', '
   
   var initialize = function () {
     CrystalApi.Subscribe('correctedSnapshot', function (data) {
-      if(data.avgLag && data.avgLag > 0){
-        console.log("Stopping Updates---------------------------------------");
-        Physics.stopUpdates();
-        console.log("applying snapshot: " + JSON.stringify(data));
-      }
       applySnapshot(data);
-      if(data.avgLag && data.avgLag > 0){
-        console.log("Starting Updates with avgLag " + data.avgLag + "---------------------------------------");
-        Physics.continueUpdates(data.avgLag);
-      }
     });
+
+    CrystalApi.Subscribe('newSnapshot', function (data) {
+      applySnapshot(data);
+    });
+
   }
 
   var findEntityById = function (entityId) {
@@ -22,15 +18,18 @@ define(['crystal/common/api', 'crystal/common/physics', 'common/entityLoader', '
     return entity;
   }
 
-  var applySnapshot = function (data) {
+  var applyAllEntities = function (data) {
     _.each(data.entities, function (entitySnapshot) {
+      applySnapshot(entitySnapshot);
+    });
+  }
+
+  var applySnapshot = function (entitySnapshot) {
       var entity = findEntityById(entitySnapshot.id);
       if(_.isUndefined(entity)){
-        throw new Error('baaaaad');
-        // entity = buildEntity(entitySnapshot);
+        console.log("Entity not found");        
       }
       entity.applySnapshot(entitySnapshot);
-    });
   }
 
   var buildEntity = function (entitySnapshot) {

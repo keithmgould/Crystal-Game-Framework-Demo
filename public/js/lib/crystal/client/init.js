@@ -3,17 +3,17 @@ define(['crystal/client/transport',
         'crystal/client/corrector',
         'crystal/common/physics',
         'crystal/client/pingPong',
-        'crystal/client/photographer',
-        'crystal/client/ssapplier'], function (Transport, Loop, Corrector, Physics, PingPong, Photographer, SSApplier) {
+        'crystal/client/ssapplier',
+        'crystal/client/interpolator'], function (Transport, Loop, Corrector, Physics, PingPong, SSApplier, Interpolator) {
 
   var initialize = function () {
     Transport.initialize();
     Physics.initialize();
-    Photographer.initialize();
     Corrector.initialize();
     Loop.initialize();
     PingPong.initialize();
     SSApplier.initialize();
+    Interpolator.initialize();
   }
 
   return {

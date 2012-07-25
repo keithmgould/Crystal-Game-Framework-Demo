@@ -44,19 +44,12 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       generateWorld();
      
       CrystalApi.Subscribe("addEntity", function (entity) {
-        addEntity(entity);
+        addEntity(entity, world, true);
       });
 
       CrystalApi.Subscribe("removeEntity", function (entity) {
-        removeEntity(entity);
-      });
-
-      CrystalApi.Subscribe("enableDebugDraw", function (context) {
-        enableDebugDraw(context);
-        CrystalApi.Subscribe("update", function () {
-          renderDebugDraw();
-        });
-      });  
+        removeEntity(entity, world);
+      }); 
 
       CrystalApi.Subscribe("update", function (data) {
         worldStep();
@@ -78,21 +71,75 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
     }
 
     var worldStep = function () {
-      var stepSize = 1/60;
-      var msStepSize = stepSize * 1000;
+      var stepSize = 1/60,
+          msStepSize = stepSize * 1000;
       if(doWorldStep){
-        world.Step(stepSize, 10, 10); // Hz, Iteration, Position
-        world.ClearForces();
         if(catchup > 0){
-          console.log("Doing a catchup! " + catchup +"---------------------------------------");
-          catchup -= msStepSize;
-          worldStep();
+          while(catchup > 0){
+            console.log("Doing a catchup.  time left: " + catchup);
+            catchup -= msStepSize;
+            world.Step(stepSize, 10, 10); // Hz, Iteration, Position
+            world.ClearForces();
+          }
+        }else{
+          world.Step(stepSize, 10, 10); // Hz, Iteration, Position
+          world.ClearForces();
         }
       }
     }
 
+    // create a temp world and run an entity to see where it will end up.
+    var seeFuture = function (snapshot, runTime) {
+
+      var entity = _.find(crystalEntities, function (ent) {
+        return snapshot.id === ent.id;
+      });
+      if(_.isUndefined(entity)){
+        throw new Error("can't find entity in seeFuture");
+      }
+      
+      tempWorld = new b2World(
+        new b2Vec2(0, 0),  //zero gravity (x,y)
+        true               //allow sleep
+      );
+      generateWalls(tempWorld);
+
+      entity.set({
+        xPos: snapshot.x,
+        yPos: snapshot.y,
+        angle: snapshot.a,
+        xVel: snapshot.xv,
+        yVel: snapshot.yv,
+        angularVel: snapshot.av
+      });
+      var body = addEntity(entity, tempWorld, false);
+      var stepSize = 1/60,
+          msStepSize = stepSize * 1000;
+
+      while(runTime > 0){
+        // console.log("runTime: " + runTime);
+        tempWorld.Step(stepSize, 10,10);
+        tempWorld.ClearForces();
+        runTime -= msStepSize;
+      }
+      var angVel    = body.GetAngularVelocity();
+      var linVel    = body.GetLinearVelocity();
+      var position  = body.GetPosition();
+      var futureSnapshot = {
+        id: snapshot.id,
+        x: position.x,
+        y: position.y,
+        a: body.GetAngle(),
+        xv: snapshot.xv,
+        yv: snapshot.yv,
+        av: snapshot.av,
+        type: snapshot.type
+      };
+      return futureSnapshot;
+    }
+
     // Register the positon and dynamics
-    var buildBody = function (entity) {
+    var buildBody = function (entity, myWorld) {
       var bodyDef = new b2BodyDef,
           body;
       bodyDef.type = b2Body.b2_dynamicBody;
@@ -100,7 +147,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       bodyDef.position.y = entity.get('yPos');
       bodyDef.angle      = entity.get('angle');
       bodyDef.linearVelocity = {x: entity.get('xVel'), y: entity.get('yVel')};
-      body = world.CreateBody(bodyDef);
+      bodyDef.angularVelocity = entity.get('angularVel');
+      body = myWorld.CreateBody(bodyDef);
       return body;
     }
 
@@ -119,10 +167,12 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       return shape;
     }
 
-    var addEntity = function (entity) {
-      var body = buildBody(entity);
-      entity.set( { body: body } );
-      crystalEntities.push(entity);
+    var addEntity = function (entity, myWorld, storeEntity) {
+      var body = buildBody(entity, myWorld);
+      if(storeEntity){
+        entity.set( { body: body } );
+        crystalEntities.push(entity);
+      }
       switch (entity.shape) {
         case "polygon":
           fixDef.shape = registerPolygonShape(entity);
@@ -137,28 +187,19 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
           throw new Error("unknown entity shape in physics#addEntites: " + entity.shape);
           break;
       }
-      body.CreateFixture(fixDef);      
+      body.CreateFixture(fixDef);
+      return body;   
     }
 
-    var removeEntity = function (entity) {
+    var removeEntity = function (entity, myWorld) {
       var body = entity.get('body');
-      world.DestroyBody(body);
+      myWorld.DestroyBody(body);
       crystalEntities = _.without(crystalEntities, entity);
       console.log("removed entity from physics entities.  count now: " + crystalEntities.length);
     }
 
-    var enableDebugDraw = function (context) {
-      var debugDraw = new b2DebugDraw();
-      debugDraw.SetSprite(context);
-      debugDraw.SetDrawScale(Constants.physics.scale);
-      debugDraw.SetFillAlpha(0.3);
-      debugDraw.SetLineThickness(1.0);
-      debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-      world.SetDebugDraw(debugDraw);
-    }
-
     // TODO: bring this out of Physics and into Game
-    var generateWalls = function () {
+    var generateWalls = function (myWorld) {
       var scale = Constants.physics.scale,
           cwidth = Constants.physics.width / scale,
           cheight = Constants.physics.height / scale,
@@ -169,22 +210,22 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       bodyDef.position.x = cwidth / 2;
       bodyDef.position.y = cheight;
       fixDef.shape.SetAsBox( cwidth / 2, 0.5);
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      myWorld.CreateBody(bodyDef).CreateFixture(fixDef);
       // north
       bodyDef.position.x = cwidth / 2;
       bodyDef.position.y = 0;
       fixDef.shape.SetAsBox( cwidth / 2, 0.5);
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      myWorld.CreateBody(bodyDef).CreateFixture(fixDef);
       // east
       bodyDef.position.x = cwidth;
       bodyDef.position.y = cheight / 2;
       fixDef.shape.SetAsBox( 0.5, cheight / 2);
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      myWorld.CreateBody(bodyDef).CreateFixture(fixDef);
       // west
       bodyDef.position.x = 0;
       bodyDef.position.y = cheight / 2;
       fixDef.shape.SetAsBox( 0.5, cheight / 2);
-      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      myWorld.CreateBody(bodyDef).CreateFixture(fixDef);
     }
 
     var generateWorld = function () {
@@ -192,7 +233,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
         new b2Vec2(0, 0),  //zero gravity (x,y)
         true               //allow sleep
       );
-      generateWalls();
+      generateWalls(world);
     }
 
     var getEntities = function () {
@@ -207,6 +248,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       initialize: initialize,
       getEntities: getEntities,
       stopUpdates: stopUpdates,
-      continueUpdates: continueUpdates
+      continueUpdates: continueUpdates,
+      seeFuture: seeFuture
     }
 });

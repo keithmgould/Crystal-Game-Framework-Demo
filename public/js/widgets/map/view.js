@@ -27,8 +27,12 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         that.updateFromSnapshot(data, 'ssPoly');
       });
 
-      CrystalApi.Subscribe('clientHalfLagSelfEntitySnapshot', function (data) {
-        that.updateFromSnapshot(data, 'pcPoly');
+      CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (data) {
+        that.updateFromSnapshot(data, 'ffPoly');
+      });
+
+      CrystalApi.Subscribe('interpolatedSnapshot', function (data) {
+        that.updateFromSnapshot(data, 'inPoly');
       });
 
       Space.addToLoopCallbacks(this, this.drawElements);
@@ -67,14 +71,18 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       // snapshot poly: shows incoming snapshots of selfShip
       var ssPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
       kineticObjs['ssPoly'] = {knode : ssPoly, layer : selfShipLayer};
-      
-      // past client poly: shows client physics engine snapshot from the past.
-      var pcPoly = this.placeShip(0, 0, 0, "yellow", selfShipLayer);
-      kineticObjs['pcPoly'] = {knode : pcPoly, layer : selfShipLayer};      
+
+      // snapshot poly: shows incoming snapshots of selfShip, fastforwarded
+      var ffPoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
+      kineticObjs['ffPoly'] = {knode : ffPoly, layer : selfShipLayer};     
       
       // physics engine poly: shows client physics engine selfShip
       var pePoly = this.placeShip(0, 0, 0, "green", selfShipLayer);
       kineticObjs['pePoly'] = {knode : pePoly, layer : selfShipLayer};
+
+      // physics engine poly: interpolated ship
+      var pePoly = this.placeShip(0, 0, 0, "blue", selfShipLayer);
+      kineticObjs['inPoly'] = {knode : pePoly, layer : selfShipLayer};
 
     },
     updateElements: function () {

@@ -12,14 +12,7 @@ define(['backbone'], function (Backbone) {
       if(this.suicideIfGeriatric()){
         return {status: 'suicide'};
       }else{
-        if(!!this.get('body')){
-          this.set({xPos : this.get('body').GetPosition().x});
-          this.set({yPos : this.get('body').GetPosition().y});
-          this.set({angle : this.get('body').GetAngle()});
-        }else{
-          console.log('no body found');
-        }
-        return {status: 'ok'}
+        return {status: 'ok'};
       }
     },
     suicideIfGeriatric: function () {
