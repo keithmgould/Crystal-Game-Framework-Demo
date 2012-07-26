@@ -42,13 +42,6 @@ define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 
           console.log("don't know what to do with this valid key yet...");
       }
     },
-    axisUsage: function () {
-      var angle = this.get('angle');
-      return {
-        x:  Math.sin(angle).toFixed(2),
-        y:  -Math.cos(angle).toFixed(2)
-      }
-    },
     fireMissile: function () {
 
      var power = 50,
@@ -75,15 +68,16 @@ define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 
       this.get('body').ApplyTorque(-10);
     },
     thrust: function () {
-      var power = 1,
+      var body = this.get('body'),
+          power = 1,
           x, 
           y, 
-          angle = this.get('angle');
+          angle = body.GetAngle();
       y = -Math.cos(angle).toFixed(2);
       x = Math.sin(angle).toFixed(2);
-      this.get('body').ApplyImpulse(
+      body.ApplyImpulse(
         { x: x * power, y: y * power},
-        this.get('body').GetWorldCenter()
+        body.GetWorldCenter()
       );
     }
   });

@@ -21,6 +21,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       });
       selfShipLayer = new Kinetic.Layer();
       stage.add(selfShipLayer);
+      this.placeBackground(selfShipLayer);
       this.placeSelfShip();
       that = this;
       CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
@@ -48,10 +49,21 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       kineticObjs[kineticObj].knode.setRotation(angle);
     },
 
-    placeShip : function (x, y, rotation, color, layer) {
-      var nose      = { x : 0, y : -20},
-          rearLeft  = { x : -5, y : 0},
-          rearRight = { x : 5, y : 0},
+    placeBackground: function (layer) {
+      var rect = new Kinetic.Rect({
+        x: 0,
+        y: 0,
+        width: screenWidth,
+        height: screenHeight,
+        fill: "black"
+      });
+      layer.add(rect);
+    },
+
+    placeShip: function (x, y, rotation, color, layer) {
+      var nose      = { x: 0, y: -20},
+          rearLeft  = { x: -5, y: 0},
+          rearRight = { x: 5, y: 0},
           poly;
 
       poly = new Kinetic.Polygon({

@@ -6,20 +6,13 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
       delay = 100; // Ms
 
   var initialize = function () {
-    CrystalApi.Subscribe('messageFromServer:crystal', function (data) {
-      if(data.type != "snapshot") {return;}
+    CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (snapshot) {
 
       if(_.isUndefined(selfEntity)){
         selfEntity = _.find(Physics.getEntities(), function (entity) {
           return entity.get('selfEntity') === true;
         });
       }
-
-      // extract snapshot
-      var snapshot = _.find(data.message.entities, function (entity) {
-        return selfEntity.id === entity.id;
-      });
-      if(_.isUndefined(snapshot)){ return false; }
 
       snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
       if(snapshots.length > 10){

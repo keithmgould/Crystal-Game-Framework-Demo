@@ -57,35 +57,9 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
 
     }
 
-    var renderDebugDraw = function () {
-      world.DrawDebugData();
-    }
-
-    var stopUpdates = function () {
-      doWorldStep = false;
-    }
-
-    var continueUpdates = function (avgLag) {
-      catchup = avgLag / 2;
-      doWorldStep = true;
-    }
-
     var worldStep = function () {
-      var stepSize = 1/60,
-          msStepSize = stepSize * 1000;
-      if(doWorldStep){
-        if(catchup > 0){
-          while(catchup > 0){
-            console.log("Doing a catchup.  time left: " + catchup);
-            catchup -= msStepSize;
-            world.Step(stepSize, 10, 10); // Hz, Iteration, Position
-            world.ClearForces();
-          }
-        }else{
-          world.Step(stepSize, 10, 10); // Hz, Iteration, Position
-          world.ClearForces();
-        }
-      }
+      world.Step(1/60, 10, 10); // Hz, Iteration, Position
+      world.ClearForces();
     }
 
     // create a temp world and run an entity to see where it will end up.
@@ -240,15 +214,9 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       return crystalEntities;
     }
 
-    var getFoobar = function () {
-      return foobar;
-    }
-
     return {
       initialize: initialize,
       getEntities: getEntities,
-      stopUpdates: stopUpdates,
-      continueUpdates: continueUpdates,
       seeFuture: seeFuture
     }
 });

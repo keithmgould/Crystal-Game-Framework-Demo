@@ -13,7 +13,7 @@ define(['crystal/common/physics', 'crystal/common/api', 'underscore'], function 
   var initialize = function () {
     CrystalApi.Subscribe("update", function (data) {
       var snapshot;
-      if(data.tickCount % 10 === 0){
+      if(data.tickCount % 3 === 0){
         snapshot = generateSnapshot();
         CrystalApi.Publish('broadcast', { target: 'crystal', type: 'snapshot', message: snapshot});
       }

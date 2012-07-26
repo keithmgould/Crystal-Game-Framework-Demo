@@ -65,31 +65,18 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
       if(_.isUndefined(serverEntitySnapshot)){ return false; }
       
       var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, avgLag);
-      // used for debugging...
       CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
       CrystalApi.Publish('serverSelfEntitySnapshot', serverEntitySnapshot);
 
       var resetSelfEntity = compareSnapshots(lastClientSnapshot, futureSnapshot);
       if(resetSelfEntity){
-        CrystalApi.Publish('correctedSnapshot', futureSnapshot);
+        // CrystalApi.Publish('correctedSnapshot', futureSnapshot);
       }else{
         // CrystalApi.Publish('correctedSnapshot', mergeSnapshots(lastClientSnapshot, futureSnapshot));
       }
   }
 
-  var mergeSnapshots = function (snapshotOne, snapshotTwo) {
-    var newSnapshot = {id: snapshotOne.id, type: snapshotOne.type};
-    var attributes = ["x", "y", "a", "xv", "yv", "av"];
-    _.each(attributes, function (attribute) {
-      newSnapshot[attribute] = mergeSnapshot(snapshotOne[attribute], snapshotTwo[attribute]);
-    });
-    debugger;
-    return newSnapshot;
-  }
 
-  var mergeSnapshot = function (attributeOne, attributeTwo) {
-    return (attributeOne + attributeTwo) / 2;
-  }
 
   var compareSnapshots = function (client, server) {
     var results = {};
