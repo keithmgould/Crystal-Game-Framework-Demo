@@ -11,6 +11,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
 
   var mapView = Backbone.View.extend({
     initialize: function () {
+
       scale = Constants.physics.scale;
       screenWidth = Constants.physics.width;
       screenHeight = Constants.physics.height;
@@ -37,6 +38,34 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       });
 
       Space.addToLoopCallbacks(this, this.drawElements);
+
+      Space.mediator.Subscribe("shipVisibility", function (data) {
+        switch(data.ship){
+          case "interpolated":
+            that.toggleNodeVisibility(kineticObjs['inPoly'].knode);
+            break;
+          case "client":
+            that.toggleNodeVisibility(kineticObjs['pePoly'].knode);
+            break;
+          case "server":
+            that.toggleNodeVisibility(kineticObjs['ssPoly'].knode);
+            break;
+          case "fastForward":
+            that.toggleNodeVisibility(kineticObjs['ffPoly'].knode);
+            break;
+          default:
+            throw new Error("unknown ship type");
+        }
+      });
+
+    },
+
+    toggleNodeVisibility: function (node) {
+      if(node.isVisible()){
+        node.hide();
+      }else{
+        node.show();
+      }
     },
 
     updateFromSnapshot: function (snapshot, kineticObj) {
@@ -80,22 +109,23 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       return poly;
     },
     placeSelfShip : function () {
-      // snapshot poly: shows incoming snapshots of selfShip
-      var ssPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
-      kineticObjs['ssPoly'] = {knode : ssPoly, layer : selfShipLayer};
 
-      // snapshot poly: shows incoming snapshots of selfShip, fastforwarded
-      var ffPoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
-      kineticObjs['ffPoly'] = {knode : ffPoly, layer : selfShipLayer};     
       
       // physics engine poly: shows client physics engine selfShip
       var pePoly = this.placeShip(0, 0, 0, "green", selfShipLayer);
       kineticObjs['pePoly'] = {knode : pePoly, layer : selfShipLayer};
 
+      // snapshot poly: shows incoming snapshots of selfShip, fastforwarded
+      var ffPoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
+      kineticObjs['ffPoly'] = {knode : ffPoly, layer : selfShipLayer};     
+
+      // snapshot poly: shows incoming snapshots of selfShip
+      var ssPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
+      kineticObjs['ssPoly'] = {knode : ssPoly, layer : selfShipLayer};
+
       // physics engine poly: interpolated ship
       var pePoly = this.placeShip(0, 0, 0, "blue", selfShipLayer);
       kineticObjs['inPoly'] = {knode : pePoly, layer : selfShipLayer};
-
     },
     updateElements: function () {
       var selfShip = Space.getSelfShip();

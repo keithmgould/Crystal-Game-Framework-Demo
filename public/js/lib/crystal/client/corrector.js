@@ -64,13 +64,13 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
       });
       if(_.isUndefined(serverEntitySnapshot)){ return false; }
       
-      var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, avgLag);
+      var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, avgLag/2);
       CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
       CrystalApi.Publish('serverSelfEntitySnapshot', serverEntitySnapshot);
 
       var resetSelfEntity = compareSnapshots(lastClientSnapshot, futureSnapshot);
       if(resetSelfEntity){
-        // CrystalApi.Publish('correctedSnapshot', futureSnapshot);
+        CrystalApi.Publish('correctedSnapshot', futureSnapshot);
       }else{
         // CrystalApi.Publish('correctedSnapshot', mergeSnapshots(lastClientSnapshot, futureSnapshot));
       }

@@ -1,7 +1,7 @@
 // NOTE: this widget is breaking the sandbox rule by accessing crystal directly,
 // but its not part of the official game or framework, its just for debugging.
 // So I'm OK with this for now.
-define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/corrector'], function (dat, Backbone, Transport, Corrector) {
+define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpolator', 'space'], function (dat, Backbone, Transport, Interpolator, Space) {
   var datgui;
   var datguiView = Backbone.View.extend({
     initialize: function () {
@@ -14,9 +14,41 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/corrector
       latencyFolder.open();
 
       // prep twitch features
-      var twitchFolder = datgui.addFolder('twitch features');
-      twitchFolder.add(Corrector, "usePrediction");
-      twitchFolder.open();
+      var interpolationFolder = datgui.addFolder('interpolation');
+      interpolationFolder.add(Interpolator, "delay");
+      interpolationFolder.open();
+
+      // Map View
+      var mapFolder = datgui.addFolder('Toggle Ships');
+      var ships = {
+        interpolated: true,
+        client: true,
+        server: true,
+        fastForward: true
+      };
+
+      var interpolatedController = mapFolder.add(ships, 'interpolated');
+      interpolatedController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "interpolated", value: value});
+      });
+
+      var clientController = mapFolder.add(ships, 'client');
+      clientController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "client", value: value});
+      });
+
+      var serverController = mapFolder.add(ships, 'server');
+      serverController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "server", value: value});
+      });
+
+      var fastForwardController = mapFolder.add(ships, 'fastForward');
+      fastForwardController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "fastForward", value: value});
+      });
+
+
+      mapFolder.open();
 
       // render
       $("#devTools").append(this.el);

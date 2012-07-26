@@ -18,6 +18,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
       if(snapshots.length > 10){
         snapshots.shift();
       }
+
     });
 
     CrystalApi.Subscribe("update", function (data) {
@@ -41,6 +42,15 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         
         CrystalApi.Publish("interpolatedSnapshot", snapshot);
       }
+    });
+
+    // added these to accomodate dat.gui widget
+    // http://code.google.com/p/dat-gui/
+    this.__defineGetter__("delay", function () {
+      return delay;
+    });
+    this.__defineSetter__("delay", function (val) {
+      delay = val;
     });
 
   }
