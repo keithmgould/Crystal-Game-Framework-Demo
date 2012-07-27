@@ -124,8 +124,12 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       kineticObjs['ssPoly'] = {knode : ssPoly, layer : selfShipLayer};
 
       // physics engine poly: interpolated ship
-      var pePoly = this.placeShip(0, 0, 0, "blue", selfShipLayer);
-      kineticObjs['inPoly'] = {knode : pePoly, layer : selfShipLayer};
+      var inPoly = this.placeShip(0, 0, 0, "blue", selfShipLayer);
+      kineticObjs['inPoly'] = {knode : inPoly, layer : selfShipLayer};
+
+      // physics engine poly: final ship
+      var fiPoly = this.placeShip(0, 0, 0, "white", selfShipLayer);
+      kineticObjs['fiPoly'] = {knode : fiPoly, layer : selfShipLayer};
     },
     updateElements: function () {
       var selfShip = Space.getSelfShip();

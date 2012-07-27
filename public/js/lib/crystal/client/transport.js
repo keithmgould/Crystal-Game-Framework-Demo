@@ -2,7 +2,9 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
 
   var socket = io.connect("collabfighter.local:3000"),
       socketOnLatency   = 250, // Ms
-      socketEmitLatency = 250; // Ms
+      socketEmitLatency = 250, // Ms
+      lastSentAt = -1,
+      lastLag = -1;
 
   // For testing: Add artificial latency when receiving server messages
   var delayedSocketOn = function (message, fn) {
@@ -22,15 +24,24 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
     
     // Listen for client sending message to server
     CrystalApi.Subscribe('messageToServer', function (data) {
+       lastSentAt = Date.now();
+       data.sentAt = lastSentAt;
       delayedSocketEmit('message', data);
     });
 
     // Listen for server sending message to client
     delayedSocketOn('message', function (data) {
       var publishTo = "messageFromServer";
-        if(data.target){
-          publishTo += ":" + data.target;
-        }
+      if(data.target){
+        publishTo += ":" + data.target;
+      }
+      if(lastSentAt && data.receivedAt && lastSentAt === data.receivedAt && lastLag === -1){
+        lastLag = Date.now - lastSentAt;
+        data.lag = lastLag;
+      }else{
+        data.lag = -1;
+      }
+      data.lag = lastLag;
       CrystalApi.Publish(publishTo, data);
     });
   }

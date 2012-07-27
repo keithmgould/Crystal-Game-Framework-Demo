@@ -3,6 +3,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
   var snapshots = [],
       path,
       selfEntity,
+      updateMethod,
       delay = 100; // Ms
 
   var initialize = function () {
@@ -21,8 +22,12 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
 
     });
 
+    CrystalApi.Subscribe("updateMethodChange", function (data) {
+      updateMethod = data.use;
+    });
+
     CrystalApi.Subscribe("update", function (data) {
-      if(snapshots.length > 5){
+      if(snapshots.length > 5 && updateMethod === "snapshots"){
         var firstSnapshot = _.first(snapshots);
         var firstSnapshotTime = firstSnapshot[3];
         var dateNow = Date.now();
@@ -40,7 +45,10 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
           a: point[2]
         }
         
-        CrystalApi.Publish("interpolatedSnapshot", snapshot);
+        CrystalApi.Publish("finalSnapshot", snapshot);
+      }else{
+        if(_.isUndefined(selfEntity)){return;}
+        CrystalApi.Publish("finalSnapshot", selfEntity.getSnapshot());
       }
     });
 

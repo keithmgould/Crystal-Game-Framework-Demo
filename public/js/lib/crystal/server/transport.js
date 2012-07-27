@@ -12,6 +12,10 @@ define(['crystal/common/api', 'crystal/server/loop', 'underscore'], function (Cr
       var socket, x;
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
+        var receivedAt = socket.get('receivedAt');
+        if(receivedAt){
+          data.receivedAt = receivedAt;
+        }
         socket.emit('message', data);
       }
     });
@@ -43,6 +47,9 @@ define(['crystal/common/api', 'crystal/server/loop', 'underscore'], function (Cr
 
       // Listen for client messages
       socket.on('message', function(data) {
+        if(data.sentAt){
+          socket.set('receivedAt', data.sentAt);
+        }
         var publishTo = "messageFromClient";
         if(data.target){
           publishTo += ":" + data.target;
