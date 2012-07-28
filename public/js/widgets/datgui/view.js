@@ -21,32 +21,25 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
       // Map View
       var mapFolder = datgui.addFolder('Toggle Ships');
       var ships = {
-        interpolated: true,
-        client: true,
         server: true,
-        fastForward: true
+        final: true,
+        future: true
       };
-
-      var interpolatedController = mapFolder.add(ships, 'interpolated');
-      interpolatedController.onChange(function (value) {
-        Space.mediator.Publish("shipVisibility", {ship: "interpolated", value: value});
-      });
-
-      var clientController = mapFolder.add(ships, 'client');
-      clientController.onChange(function (value) {
-        Space.mediator.Publish("shipVisibility", {ship: "client", value: value});
-      });
 
       var serverController = mapFolder.add(ships, 'server');
       serverController.onChange(function (value) {
         Space.mediator.Publish("shipVisibility", {ship: "server", value: value});
       });
 
-      var fastForwardController = mapFolder.add(ships, 'fastForward');
-      fastForwardController.onChange(function (value) {
-        Space.mediator.Publish("shipVisibility", {ship: "fastForward", value: value});
+      var finalController = mapFolder.add(ships, 'final');
+      finalController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "final", value: value});
       });
 
+      var futureController = mapFolder.add(ships, 'future');
+      futureController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "future", value: value});
+      });
 
       mapFolder.open();
 

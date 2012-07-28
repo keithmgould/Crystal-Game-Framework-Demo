@@ -1,19 +1,21 @@
 define(['crystal/client/transport',
         'crystal/client/loop',
-        'crystal/client/snapsorter',
+        'crystal/client/fastforwarder',
         'crystal/common/physics',
         'crystal/client/pingPong',
         'crystal/client/ssapplier',
-        'crystal/client/interpolator'], function (Transport, Loop, SnapSorter, Physics, PingPong, SSApplier, Interpolator) {
+        'crystal/client/interpolator',
+        'crystal/client/predictor'], function (Transport, Loop, Fastforwarder, Physics, PingPong, SSApplier, Interpolator, Predictor) {
 
   var initialize = function () {
     Transport.initialize();
     Physics.initialize();
-    SnapSorter.initialize();
+    Fastforwarder.initialize();
     Loop.initialize();
     PingPong.initialize();
     SSApplier.initialize();
     Interpolator.initialize();
+    Predictor.initialize();
   }
 
   return {

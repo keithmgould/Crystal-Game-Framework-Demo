@@ -9,14 +9,15 @@ define(['crystal/common/api', 'crystal/server/loop', 'underscore'], function (Cr
 
     // Listen for Api Broadcast Request
     CrystalApi.Subscribe('broadcast', function (data) {
-      var socket, x;
+      var socket, x, receivedAt;
       for(x in io.sockets.sockets){
         socket = io.sockets.sockets[x];
-        var receivedAt = socket.get('receivedAt');
-        if(receivedAt){
-          data.receivedAt = receivedAt;
-        }
-        socket.emit('message', data);
+        socket.get('receivedAt', function (err, receivedAt) {
+          if(receivedAt){
+            data.receivedAt = receivedAt;
+          }
+          socket.emit('message', data); 
+        });
       }
     });
 

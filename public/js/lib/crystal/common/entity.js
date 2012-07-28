@@ -59,7 +59,6 @@ define(['backbone'], function (Backbone) {
 
       linVel = body.GetLinearVelocity();
       if(linVel.x == 0 && linVel.y == 0 && (snapshot.xv != 0 || snapshot.yv != 0)){
-          console.log("trying to set linVel");
           body.ApplyImpulse(
             {x: 1, y: 1},
             body.GetWorldCenter());

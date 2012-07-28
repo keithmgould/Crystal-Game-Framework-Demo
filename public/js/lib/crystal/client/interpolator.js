@@ -1,10 +1,24 @@
 define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smooth', 'underscore'], function (CrystalApi, Physics, Smooth, _) {
   
   var snapshots = [],
-      path,
+      lastSnapshot,
       selfEntity,
       updateMethod,
       delay = 100; // Ms
+
+  var getLastSnapshot = function () {
+    if(snapshots.length === 0){return false;}
+    var raw = _.last(snapshots);
+    var snapshot = {
+      x: raw[0],
+      y: raw[1],
+      a: raw[2],
+      xv: lastSnapshot.xv,
+      yv: lastSnapshot.yv,
+      av: lastSnapshot.av
+    };
+    return snapshot;
+  }
 
   var initialize = function () {
     CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (snapshot) {
@@ -16,6 +30,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
       }
 
       snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
+      lastSnapshot = snapshot;
       if(snapshots.length > 10){
         snapshots.shift();
       }
@@ -24,32 +39,34 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
 
     CrystalApi.Subscribe("updateMethodChange", function (data) {
       updateMethod = data.use;
+      console.log("updateMethodChange: " + updateMethod);
     });
 
-    CrystalApi.Subscribe("update", function (data) {
-      if(snapshots.length > 5 && updateMethod === "snapshots"){
-        var firstSnapshot = _.first(snapshots);
-        var firstSnapshotTime = firstSnapshot[3];
-        var dateNow = Date.now();
-        path = Smooth(snapshots, {
-          method: Smooth.METHOD_CUBIC, 
-          clip: Smooth.CLIP_ZERO, 
-          cubicTension: Smooth.CUBIC_TENSION_CATMULL_ROM,
-          scaleTo: [firstSnapshotTime, dateNow]
-        });
-        
-        var point = path(Date.now() - delay);
-        var snapshot = {
-          x: point[0],
-          y: point[1],
-          a: point[2]
-        }
-        
-        CrystalApi.Publish("finalSnapshot", snapshot);
-      }else{
-        if(_.isUndefined(selfEntity)){return;}
-        CrystalApi.Publish("finalSnapshot", selfEntity.getSnapshot());
+    CrystalApi.Subscribe("update", function (data) {      
+      if(snapshots.length <= 2 || updateMethod != "snapshots"){return;}
+      var firstSnapshot     = _.first(snapshots),
+          firstSnapshotTime = firstSnapshot[3],
+          dateNow           = Date.now(),
+          path, 
+          point, 
+          snapshot;
+
+      path = Smooth(snapshots, {
+        method: Smooth.METHOD_CUBIC, 
+        clip: Smooth.CLIP_ZERO, 
+        cubicTension: Smooth.CUBIC_TENSION_CATMULL_ROM,
+        scaleTo: [firstSnapshotTime, dateNow]
+      });
+      
+      point = path(Date.now() - delay);
+      snapshot = {
+        x: point[0],
+        y: point[1],
+        a: point[2]
       }
+      
+      CrystalApi.Publish("finalSnapshot", snapshot);
+      
     });
 
     // added these to accomodate dat.gui widget
@@ -64,6 +81,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
   }
 
   return {
-    initialize: initialize
+    initialize: initialize,
+    getLastSnapshot: getLastSnapshot
   };
 });

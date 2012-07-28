@@ -25,37 +25,48 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       this.placeBackground(selfShipLayer);
       this.placeSelfShip();
       that = this;
-      CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
-        that.updateFromSnapshot(data, 'ssPoly');
-      });
-
-      CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (data) {
-        that.updateFromSnapshot(data, 'ffPoly');
-      });
-
-      CrystalApi.Subscribe('interpolatedSnapshot', function (data) {
-        that.updateFromSnapshot(data, 'inPoly');
-      });
 
       Space.addToLoopCallbacks(this, this.drawElements);
 
+      // These subscriptions update location of ships on the map
+      CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
+        that.updateFromSnapshot(data, 'serverPoly');
+      });
+
+      CrystalApi.Subscribe('finalSnapshot', function (data) {
+        that.updateFromSnapshot(data, 'finalPoly');
+      });
+
+      CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (data) {
+        that.updateFromSnapshot(data, 'futurePoly');
+      });
+
+      // These subscriptions toggle visibility of ships on map
       Space.mediator.Subscribe("shipVisibility", function (data) {
         switch(data.ship){
-          case "interpolated":
-            that.toggleNodeVisibility(kineticObjs['inPoly'].knode);
-            break;
-          case "client":
-            that.toggleNodeVisibility(kineticObjs['pePoly'].knode);
+          case "final":
+            that.toggleNodeVisibility(kineticObjs['finalPoly'].knode);
             break;
           case "server":
-            that.toggleNodeVisibility(kineticObjs['ssPoly'].knode);
+            that.toggleNodeVisibility(kineticObjs['serverPoly'].knode);
             break;
-          case "fastForward":
-            that.toggleNodeVisibility(kineticObjs['ffPoly'].knode);
+          case "future":
+            that.toggleNodeVisibility(kineticObjs['futurePoly'].knode);
             break;
           default:
             throw new Error("unknown ship type");
         }
+      });
+
+      // These subscriptions change the color based on the mode of the ship
+      CrystalApi.Subscribe("updateMethodChange", function (data) {
+        var color;
+        if(data.use === "snapshots"){
+          color = "yellow";
+        }else{
+          color = "white";
+        }
+        kineticObjs['finalPoly'].knode.fill(color);
       });
 
     },
@@ -108,42 +119,22 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       layer.add(poly);
       return poly;
     },
-    placeSelfShip : function () {
+    placeSelfShip : function () {  
 
-      
-      // physics engine poly: shows client physics engine selfShip
-      var pePoly = this.placeShip(0, 0, 0, "green", selfShipLayer);
-      kineticObjs['pePoly'] = {knode : pePoly, layer : selfShipLayer};
+      // snapshot poly: shows incoming snapshots of selfShip from server
+      var serverPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
+      kineticObjs['serverPoly'] = {knode : serverPoly, layer : selfShipLayer};
 
-      // snapshot poly: shows incoming snapshots of selfShip, fastforwarded
-      var ffPoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
-      kineticObjs['ffPoly'] = {knode : ffPoly, layer : selfShipLayer};     
+      // future poly: show future rendering of server snapshot
+      var futurePoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
+      kineticObjs['futurePoly'] = {knode : futurePoly, layer : selfShipLayer};
 
-      // snapshot poly: shows incoming snapshots of selfShip
-      var ssPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
-      kineticObjs['ssPoly'] = {knode : ssPoly, layer : selfShipLayer};
-
-      // physics engine poly: interpolated ship
-      var inPoly = this.placeShip(0, 0, 0, "blue", selfShipLayer);
-      kineticObjs['inPoly'] = {knode : inPoly, layer : selfShipLayer};
-
-      // physics engine poly: final ship
-      var fiPoly = this.placeShip(0, 0, 0, "white", selfShipLayer);
-      kineticObjs['fiPoly'] = {knode : fiPoly, layer : selfShipLayer};
+      // final poly: show final rendering of ship
+      var finalPoly = this.placeShip(0, 0, 0, "white", selfShipLayer);
+      kineticObjs['finalPoly'] = {knode : finalPoly, layer : selfShipLayer};
     },
-    updateElements: function () {
-      var selfShip = Space.getSelfShip();
-      if(selfShip){
-        var selfSnapshot = selfShip.getSnapshot();
-        var xPos =  scale * selfSnapshot.x;
-        var yPos = scale * selfSnapshot.y;
-        kineticObjs['pePoly'].knode.setX(xPos);
-        kineticObjs['pePoly'].knode.setY(yPos);
-        kineticObjs['pePoly'].knode.setRotation(selfSnapshot.a);
-      }
-    },
+
     drawElements: function () {
-      this.updateElements();
       selfShipLayer.draw();
     }
   });
