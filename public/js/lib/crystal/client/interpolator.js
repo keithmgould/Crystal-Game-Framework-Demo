@@ -3,7 +3,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
   var snapshots = [],
       lastSnapshot,
       selfEntity,
-      updateMethod,
+      updateMethod = "snapshots",
       delay = 100; // Ms
 
   var getLastSnapshot = function () {
@@ -27,19 +27,38 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         selfEntity = _.find(Physics.getEntities(), function (entity) {
           return entity.get('selfEntity') === true;
         });
+        if(_.isUndefined(selfEntity)){
+          return;
+        }
       }
 
-      snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
+      // If this is our first 'current' snapshot, clear the queue
+      if(lastSnapshot && lastSnapshot.current == false && snapshot.current === true){
+        snapshots = [];
+        var localSnapshot = selfEntity.getSnapshot();
+        console.log(JSON.stringify(localSnapshot));
+        console.log(JSON.stringify(snapshot));
+        snapshots.push([localSnapshot.x, localSnapshot.y, localSnapshot.a, Date.now()]);
+      }else{
+        snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
+      }
+
       lastSnapshot = snapshot;
       if(snapshots.length > 10){
         snapshots.shift();
       }
 
+      if(updateMethod != "snapshots" && snapshots.length >= 4  && snapshot.current === true){
+        CrystalApi.Publish("updateMethodChange", {use: "snapshots"});
+      }
+
     });
 
     CrystalApi.Subscribe("updateMethodChange", function (data) {
+      if(updateMethod === "snapshots"){
+        snapshots = [];
+      }
       updateMethod = data.use;
-      console.log("updateMethodChange: " + updateMethod);
     });
 
     CrystalApi.Subscribe("update", function (data) {      
@@ -58,13 +77,13 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         scaleTo: [firstSnapshotTime, dateNow]
       });
       
-      point = path(Date.now() - delay);
+      point = path(dateNow - delay);
       snapshot = {
         x: point[0],
         y: point[1],
         a: point[2]
       }
-      
+      debugger;
       CrystalApi.Publish("finalSnapshot", snapshot);
       
     });

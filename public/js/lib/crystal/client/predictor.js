@@ -7,14 +7,16 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
       if(data.type != "pilotControl") {return;}
       storeSelfEntity();
       if(_.isUndefined(selfEntity)){return;}
-      var lastSnapshot = Interpolator.getLastSnapshot();
-      selfEntity.applySnapshot(lastSnapshot);
-      CrystalApi.Publish('updateMethodChange', {use: "prediction"});
+      if(updateMethod != "prediction"){
+        var lastSnapshot = Interpolator.getLastSnapshot();
+        CrystalApi.Publish('updateMethodChange', {use: "prediction"});
+        selfEntity.applySnapshot(lastSnapshot);
+      }
+      selfEntity.pilotControl(data.message.key);
     });
 
     CrystalApi.Subscribe("updateMethodChange", function (data) {
       updateMethod = data.use;
-      console.log("predictor: updated method change: " + updateMethod);
     });
 
     CrystalApi.Subscribe("update", function (data) {

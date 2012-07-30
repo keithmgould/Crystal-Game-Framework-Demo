@@ -62,11 +62,11 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       CrystalApi.Subscribe("updateMethodChange", function (data) {
         var color;
         if(data.use === "snapshots"){
-          color = "yellow";
-        }else{
           color = "white";
+        }else{
+          color = "green";
         }
-        kineticObjs['finalPoly'].knode.fill(color);
+        kineticObjs['finalPoly'].knode.setFill(color);
       });
 
     },
@@ -132,6 +132,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       // final poly: show final rendering of ship
       var finalPoly = this.placeShip(0, 0, 0, "white", selfShipLayer);
       kineticObjs['finalPoly'] = {knode : finalPoly, layer : selfShipLayer};
+      xxxPoly = finalPoly;
     },
 
     drawElements: function () {

@@ -26,10 +26,9 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
     // Listen for client sending message to server
     CrystalApi.Subscribe('messageToServer', function (data) {
       if(data.type === "pilotControl"){
-        console.log("data.type: " + data.type);
-       lastSentAt = Date.now();
-       data.sentAt = lastSentAt;
-       current = false;
+       lastSentAt   = Date.now();
+       data.sentAt  = lastSentAt;
+       current      = false;
       }
       delayedSocketEmit('message', data);
     });
@@ -42,10 +41,6 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
       }
       data.lag = calculateLastLag(data);
       data.current = current;
-      // console.log("data.lag: " + data.lag + ", lastSentAt: " + lastSentAt + ", receivedAt: " + data.receivedAt + ", lastLag: " + lastLag);
-      if(data.lag > 0){
-        // console.log("lag: " + data.lag);
-      }
       CrystalApi.Publish(publishTo, data);
     });
   }
@@ -54,8 +49,6 @@ define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
   // it stored until client sends another pilot control.
   var calculateLastLag = function (data) {
     if(lastSentAt && data.receivedAt && lastSentAt === data.receivedAt && current === false){
-      // console.log("----------------------------------------------------------------------------");
-      // console.log("Date.now: " + Date.now() + ", lastSentAt: " + lastSentAt);
         current = true;
         lastLag = Date.now() - lastSentAt;
     }

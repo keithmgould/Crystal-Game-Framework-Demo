@@ -11,11 +11,8 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
     CrystalApi.Subscribe('messageFromServer:crystal', function (data) {
       if(data.type != "snapshot") {return;}
       if(storeSelfEntity() === false){return;}
-      if(_.isUndefined(data.lag)){
-        throw new Error("data.lag was not defined");
-      }
-      if(updateMethod != "snapshots" && data.current === true){
-        CrystalApi.Publish("updateMethodChange", {use: "snapshots"});
+      if(_.isUndefined(data.lag) || _.isUndefined(data.current)){
+        throw new Error("data.lag or data.current was not defined");
       }
       fastforwardSnapshot(data);
     });
@@ -47,6 +44,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
     if(_.isUndefined(serverEntitySnapshot)){ return false; }
     
     var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, data.lag);
+    futureSnapshot.current = data.current;
     CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
     CrystalApi.Publish('serverSelfEntitySnapshot', serverEntitySnapshot);
   }

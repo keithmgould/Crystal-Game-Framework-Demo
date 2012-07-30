@@ -20,9 +20,6 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     // listen for pilot controls (from Pilot Widget)
     mediator.Subscribe('pilotControl', function (data) {
       if(_.isObject(selfShip)){
-        // tell local ship for prediction
-        selfShip.pilotControl(data.keystroke);  
-        // tell server.
         CrystalApi.Publish('messageToServer', {target: 'game', type: 'pilotControl', message: {key: data.keystroke}});
       }else{
         throw new Error("received pilot control but selfship is: " + typeof(selfShip));

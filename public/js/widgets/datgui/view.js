@@ -26,14 +26,14 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
         future: true
       };
 
-      var serverController = mapFolder.add(ships, 'server');
-      serverController.onChange(function (value) {
-        Space.mediator.Publish("shipVisibility", {ship: "server", value: value});
-      });
-
       var finalController = mapFolder.add(ships, 'final');
       finalController.onChange(function (value) {
         Space.mediator.Publish("shipVisibility", {ship: "final", value: value});
+      });
+
+      var serverController = mapFolder.add(ships, 'server');
+      serverController.onChange(function (value) {
+        Space.mediator.Publish("shipVisibility", {ship: "server", value: value});
       });
 
       var futureController = mapFolder.add(ships, 'future');
