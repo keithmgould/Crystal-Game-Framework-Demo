@@ -36,8 +36,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
       if(lastSnapshot && lastSnapshot.current == false && snapshot.current === true){
         snapshots = [];
         var localSnapshot = selfEntity.getSnapshot();
-        console.log(JSON.stringify(localSnapshot));
-        console.log(JSON.stringify(snapshot));
         snapshots.push([localSnapshot.x, localSnapshot.y, localSnapshot.a, Date.now()]);
       }else{
         snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
@@ -83,7 +81,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         y: point[1],
         a: point[2]
       }
-      debugger;
       CrystalApi.Publish("finalSnapshot", snapshot);
       
     });
