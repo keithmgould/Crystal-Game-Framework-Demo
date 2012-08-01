@@ -109,6 +109,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
         av: snapshot.av,
         type: snapshot.type
       };
+
       return futureSnapshot;
     }
 

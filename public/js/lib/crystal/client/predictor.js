@@ -22,7 +22,9 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
     CrystalApi.Subscribe("update", function (data) {
       if(updateMethod != "prediction"){return;}
       if(_.isUndefined(selfEntity)){return;}
-      CrystalApi.Publish('finalSnapshot', selfEntity.getSnapshot());
+      var finalSnapshot = selfEntity.getSnapshot();
+      debugFinalSnapshot = finalSnapshot;
+      CrystalApi.Publish('finalSnapshot', finalSnapshot);
     });
   }
 

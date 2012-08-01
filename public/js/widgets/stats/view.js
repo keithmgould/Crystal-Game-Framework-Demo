@@ -17,10 +17,8 @@ define(['stats',
             var avgLag = Math.round( data.avgLag * 100 ) / 100;
             that.$el.find("#crystalStats").find("#avgLag").html(avgLag);
             break;
-          case "selfEntityError":
-            that.$el.find("#crystalStats").find("#selfEntityErrorX").html(Math.round(data.error.x * 1000) / 1000);
-            that.$el.find("#crystalStats").find("#selfEntityErrorY").html(Math.round(data.error.y * 1000) / 1000);
-            that.$el.find("#crystalStats").find("#selfEntityErrorA").html(Math.round(data.error.a * 1000) / 1000);
+          case "snapshotInfo":
+            that.$el.find("#crystalStats").find("#snapshotInterval").html(data.interval);
             break;
         }
       });

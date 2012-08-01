@@ -78,6 +78,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     if(isSelfShip) {
       ship.set({ selfEntity: true, color: "blue"});
       selfShip = ship;
+      mediator.Publish("selfShip", ship);
     }else{
       ship.set({ color : "red" });
     }

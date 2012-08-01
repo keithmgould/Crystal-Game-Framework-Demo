@@ -35,16 +35,23 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
       // If this is our first 'current' snapshot, clear the queue
       if(lastSnapshot && lastSnapshot.current == false && snapshot.current === true){
         snapshots = [];
+        lastSnapshot = null;
         var localSnapshot = selfEntity.getSnapshot();
         snapshots.push([localSnapshot.x, localSnapshot.y, localSnapshot.a, Date.now()]);
       }else{
         snapshots.push([snapshot.x, snapshot.y, snapshot.a, Date.now()]);
       }
 
-      lastSnapshot = snapshot;
+      if(snapshots.length >= 2){
+        var interval = snapshots[snapshots.length-1][3] - snapshots[snapshots.length-2][3];
+        CrystalApi.Publish("crystalDebug", {type: "snapshotInfo", interval: interval});
+      }
+
       if(snapshots.length > 10){
         snapshots.shift();
       }
+
+      lastSnapshot = snapshot;
 
       if(updateMethod != "snapshots" && snapshots.length >= 4  && snapshot.current === true){
         CrystalApi.Publish("updateMethodChange", {use: "snapshots"});

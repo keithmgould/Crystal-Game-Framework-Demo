@@ -2,7 +2,7 @@
   This view cheats by accessing CrystalJS Directly.  It does for demonstration purposes only.  A view should
   normally only access its Sandbox.
 */
-define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'], function  (Constants, Space, Kinetic, CrystalApi, Backbone) {
+define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone', 'underscore'], function  (Constants, Space, Kinetic, CrystalApi, Backbone, _) {
 	var scale,
       stage,
       selfShipLayer,
@@ -23,10 +23,13 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       selfShipLayer = new Kinetic.Layer();
       stage.add(selfShipLayer);
       this.placeBackground(selfShipLayer);
-      this.placeSelfShip();
       that = this;
 
       Space.addToLoopCallbacks(this, this.drawElements);
+
+      Space.mediator.Subscribe("selfShip", function (selfShip) {
+        that.placeSelfShip(selfShip);
+      });
 
       // These subscriptions update location of ships on the map
       CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
@@ -100,39 +103,38 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       layer.add(rect);
     },
 
-    placeShip: function (x, y, rotation, color, layer) {
-      var nose      = { x: 0, y: -20},
-          rearLeft  = { x: -5, y: 0},
-          rearRight = { x: 5, y: 0},
-          poly;
+    placePolygonEntity: function (entity, color, layer) {
+      var points = entity.getShapePoints();
+      var scaledPoints = [];
+      var scaledPoints = _.map(points, function (point) {
+        return { x: point.x * scale, y: point.y * scale};
+      });
 
       poly = new Kinetic.Polygon({
-          x: (screenWidth / 2) + ( scale * x ),
-          y: (screenHeight / 2) + ( scale * y ),
+          x: (screenWidth / 2) + ( scale * entity.get('xPos') ),
+          y: (screenHeight / 2) + ( scale * entity.get('yPos') ),
           fill: color,
           stroke: color,
           strokeWidth: 1,
-          rotationDeg: 0,
-          draggable: false
+          rotationDeg: 0
       });
-      poly.setPoints([nose, rearLeft, rearRight]);
+      poly.setPoints(scaledPoints);
       layer.add(poly);
       return poly;
     },
-    placeSelfShip : function () {  
+    placeSelfShip : function (selfShip) {
 
       // snapshot poly: shows incoming snapshots of selfShip from server
-      var serverPoly = this.placeShip(0, 0, 0, "red", selfShipLayer);
+      var serverPoly = this.placePolygonEntity(selfShip, "red", selfShipLayer);
       kineticObjs['serverPoly'] = {knode : serverPoly, layer : selfShipLayer};
 
       // future poly: show future rendering of server snapshot
-      var futurePoly = this.placeShip(0, 0, 0, "orange", selfShipLayer);
+      var futurePoly = this.placePolygonEntity(selfShip, "orange", selfShipLayer);
       kineticObjs['futurePoly'] = {knode : futurePoly, layer : selfShipLayer};
 
       // final poly: show final rendering of ship
-      var finalPoly = this.placeShip(0, 0, 0, "white", selfShipLayer);
+      var finalPoly = this.placePolygonEntity(selfShip, "white", selfShipLayer);
       kineticObjs['finalPoly'] = {knode : finalPoly, layer : selfShipLayer};
-      xxxPoly = finalPoly;
     },
 
     drawElements: function () {
