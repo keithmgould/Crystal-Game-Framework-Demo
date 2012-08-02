@@ -3,8 +3,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
   var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
-      mediator = new Mediator(),      // mediator instance used for cross-talk by widgets etc..
-      snapshotTank = false;           // Snapshots held here until they are ready to be applied
+      mediator = new Mediator();      // mediator instance used for cross-talk by widgets etc..
 
   
   /**
@@ -51,12 +50,12 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
   var generateSelfShip = function (data){
     console.log("generating selfship!");
     addShip(true, data.x, data.y, data.a, data.id);
+    mediator.Publish("selfShip", selfShip);
   }
 
   var update = function (data) {
     updateEntities();
     runLoopCallbacks();
-    // checkForSnapshot();
   };
 
   var updateEntities = function () {
@@ -78,12 +77,15 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
     if(isSelfShip) {
       ship.set({ selfEntity: true, color: "blue"});
       selfShip = ship;
-      mediator.Publish("selfShip", ship);
     }else{
       ship.set({ color : "red" });
     }
     entities.push(ship);
-    CrystalApi.Publish("addEntity", ship);
+    CrystalApi.Publish("addEntity", ship, function() {
+      if(isSelfShip){
+        mediator.Publish("generatedSelfShip", ship);
+      }
+    });
     return ship;
   };
 

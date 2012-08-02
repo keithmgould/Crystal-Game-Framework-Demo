@@ -30,9 +30,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
     var width = Constants.physics.width;
 
     var world;
-    var crystalEntities = []; // Crystal also keeps track of entities
-    var doWorldStep = true;
-    var catchup = 0;
+    var crystalEntities = [];
 
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
@@ -43,12 +41,18 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       
       generateWorld();
      
-      CrystalApi.Subscribe("addEntity", function (entity) {
+      CrystalApi.Subscribe("addEntity", function (entity, callback) {
         addEntity(entity, world, true);
+        if(_.isFunction(callback)){
+          callback();
+        }
       });
 
-      CrystalApi.Subscribe("removeEntity", function (entity) {
+      CrystalApi.Subscribe("removeEntity", function (entity, callback) {
         removeEntity(entity, world);
+        if(_.isFunction(callback)){
+          callback();
+        }
       }); 
 
       CrystalApi.Subscribe("update", function (data) {
@@ -87,6 +91,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
         angularVel: snapshot.av
       });
       var body = addEntity(entity, tempWorld, false);
+      
       var stepSize = 1/60,
           msStepSize = stepSize * 1000;
 
@@ -98,7 +103,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       }
       var angVel    = body.GetAngularVelocity();
       var linVel    = body.GetLinearVelocity();
-      var position  = body.GetPosition();
+      var position  = body.GetWorldCenter();
       var futureSnapshot = {
         id: snapshot.id,
         x: position.x,
@@ -118,12 +123,13 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       var bodyDef = new b2BodyDef,
           body;
       bodyDef.type = b2Body.b2_dynamicBody;
-      bodyDef.position.x = entity.get('xPos');
-      bodyDef.position.y = entity.get('yPos');
-      bodyDef.angle      = entity.get('angle');
-      bodyDef.linearVelocity = {x: entity.get('xVel'), y: entity.get('yVel')};
-      bodyDef.angularVelocity = entity.get('angularVel');
+      bodyDef.position.x = 0; //entity.get('xPos');
+      bodyDef.position.y = 0; //entity.get('yPos');
+      bodyDef.angle      = 0; //entity.get('angle');
+      // bodyDef.linearVelocity = {x: entity.get('xVel'), y: entity.get('yVel')};
+      // bodyDef.angularVelocity = entity.get('angularVel');
       body = myWorld.CreateBody(bodyDef);
+      
       return body;
     }
 
@@ -163,6 +169,18 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
           break;
       }
       body.CreateFixture(fixDef);
+
+      // move the body so its center of mass is on the original coordinates specified
+      var offsets = body.GetLocalCenter();
+      var angle = entity.get('angle');
+      var offsetY = entity.get('yPos') - Math.cos(angle) * offsets.y;
+      var offsetX = entity.get('xPos') + Math.sin(angle) * offsets.y;
+      body.SetPosition({x: offsetX, y: offsetY});
+      body.SetLinearVelocity({x: entity.get('xVel'), y: entity.get('yVel')});
+      body.SetAngularVelocity(entity.get('angularVel'));
+      body.SetAngle(entity.get('angle'));
+
+      debugger;
       return body;   
     }
 

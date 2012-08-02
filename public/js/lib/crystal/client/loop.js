@@ -30,7 +30,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
   }
 
   var initialize = function () {
-    console.log("initializing Loop");
     startedAt = Date.now();
     request(accurateInterval);
   }

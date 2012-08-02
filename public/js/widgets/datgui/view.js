@@ -45,11 +45,11 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
 
   var configureShipCoordinateControls = function () {
     var shipCoordinates = {
-      server: {x:0, y:0, a:0},
-      final: {x:0, y:0, a:0},
-      future: {x:0, y:0, a:0}
+      server: {x:0.1, y:0.1, a:0.1},
+      final: {x:0.1, y:0.1, a:0.1},
+      future: {x:0.1, y:0.1, a:0.1}
     };
-    var coordinatesFolder = datgui.addFolder("Ship Coordinates");
+    var coordinatesFolder = datgui.addFolder("Ship Coordinates (Readonly)");
     var finalCoordinatesFolder = coordinatesFolder.addFolder("Final");
     finalCoordinatesFolder.add(shipCoordinates.final, "x").listen();
     finalCoordinatesFolder.add(shipCoordinates.final, "y").listen();

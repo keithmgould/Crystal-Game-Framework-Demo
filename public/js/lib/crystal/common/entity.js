@@ -29,7 +29,7 @@ define(['backbone'], function (Backbone) {
       var body = this.get('body');
       var angVel    = body.GetAngularVelocity();
       var linVel    = body.GetLinearVelocity();
-      var position  = body.GetPosition();
+      var position  = body.GetWorldCenter();
       response = {
         id: this.id,
         x: position.x,
@@ -50,7 +50,12 @@ define(['backbone'], function (Backbone) {
           linVel;
 
       if(!body){ return; }
-      body.SetPositionAndAngle({x: snapshot.x, y: snapshot.y}, snapshot.a);
+      var offsets = body.GetLocalCenter();
+      var angle = snapshot.a;
+      var offsetY = snapshot.y - Math.cos(angle) * offsets.y;
+      var offsetX = snapshot.x + Math.sin(angle) * offsets.y;
+      body.SetPosition({x: offsetX, y: offsetY});
+      body.SetPositionAndAngle({x: offsetX, y: offsetY}, snapshot.a);
 
       // not sure why but I can't Set Angular Velocity or 
       // linVel if the existing lin/ang velocity is zero.  

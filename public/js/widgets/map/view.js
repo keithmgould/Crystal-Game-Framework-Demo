@@ -27,7 +27,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
 
       Space.addToLoopCallbacks(this, this.drawElements);
 
-      Space.mediator.Subscribe("selfShip", function (selfShip) {
+      Space.mediator.Subscribe("generatedSelfShip", function (selfShip) {
         that.placeSelfShip(selfShip);
       });
 
@@ -110,6 +110,9 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         return { x: point.x * scale, y: point.y * scale};
       });
 
+      var offsets = entity.get('body').GetLocalCenter();
+      
+
       poly = new Kinetic.Polygon({
           x: (screenWidth / 2) + ( scale * entity.get('xPos') ),
           y: (screenHeight / 2) + ( scale * entity.get('yPos') ),
@@ -119,6 +122,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
           rotationDeg: 0
       });
       poly.setPoints(scaledPoints);
+      poly.setCenterOffset({x: offsets.x * scale, y: offsets.y * scale});
       layer.add(poly);
       return poly;
     },

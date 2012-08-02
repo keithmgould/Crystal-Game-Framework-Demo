@@ -28,9 +28,9 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
         return entity.get('selfEntity') === true;
       });
       if(_.isUndefined(selfEntity)){
-        console.log("no selfEntity yet");
         return false;
       }
+      globalSelfEntity = selfEntity;
     }
     return true;
   }
@@ -42,7 +42,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
       return entity.id === selfEntity.get('id');
     });
     if(_.isUndefined(serverEntitySnapshot)){ return false; }
-    
     var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, data.lag);
     futureSnapshot.current = data.current;
     CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
