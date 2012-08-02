@@ -1,5 +1,5 @@
 /* 
-  PingPong Keeps track of Lag
+  PingPong Keeps track of Lag.  This module waits for pings and sends back pongs.
 */
 define(['crystal/common/api'], function (CrystalApi) {
 

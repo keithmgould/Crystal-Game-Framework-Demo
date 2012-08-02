@@ -1,3 +1,7 @@
+/*
+  The Photographer takes snapshots (get it?) of the game's "reality" about 20 times per second,
+  and broadcasts these snapshots to the clients.
+*/
 define(['crystal/common/physics', 'crystal/common/api', 'underscore'], function (Physics, CrystalApi, _) {
   var snapshotKeys = [],
       snapshots = {};

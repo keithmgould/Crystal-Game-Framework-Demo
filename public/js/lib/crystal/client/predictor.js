@@ -34,7 +34,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
       return entity.get('selfEntity') === true;
     });
     if(_.isUndefined(selfEntity)){
-      console.log("no selfEntity yet");
       return false;
     }
   }

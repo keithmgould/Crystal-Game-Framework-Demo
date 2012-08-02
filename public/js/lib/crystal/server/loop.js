@@ -1,6 +1,6 @@
-/**
- * crystal Main Server Loop.
- */
+/*
+  The server side game loop.  This is the heartbeat, and runs around 60 times per second.
+*/
 
 define(['crystal/common/api'], function (CrystalApi) {
   var updateInterval = 1000 / 60,     // how many MS before another call to update()

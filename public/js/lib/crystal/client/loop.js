@@ -1,6 +1,6 @@
 /*
   The client side game loop.  This is the heartbeat, and runs around 60 times per second.
-  Pretty straight forward.  performTickCheck ensures we keep our 60 Hz accurate.
+  performTickCheck ensures we keep our 60 Hz accurate.
 */
 define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function (CrystalApi, Physics, _) {
   var request = window.requestAnimationFrame       ||
