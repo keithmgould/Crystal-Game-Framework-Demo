@@ -1,5 +1,16 @@
 /*
-  The Fastforwarder takes a look at the most recent server snapshot and fastforward it.
+  The Fastforwarder takes a look at the most recent server snapshot and fastforwards it.
+
+  The amount the snapshot is fastforwarded depends on how long it took for a client to send a PilotControl,
+  and receive a snapshot acknowledging the pilotControl.  In other words, it's pretty much the lag time.
+
+  Theory: When it comes to the selfEntity (the client's entity), the server is ALWAYS behind, since Crystal
+  utilizes client side prediction.  Therefore, when we start rendering based off of the snapshots form the 
+  server, they will be "behind."  So we fastforward them.
+
+  More Theory: Crystal uses a "predict/fastforward" algorithm to ensure a smooth lag free experience in the face of entities
+  that continue to move due to some momentum (like spaceships....in space.)  This reality is a bit harder to 
+  handle than objects which move a predictable amount and stop when the client taps "move left."
 */
 define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function (CrystalApi, Physics, _) {
   var selfEntity,
@@ -36,13 +47,14 @@ define(['crystal/common/api', 'crystal/common/physics', 'underscore'], function 
   }
 
   var fastforwardSnapshot = function (data) {
+    var futureSnapshot;
 
     // Extract the selfEntity from the snapshot
     var serverEntitySnapshot = _.find(data.message.entities, function (entity) {
       return entity.id === selfEntity.get('id');
     });
     if(_.isUndefined(serverEntitySnapshot)){ return false; }
-    var futureSnapshot = Physics.seeFuture(serverEntitySnapshot, data.lag);
+    futureSnapshot = Physics.seeFuture(serverEntitySnapshot, data.lag);
     futureSnapshot.current = data.current;
     CrystalApi.Publish('serverSelfEntityFutureSnapshot', futureSnapshot);
     CrystalApi.Publish('serverSelfEntitySnapshot', serverEntitySnapshot);

@@ -18,29 +18,56 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
   }
 
   var configureShipVisibilityControls = function () {
-    var mapFolder = datgui.addFolder('Toggle Ship Visibility');
+    var visibilityFolder = datgui.addFolder('Toggle Ship Visibility');
     var shipVisibility = {
-      server: true,
+      server: false,
       final: true,
-      future: true
+      future: false,
+      colorChange: false
     };
 
-    var finalController = mapFolder.add(shipVisibility, 'final');
+    var finalController = visibilityFolder.add(shipVisibility, 'final');
     finalController.onChange(function (value) {
       Space.mediator.Publish("shipVisibility", {ship: "final", value: value});
     });
 
-    var serverController = mapFolder.add(shipVisibility, 'server');
+    var serverController = visibilityFolder.add(shipVisibility, 'server');
     serverController.onChange(function (value) {
       Space.mediator.Publish("shipVisibility", {ship: "server", value: value});
     });
 
-    var futureController = mapFolder.add(shipVisibility, 'future');
+    var futureController = visibilityFolder.add(shipVisibility, 'future');
     futureController.onChange(function (value) {
       Space.mediator.Publish("shipVisibility", {ship: "future", value: value});
     });
 
-    mapFolder.open();
+    var colorChangeController = visibilityFolder.add(shipVisibility, 'colorChange');
+    colorChangeController.onChange(function (value) {
+      Space.mediator.Publish("shipVisibility", {ship: "colorChange", value: value});
+    });
+
+    visibilityFolder.open();
+  }
+
+  var configureNetworkReadouts = function () {
+    var networkFolder = datgui.addFolder("Network Readouts (Readonly)");
+    networkReadouts = {
+      avgLag: 0,
+      snapshotDelta: 0
+    };
+    networkFolder.add(networkReadouts, "avgLag").listen();
+    networkFolder.add(networkReadouts, "snapshotDelta").listen();
+    networkFolder.open();
+    CrystalApi.Subscribe("crystalDebug", function (data) {
+      switch(data.type) {
+        case "lagInfo":
+          networkReadouts.avgLag = Math.round( data.avgLag * 100 ) / 100;
+          break;
+        case "snapshotInfo":
+          networkReadouts.snapshotDelta = data.interval;
+          break;
+      }
+    });
   }
 
   var configureShipCoordinateControls = function () {
@@ -92,6 +119,7 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
       datgui = new dat.GUI({autoPlace: false});
 
       configureLatencyControls();
+      configureNetworkReadouts();
       configureInterpolationControls();
       configureShipVisibilityControls();
       configureShipCoordinateControls();

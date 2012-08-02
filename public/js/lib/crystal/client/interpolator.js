@@ -1,3 +1,8 @@
+/*
+  Interpolation is the standard trick (since at least 2001) to smooth out an incoming stream of snapshots.  We interpolate
+  between the last two snapshots at a rate much higher than the rate we receive snapshots, and still have a smooth experience.
+  Crystal uses Smooth.JS for interpolation.
+*/
 define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smooth', 'underscore'], function (CrystalApi, Physics, Smooth, _) {
   
   var snapshots = [],

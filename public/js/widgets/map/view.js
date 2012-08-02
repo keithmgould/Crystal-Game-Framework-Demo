@@ -7,7 +7,8 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       stage,
       selfShipLayer,
       kineticObjs = {},
-      screenWidth, screenHeight;
+      screenWidth, screenHeight,
+      colorChange = false;
 
   var mapView = Backbone.View.extend({
     initialize: function () {
@@ -56,6 +57,9 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
           case "future":
             that.toggleNodeVisibility(kineticObjs['futurePoly'].knode);
             break;
+          case "colorChange":
+            colorChange = !colorChange;
+            break;
           default:
             throw new Error("unknown ship type");
         }
@@ -64,6 +68,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       // These subscriptions change the color based on the mode of the ship
       CrystalApi.Subscribe("updateMethodChange", function (data) {
         var color;
+        if(colorChange === false){return;}
         if(data.use === "snapshots"){
           color = "white";
         }else{
@@ -130,10 +135,12 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
 
       // snapshot poly: shows incoming snapshots of selfShip from server
       var serverPoly = this.placePolygonEntity(selfShip, "red", selfShipLayer);
+      serverPoly.hide();
       kineticObjs['serverPoly'] = {knode : serverPoly, layer : selfShipLayer};
 
       // future poly: show future rendering of server snapshot
       var futurePoly = this.placePolygonEntity(selfShip, "orange", selfShipLayer);
+      futurePoly.hide();
       kineticObjs['futurePoly'] = {knode : futurePoly, layer : selfShipLayer};
 
       // final poly: show final rendering of ship

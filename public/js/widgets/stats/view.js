@@ -10,18 +10,6 @@ define(['stats',
     initialize: function () {
       this.render();
       Space.addToLoopCallbacks(this, this.update);
-      var that = this;
-      CrystalApi.Subscribe("crystalDebug", function (data) {
-        switch(data.type) {
-          case "lagInfo":
-            var avgLag = Math.round( data.avgLag * 100 ) / 100;
-            that.$el.find("#crystalStats").find("#avgLag").html(avgLag);
-            break;
-          case "snapshotInfo":
-            that.$el.find("#crystalStats").find("#snapshotInterval").html(data.interval);
-            break;
-        }
-      });
     },
     render: function () {
       var compiledTemplate = _.template(Screen);

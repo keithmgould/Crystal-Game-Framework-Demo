@@ -1,5 +1,6 @@
 /* 
-  PingPong Keeps track of Lag
+  PingPong Keeps track of Lag.  It shoots a ping to the server and sees how long it takes to get a pong.
+  This is not used in Crystal, but its here for clients who want it.
 */
 define(['crystal/common/api'], function (CrystalApi) {
 
