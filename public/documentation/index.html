@@ -11,6 +11,7 @@
     <ul class="toc_section">
       <li>- <a href="#authorative">Authorative Server</a> </li>
       <li>- <a href="#clientPrediction">Client-side Prediction</a> </li>
+      <li>- <a href="#prepdictFastforward">Predict-FastForward Algorithm</a> </li>
       <li>- <a href="#interpolation">Interpolation</a> </li>
     </ul>
     <a class="toc_title" href="#setup">Setup</a>
@@ -53,12 +54,12 @@
   <section id="content">
     <h1>CRYSTAL.JS</h1>
     <p>
-      Crystal is a real-time "twitch" game framework.  It offers features normally found only in enterprise game engines, such as authorative server, client side prediction, and position interpolation.  Crystal is powered by a great <a href="http://box2d-js.sourceforge.net/">2D Physics engine which is run both on the server and client</a>.  You can read more about Crystal's features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
+      Crystal is a real-time "twitch" game framework with server and browser side components, written entirely in Javascript.  It offers features normally found only in enterprise game engines, such as an authorative server, client side prediction, and position interpolation.  Crystal is powered by a great <a href="http://box2d-js.sourceforge.net/">2D Physics engine which is run both on the server and client, allowing for a "zero-lag" experience</a>.  You can read more about Crystal's features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
     </p>
         <h2 id="achievingTwitchGameplay">Achieving Twitch Gameplay</h2>
     <p>
       <b class="header"> Introduction</b>
-      "Twitch" gameplay means the gameplay is so fast that responsiveness within a few milliseconds matters.  When dealing with internet lag times (let's say 500 Ms), twitch gameplay can only be achieved with some fun slight-of hand.  Read below to see the solutions Crystal utilizes to achieve "twitch" gameplay in the browser even when facing crappy internet speeds.  I did not come up with any of these tricks.  Really smart people did years ago.  I just did my best to bring these solutions to the browser.  See <a href="#references">references</a> below.
+      "Twitch" gameplay means the gameplay is so fast that responsiveness within a few milliseconds matters .  When dealing with internet lag times (let's say 500 Ms), twitch gameplay can only be achieved with some fun sleight of hand.  Read below to see the solutions Crystal utilizes to achieve "twitch" gameplay in the browser even when facing crappy internet speeds.  See <a href="#references">references</a> below.
     </p>
     <p id="authorative">
       <b class="header">Authorative Server</b>
@@ -67,6 +68,10 @@
     <p id="clientPrediction">
       <b class="header">Client Side Prediction</b>
       Assuming we have a 500 Ms (half second) lag time, that means if we press the right arrow to rotate right, it will take roughtly 250 Ms to get to the server and another 250 Ms to get back.  If you are trying to aim at a moving target, this type of lag will make you grind your teeth, and then smash in your monitor.  So Crystal helps you out with something called client-side prediction.  This means Crystal has a working copy of the physics engine, and is running the same simulation as the server.  THAT means client-side (in your browser), Crystal can predict how you will move when you try to rotate right, and it will do so Immediately.  Naturally, it will also fire off a message to the server, and when the client gets the response from the server, Crystal will make sure make sure everything is in sync.  The end result is you have ZERO (perceived) lag time when you move around.
+    </p>
+    <p id="predictFastForward">
+      <b class="header">Predict-FastForward Algorithm</b>
+      Even in the simplest case of a circle with some mass flying through frictionless space, we (as game architects) face a serious problem given the prediction technique discussed above.
     </p>
     <p id="interpolation">
       <b class="header">Interpolation</b>

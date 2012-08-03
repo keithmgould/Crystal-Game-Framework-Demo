@@ -1,4 +1,4 @@
-define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 'underscore'], function (Entity, Missile, Constants, _) {
+define(['crystal/common/entity', 'common/constants', 'underscore'], function (Entity, Constants, _) {
 
   var Ship = Entity.extend({
     shape: "polygon",
@@ -41,24 +41,6 @@ define(['crystal/common/entity', 'common/entities/missile', 'common/constants', 
         default:
           console.log("don't know what to do with this valid key yet...");
       }
-    },
-    fireMissile: function () {
-
-     var power = 50,
-          x, 
-          y, 
-          angle = this.get('angle');
-      y = -Math.cos(angle).toFixed(2);
-      x = Math.sin(angle).toFixed(2);
-
-      // var missile = new Missile({
-      //   xPos:  this.get('xPos') + (1.5 * this.get('height')) * x,
-      //   yPos: this.get('yPos') + (1.5 * this.get('height')) * y,
-      //   xVel: x * power,
-      //   yVel: y * power,
-      //   ownerId: this.id
-      // });
-      // return missile;
     },
 
     rotateRight: function () {

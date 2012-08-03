@@ -1,4 +1,4 @@
-define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, Missile, _, Mediator, CrystalApi) {
+define(['common/entities/ship', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, _, Mediator, CrystalApi) {
 
   var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
@@ -11,7 +11,7 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
    *
    * both game internal communication, as well as game commuication with crystal framework
    * is done using the mediator pattern.  There are two mediator instances below.  One owned
-   * by this Space module, and one owned by crystal.  The initPubSub initializes Publishers
+   * by this Space module (game), and one owned by crystal framework.  The initPubSub initializes Publishers
    * and Subscriptions to both mediator instances.
    */
 
@@ -25,12 +25,13 @@ define(['common/entities/ship', 'common/entities/missile', 'underscore', 'mediat
       }
     });
 
-    // listen for messages from crystal's Loop
+    // listen for messages from Crystal's Loop.
+    // We should receive this 60 times per second
     CrystalApi.Subscribe('update', function (data) {
       update(data);
     });
 
-    // listen for messages from the server (via crystal's Transport)
+    // listen for messages from the server (via Crystal's Transporter)
     CrystalApi.Subscribe('messageFromServer:game', function (data) {
       switch(data.type){
         case "shipDelivery":

@@ -43,7 +43,6 @@ require(['space',
   Crystal.initialize();   // 1) Initialize crystal
   Space.initialize();     // 2) Initialize your game
 
-  // note: I don't like that I'm declaring variables and not using them.
   var MapWidget     = new MapWidget();
   var pilotWidget   = new PilotWidget();
   var statsWidget   = new StatsWidget();
