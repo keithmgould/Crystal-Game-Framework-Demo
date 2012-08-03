@@ -6,6 +6,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
 	var scale,
       stage,
       selfShipLayer,
+      othersLayer,
       kineticObjs = {},
       screenWidth, screenHeight,
       colorChange = false;
@@ -22,14 +23,22 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         height: screenHeight
       });
       selfShipLayer = new Kinetic.Layer();
+      othersLayer = new Kinetic.Layer();
       stage.add(selfShipLayer);
+      stage.add(othersLayer);
       this.placeBackground(selfShipLayer);
       that = this;
 
       Space.addToLoopCallbacks(this, this.drawElements);
 
+      // When we have a self Entity (ship), place it in the canvas.
       Space.mediator.Subscribe("generatedSelfShip", function (selfShip) {
         that.placeSelfShip(selfShip);
+      });
+
+      // When we have a new snapshot, update entity positions
+      Space.mediator.Subscribe("snapshot", function (snapshot) {
+
       });
 
       // These subscriptions update location of ships on the map
@@ -37,7 +46,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         that.updateFromSnapshot(data, 'serverPoly');
       });
 
-      CrystalApi.Subscribe('finalSnapshot', function (data) {
+      CrystalApi.Subscribe('selfEntitySnapshot', function (data) {
         that.updateFromSnapshot(data, 'finalPoly');
       });
 
@@ -150,6 +159,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
 
     drawElements: function () {
       selfShipLayer.draw();
+      othersLayer.draw();
     }
   });
   return mapView;	

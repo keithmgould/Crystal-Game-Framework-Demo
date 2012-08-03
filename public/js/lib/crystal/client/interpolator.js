@@ -37,7 +37,8 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         }
       }
 
-      // If this is our first 'current' snapshot, clear the queue
+      // If this is our first 'current' snapshot, clear the queue,
+      // and add the last predicted location to the queue
       if(lastSnapshot && lastSnapshot.current == false && snapshot.current === true){
         snapshots = [];
         lastSnapshot = null;
@@ -93,7 +94,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/lib/smoo
         y: point[1],
         a: point[2]
       }
-      CrystalApi.Publish("finalSnapshot", snapshot);
+      CrystalApi.Publish("selfEntitySnapshot", snapshot);
       
     });
 

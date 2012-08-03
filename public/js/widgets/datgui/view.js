@@ -101,7 +101,7 @@ define(['dat', 'backbone', 'crystal/client/transporter', 'crystal/client/interpo
       shipCoordinates['server'].a = snapshot.a;
     });
 
-    CrystalApi.Subscribe('finalSnapshot', function (snapshot) {
+    CrystalApi.Subscribe('selfEntitySnapshot', function (snapshot) {
       shipCoordinates['final'].x = snapshot.x;
       shipCoordinates['final'].y = snapshot.y;
       shipCoordinates['final'].a = snapshot.a;

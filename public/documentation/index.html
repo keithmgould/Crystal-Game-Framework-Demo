@@ -156,7 +156,7 @@
       Sends out debug data.  You should not normally need this.  the data payload is a hash and the key 'type' will be:
       <ul>
         <li>- lagInfo: holds the current and average (last 5 secs) lag</li>
-        <li>- selfEntityError: difference between local self Entity (.5 avgLag ago) and the server entity in last snapshot</li>
+        <li>- snapshotInfo: the time between snapshots.  Defaults to 50Ms</li>
       </ul>
     </p>
     <h2 id="common">Common</h2>
