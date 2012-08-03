@@ -3,13 +3,13 @@
   modules loading eachother, we have to initialize quite a few at the same time.  This is largely a consequence of Crystal's heavy
   use of the mediator pattern, which allows a lot of crosstalk between modules, albeit in a clean encapsulated way.
 */
-define(['crystal/server/transport', 
+define(['crystal/server/transporter', 
         'crystal/server/loop',
         'crystal/common/physics',
         'crystal/server/photographer',
-        'crystal/server/pingPong'], function (Transport, Loop, Physics, Photographer, PingPong) {
+        'crystal/server/pingPong'], function (Transporter, Loop, Physics, Photographer, PingPong) {
   var initialize = function (io) {
-    Transport.initialize(io);
+    Transporter.initialize(io);
     Physics.initialize();  
     Photographer.initialize(true);
     PingPong.initialize();

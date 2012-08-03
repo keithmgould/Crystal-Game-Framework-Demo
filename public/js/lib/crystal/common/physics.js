@@ -10,27 +10,28 @@
 define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api", "underscore"], function (Constants, Box, CrystalApi, _) {
 
     // Prep our Box2D variables
-    var b2Vec2 = Box.Common.Math.b2Vec2;
-    var b2AABB = Box.Collision.b2AABB;
-    var b2BodyDef = Box.Dynamics.b2BodyDef;
-    var b2Body = Box.Dynamics.b2Body;
-    var b2FixtureDef = Box.Dynamics.b2FixtureDef;
-    var b2Fixture = Box.Dynamics.b2Fixture;
-    var b2World = Box.Dynamics.b2World;
-    var b2MassData = Box.Collision.Shapes.b2MassData;
-    var b2PolygonShape = Box.Collision.Shapes.b2PolygonShape;
-    var b2CircleShape = Box.Collision.Shapes.b2CircleShape;
-    var b2DebugDraw = Box.Dynamics.b2DebugDraw;
-    var b2RevoluteJointDef = Box.Dynamics.Joints.b2RevoluteJointDef;
-    var b2MouseJointDef =  Box.Dynamics.Joints.b2MouseJointDef;
+    var b2Vec2              = Box.Common.Math.b2Vec2,
+        b2AABB              = Box.Collision.b2AABB,
+        b2BodyDef           = Box.Dynamics.b2BodyDef,
+        b2Body              = Box.Dynamics.b2Body,
+        b2FixtureDef        = Box.Dynamics.b2FixtureDef,
+        b2Fixture           = Box.Dynamics.b2Fixture,
+        b2World             = Box.Dynamics.b2World,
+        b2MassData          = Box.Collision.Shapes.b2MassData,
+        b2PolygonShape      = Box.Collision.Shapes.b2PolygonShape,
+        b2CircleShape       = Box.Collision.Shapes.b2CircleShape,
+        b2DebugDraw         = Box.Dynamics.b2DebugDraw,
+        b2RevoluteJointDef  = Box.Dynamics.Joints.b2RevoluteJointDef,
+        b2MouseJointDef     =  Box.Dynamics.Joints.b2MouseJointDef;
 
     // Prep the size of our space
-    var scale = Constants.physics.scale;
-    var height = Constants.physics.height;
-    var width = Constants.physics.width;
+    var scale   = Constants.physics.scale,
+        height  = Constants.physics.height,
+        width   = Constants.physics.width;
 
-    var world;
-    var crystalEntities = [];
+    // Hold our world and the entities in them.
+    var world,
+        crystalEntities = [];
 
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
@@ -66,7 +67,8 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       world.ClearForces();
     }
 
-    // create a temp world and run an entity to see where it will end up.
+    // create a temp world create an entity from a snapshot.  Then run it into the 
+    // future runTime Ms to see where it will end up.
     var seeFuture = function (snapshot, runTime) {
 
       var entity = _.find(crystalEntities, function (ent) {
@@ -123,11 +125,9 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       var bodyDef = new b2BodyDef,
           body;
       bodyDef.type = b2Body.b2_dynamicBody;
-      bodyDef.position.x = 0; //entity.get('xPos');
-      bodyDef.position.y = 0; //entity.get('yPos');
-      bodyDef.angle      = 0; //entity.get('angle');
-      // bodyDef.linearVelocity = {x: entity.get('xVel'), y: entity.get('yVel')};
-      // bodyDef.angularVelocity = entity.get('angularVel');
+      bodyDef.position.x = 0;
+      bodyDef.position.y = 0;
+      bodyDef.angle      = 0;
       body = myWorld.CreateBody(bodyDef);
       
       return body;
@@ -170,7 +170,7 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       }
       body.CreateFixture(fixDef);
 
-      // move the body so its center of mass is on the original coordinates specified
+      // move the body so its center of mass is on the original coordinates specified.
       var offsets = body.GetLocalCenter();
       var angle = entity.get('angle');
       var offsetY = entity.get('yPos') - Math.cos(angle) * offsets.y;
@@ -179,8 +179,6 @@ define(["common/constants", "crystal/common/lib/box2d.min", "crystal/common/api"
       body.SetLinearVelocity({x: entity.get('xVel'), y: entity.get('yVel')});
       body.SetAngularVelocity(entity.get('angularVel'));
       body.SetAngle(entity.get('angle'));
-
-      debugger;
       return body;   
     }
 

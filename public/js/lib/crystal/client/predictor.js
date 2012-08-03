@@ -1,3 +1,9 @@
+/*
+  When the client does a Pilot Control (a command to move the Self Entity), like "rotate right", we need the user to see this 
+  happen immediately.  The Predictor handles this.  It finds out where the latest position of the Self Entity is, and starts 
+  running that entity on a local physics engine.  It does this until the server finally responds with a snapshot that acknowledges 
+  the Pilot Control, at which point the FastForwarder takes control of rendering the Self Entity yet again.
+*/
 define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpolator', 'underscore'], function (CrystalApi, Physics, Interpolator, Underscore) {
   var updateMethod,
       selfEntity;

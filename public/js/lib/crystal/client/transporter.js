@@ -1,3 +1,7 @@
+/*
+  The Transporter just ferries messages to and from the server.  It would be a much smaller file
+  but I've built in a faux delay so people can tinker with latencies when developing.
+*/
 define(['underscore', 'crystal/common/api'], function (_, CrystalApi) {
 
   var socket = io.connect("collabfighter.local:3000"),

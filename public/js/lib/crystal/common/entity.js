@@ -1,3 +1,7 @@
+/*
+  Extends a Backbone Model.  For something to exist in the physics engine, it must extend this entity.  See Documentation
+  for where and how to do this.
+*/
 define(['backbone'], function (Backbone) {
   var Entity = Backbone.Model.extend({
 

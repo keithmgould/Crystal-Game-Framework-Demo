@@ -1,13 +1,13 @@
 // NOTE: this widget is breaking the sandbox rule by accessing crystal directly,
 // but its not part of the official game or framework, its just for debugging.
 // So I'm OK with this for now.
-define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpolator', 'crystal/common/api', 'space'], function (dat, Backbone, Transport, Interpolator, CrystalApi, Space) {
+define(['dat', 'backbone', 'crystal/client/transporter', 'crystal/client/interpolator', 'crystal/common/api', 'space'], function (dat, Backbone, Transporter, Interpolator, CrystalApi, Space) {
   var datgui;
 
   var configureLatencyControls = function () {
     var latencyFolder = datgui.addFolder('extra latency (Ms)');
-    latencyFolder.add(Transport, "fromServer", 0, 2000);
-    latencyFolder.add(Transport, "toServer", 0, 2000);
+    latencyFolder.add(Transporter, "fromServer", 0, 2000);
+    latencyFolder.add(Transporter, "toServer", 0, 2000);
     latencyFolder.open();
   }
 
@@ -50,7 +50,7 @@ define(['dat', 'backbone', 'crystal/client/transport', 'crystal/client/interpola
   }
 
   var configureNetworkReadouts = function () {
-    var networkFolder = datgui.addFolder("Network Readouts (Readonly)");
+    var networkFolder = datgui.addFolder("Network Readouts (Readonly, Ms)");
     networkReadouts = {
       avgLag: 0,
       snapshotDelta: 0

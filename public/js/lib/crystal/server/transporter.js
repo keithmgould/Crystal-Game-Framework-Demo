@@ -1,3 +1,6 @@
+/*
+  The Transporter just ferries messages to and from the server.
+*/
 define(['crystal/common/api', 'crystal/server/loop', 'underscore'], function (CrystalApi, crystalLoop, _) {
 
   var initialize = function (io) {
