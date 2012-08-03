@@ -5,20 +5,18 @@
 */
 define(['crystal/client/transporter',
         'crystal/client/loop',
-        'crystal/client/fastforwarder',
+        'crystal/client/selfEntityManager',
         'crystal/common/physics',
         'crystal/client/pingPong',
-        'crystal/client/interpolator',
-        'crystal/client/predictor'], function (Transporter, Loop, Fastforwarder, Physics, PingPong, Interpolator, Predictor) {
+        'crystal/client/interpolator'], function (Transporter, Loop, SelfEntityManager, Physics, PingPong, Interpolator) {
 
   var initialize = function () {
     Transporter.initialize();
     Physics.initialize();
-    Fastforwarder.initialize();
+    SelfEntityManager.initialize();
     Loop.initialize();
     PingPong.initialize();
     Interpolator.initialize();
-    Predictor.initialize();
   }
 
   return {

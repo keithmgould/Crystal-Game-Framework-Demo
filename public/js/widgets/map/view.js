@@ -36,11 +36,6 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         that.placeSelfShip(selfShip);
       });
 
-      // When we have a new snapshot, update entity positions
-      Space.mediator.Subscribe("snapshot", function (snapshot) {
-
-      });
-
       // These subscriptions update location of ships on the map
       CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
         that.updateFromSnapshot(data, 'serverPoly');

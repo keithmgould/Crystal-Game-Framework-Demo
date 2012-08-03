@@ -1,5 +1,8 @@
 define({
 
+  // Server
+  server: "collabfighter.local:3000",
+
   // Physics
   physics: {
     scale:  10,
