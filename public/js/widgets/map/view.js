@@ -75,14 +75,9 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'common/en
       });
 
       // These subscriptions change the color based on the mode of the ship
-      CrystalApi.Subscribe("updateMethodChange", function (data) {
-        var color;
-        if(colorChange === false){return;}
-        if(data.use === "snapshots"){
-          color = "white";
-        }else{
-          color = "green";
-        }
+      CrystalApi.Subscribe("crystalDebug", function (data) {
+        if(data.type != "updateMethodChange" || colorChange === false){return;}
+        var color = data.updateMethod === "snapshots" ? "white" : "green";
         kineticObjs["selfShipLayer"]["finalPoly"].setFill(color);
       });
 

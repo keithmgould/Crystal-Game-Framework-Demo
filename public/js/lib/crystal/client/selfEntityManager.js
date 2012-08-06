@@ -51,6 +51,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
         var lastSnapshot = getLastSnapshot();
         selfEntity.applySnapshot(lastSnapshot);
         updateMethod = "prediction";
+        CrystalApi.Publish("crystalDebug", {type: "updateMethodChange", updateMethod: updateMethod});
       }
       selfEntity.pilotControl(data.message.key);
     });
@@ -101,6 +102,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
 
   var fastforwardSnapshot = function (serverEntitySnapshot, lag, current) {
     var snapshot = Physics.seeFuture(serverEntitySnapshot, lag);
+    CrystalApi.Publish('serverSelfEntityFutureSnapshot', snapshot);
 
     // If this is our first 'current' snapshot, clear the queue,
     // and add the last predicted location to the queue
@@ -128,6 +130,7 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
 
     if(updateMethod != "snapshots" && snapshots.length >= 4  && current === true){
       updateMethod = "snapshots";
+      CrystalApi.Publish("crystalDebug", {type: "updateMethodChange", updateMethod: updateMethod});
     }
 
   }
