@@ -1,13 +1,14 @@
 /*
   This view cheats by accessing CrystalJS Directly.  It does for demonstration purposes only.  A view should
-  normally only access its Sandbox.
+  normally only access its Sandbox, provided by your Game.  However, this view demonstrates the inner workings 
+  of the Crystal framework.
 */
-define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone', 'underscore'], function  (Constants, Space, Kinetic, CrystalApi, Backbone, _) {
+define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'common/entityLoader', 'backbone', 'underscore'], function  (Constants, Space, Kinetic, CrystalApi, EntityLoader, Backbone, _) {
 	var scale,
       stage,
       selfShipLayer,
       othersLayer,
-      kineticObjs = {},
+      kineticObjs = { selfShipLayer: {}, othersLayer: {}},
       screenWidth, screenHeight,
       colorChange = false;
 
@@ -37,29 +38,33 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       });
 
       // These subscriptions update location of ships on the map
-      CrystalApi.Subscribe('serverSelfEntitySnapshot', function (data) {
-        that.updateFromSnapshot(data, 'serverPoly');
+      CrystalApi.Subscribe('serverSelfEntitySnapshot', function (snapshot) {
+        that.updateFromSnapshot(snapshot, 'selfShipLayer','serverPoly');
       });
 
-      CrystalApi.Subscribe('selfEntitySnapshot', function (data) {
-        that.updateFromSnapshot(data, 'finalPoly');
+      CrystalApi.Subscribe('selfEntitySnapshot', function (snapshot) {
+        that.updateFromSnapshot(snapshot, 'selfShipLayer','finalPoly');
+      });  
+
+      CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (snapshot) {
+        that.updateFromSnapshot(snapshot, 'selfShipLayer', 'futurePoly');
       });
 
-      CrystalApi.Subscribe('serverSelfEntityFutureSnapshot', function (data) {
-        that.updateFromSnapshot(data, 'futurePoly');
-      });
+      CrystalApi.Subscribe('otherEntitiesSnapshot', function (snapshot) {
+        that.updateOthersFromSnapshot(snapshot);
+      });    
 
       // These subscriptions toggle visibility of ships on map
       Space.mediator.Subscribe("shipVisibility", function (data) {
         switch(data.ship){
           case "final":
-            that.toggleNodeVisibility(kineticObjs['finalPoly'].knode);
+            that.toggleNodeVisibility(kineticObjs["selfShipLayer"]["finalPoly"]);
             break;
           case "server":
-            that.toggleNodeVisibility(kineticObjs['serverPoly'].knode);
+            that.toggleNodeVisibility(kineticObjs["selfShipLayer"]["serverPoly"]);
             break;
           case "future":
-            that.toggleNodeVisibility(kineticObjs['futurePoly'].knode);
+            that.toggleNodeVisibility(kineticObjs["selfShipLayer"]["futurePoly"]);
             break;
           case "colorChange":
             colorChange = !colorChange;
@@ -78,7 +83,7 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
         }else{
           color = "green";
         }
-        kineticObjs['finalPoly'].knode.setFill(color);
+        kineticObjs["selfShipLayer"]["finalPoly"].setFill(color);
       });
 
     },
@@ -91,14 +96,36 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
       }
     },
 
-    updateFromSnapshot: function (snapshot, kineticObj) {
+    updateOthersFromSnapshot: function (snapshots) {
+      var that = this;
+      var unfoundNodeIds = _.keys(kineticObjs["othersLayer"]); // used for removing unfound nodes
+      // update existing entities
+      _.each(snapshots, function(snapshot) {
+        unfoundNodeIds = _.reject(unfoundNodeIds, function (nodeId) { return nodeId === snapshot.id});
+        if(_.isUndefined(kineticObjs["othersLayer"][snapshot.id])){
+          var entity = new EntityLoader[snapshot.type]({ xPos: snapshot.x, yPos: snapshot.y, angle: snapshot.a, id: snapshot.id});
+          var entityPoly = that.placePolygonEntity(entity, "red", othersLayer);
+          kineticObjs["othersLayer"][snapshot.id] = entityPoly;
+        }else{
+          that.updateFromSnapshot(snapshot, "othersLayer", snapshot.id);
+        }
+      });
+      // remove old entities
+      _.each(unfoundNodeIds, function (nodeId) {
+        kineticObjs["othersLayer"][nodeId].hide();
+        delete kineticObjs["othersLayer"][nodeId];
+      });
+
+    },
+
+    updateFromSnapshot: function (snapshot, layer, id) {
       var xPos = scale * snapshot.x;
       var yPos = scale * snapshot.y;
       var angle = snapshot.a;
     
-      kineticObjs[kineticObj].knode.setX(xPos); 
-      kineticObjs[kineticObj].knode.setY(yPos);
-      kineticObjs[kineticObj].knode.setRotation(angle);
+      kineticObjs[layer][id].setX(xPos); 
+      kineticObjs[layer][id].setY(yPos);
+      kineticObjs[layer][id].setRotation(angle);
     },
 
     placeBackground: function (layer) {
@@ -113,16 +140,12 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
     },
 
     placePolygonEntity: function (entity, color, layer) {
-      var points = entity.getShapePoints();
-      var scaledPoints = [];
-      var scaledPoints = _.map(points, function (point) {
-        return { x: point.x * scale, y: point.y * scale};
-      });
+      var points = entity.getShapePoints(),
+          scaledPoints,
+          poly;
 
-      var offsets = entity.get('body').GetLocalCenter();
       
-
-      poly = new Kinetic.Polygon({
+      poly = new Kinetic.Polygon({  
           x: (screenWidth / 2) + ( scale * entity.get('xPos') ),
           y: (screenHeight / 2) + ( scale * entity.get('yPos') ),
           fill: color,
@@ -130,26 +153,36 @@ define(['common/constants', 'space', 'kinetic', 'crystal/common/api', 'backbone'
           strokeWidth: 1,
           rotationDeg: 0
       });
+
+      scaledPoints = _.map(points, function (point) {
+        return { x: point.x * scale, y: point.y * scale};
+      });
       poly.setPoints(scaledPoints);
-      poly.setCenterOffset({x: offsets.x * scale, y: offsets.y * scale});
+
+      if(_.isUndefined(entity.get('body')) === false){
+        var offsets = entity.get('body').GetLocalCenter();
+        poly.setCenterOffset({x: offsets.x * scale, y: offsets.y * scale});
+      }
+
       layer.add(poly);
       return poly;
     },
+
     placeSelfShip : function (selfShip) {
 
       // snapshot poly: shows incoming snapshots of selfShip from server
-      var serverPoly = this.placePolygonEntity(selfShip, "red", selfShipLayer);
+      var serverPoly = this.placePolygonEntity(selfShip, "blue", selfShipLayer);
       serverPoly.hide();
-      kineticObjs['serverPoly'] = {knode : serverPoly, layer : selfShipLayer};
+      kineticObjs["selfShipLayer"]["serverPoly"] = serverPoly;
 
       // future poly: show future rendering of server snapshot
-      var futurePoly = this.placePolygonEntity(selfShip, "orange", selfShipLayer);
+      var futurePoly = this.placePolygonEntity(selfShip, "purple", selfShipLayer);
       futurePoly.hide();
-      kineticObjs['futurePoly'] = {knode : futurePoly, layer : selfShipLayer};
+      kineticObjs["selfShipLayer"]["futurePoly"] = futurePoly;
 
       // final poly: show final rendering of ship
       var finalPoly = this.placePolygonEntity(selfShip, "white", selfShipLayer);
-      kineticObjs['finalPoly'] = {knode : finalPoly, layer : selfShipLayer};
+      kineticObjs["selfShipLayer"]["finalPoly"] = finalPoly;
     },
 
     drawElements: function () {

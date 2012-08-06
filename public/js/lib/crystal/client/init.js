@@ -6,14 +6,16 @@
 define(['crystal/client/transporter',
         'crystal/client/loop',
         'crystal/client/selfEntityManager',
+        'crystal/client/otherEntitiesManager',
         'crystal/common/physics',
         'crystal/client/pingPong',
-        'crystal/client/interpolator'], function (Transporter, Loop, SelfEntityManager, Physics, PingPong, Interpolator) {
+        'crystal/client/interpolator'], function (Transporter, Loop, SelfEntityManager, OtherEntitiesManager, Physics, PingPong, Interpolator) {
 
   var initialize = function () {
     Transporter.initialize();
     Physics.initialize();
     SelfEntityManager.initialize();
+    OtherEntitiesManager.initialize();
     Loop.initialize();
     PingPong.initialize();
     Interpolator.initialize();

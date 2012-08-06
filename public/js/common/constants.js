@@ -1,3 +1,6 @@
+/*
+  This file is required by Crystal and must be in the common directory.
+*/
 define({
 
   // Server

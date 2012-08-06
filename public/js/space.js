@@ -1,4 +1,4 @@
-define(['common/entities/ship', 'underscore', 'mediator', 'crystal/common/api'], function (Ship, _, Mediator, CrystalApi) {
+define(['common/entityLoader', 'underscore', 'mediator', 'crystal/common/api'], function (EntityLoader, _, Mediator, CrystalApi) {
 
   var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
@@ -74,7 +74,7 @@ define(['common/entities/ship', 'underscore', 'mediator', 'crystal/common/api'],
   };
 
   var addShip = function (isSelfShip, xPos, yPos, angle, id) {
-    var ship = new Ship({ xPos: xPos, yPos: yPos, angle: angle, id: id});
+    var ship = new EntityLoader.Ship({ xPos: xPos, yPos: yPos, angle: angle, id: id});
     if(isSelfShip) {
       ship.set({ selfEntity: true, color: "blue"});
       selfShip = ship;

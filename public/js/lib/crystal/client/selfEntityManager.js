@@ -1,16 +1,25 @@
 /*
-  The selfEntityManager manages the selfEntity's snapshots.
-  
+  The SelfEntity is the object in the physics engine that the user controls directly.  Currently Crystal only supports a single 
+  SelfEntity.  The SelfEntity is different from other entities because it MUST react instantly to controls by the user,
+  called "Pilot Control."
 
-  The amount the snapshot is fastforwarded depends on how long it took for a client to send a PilotControl,
-  and receive a snapshot acknowledging the pilotControl.  In other words, it's pretty much the lag time.
+  The selfEntityManager manages how the selfEntity is rendered.  It will either use and interpolate snapshots from the
+  server, or it will use the local physics engine.  This depends on the user issuing Pilot Control actions.
+
+  If the user has not issued a pilot control, the server snapshots will be used.  Once the user issues a pilot control,
+  local prediction is used until the proper information comes back from the server, at which point server snapshots 
+  will be used again.
+
+  Snapshots are fastforwarded because they will always be behind the client. The amount the snapshot is fastforwarded depends 
+  on how long it took for a client to send a PilotControl, and receive a snapshot acknowledging the pilotControl.  
+  In other words, it's pretty much the lag time.
 
   Theory: When it comes to the selfEntity (the client's entity), the server is ALWAYS behind, since Crystal
   utilizes client side prediction.  Therefore, when we start rendering based off of the snapshots form the 
   server, they will be "behind."  So we fastforward them.
 
-  When the client does a Pilot Control (a command to move the Self Entity), like "rotate right", we need the user to see this 
-  happen immediately.  The Predictor handles this.  It finds out where the latest position of the Self Entity is, and starts 
+  When the client issues a Pilot Control (a command to move the Self Entity), like "rotate right", we need the user to see this 
+  happen immediately.  It finds out where the latest position of the Self Entity is, and starts 
   running that entity on a local physics engine.  It does this until the server finally responds with a snapshot that acknowledges 
   the Pilot Control, at which point the FastForwarder takes control of rendering the Self Entity yet again.
 */
@@ -122,10 +131,6 @@ define(['crystal/common/api', 'crystal/common/physics', 'crystal/client/interpol
     }
 
   }
-
-
-
-
 
   return {
     initialize: initialize
