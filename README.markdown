@@ -17,6 +17,8 @@ Crystal brings these solutions to browser based games written in javascript.
 - 1) Edit the js/common/constants.js file to point the server to whatever name you like.
 - 2) Edit your /etc/hosts file to have this name point to localhost
 
+starting the server is simply: node server.js
+
 
 ### Server:
 
