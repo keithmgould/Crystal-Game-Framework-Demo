@@ -18,6 +18,7 @@
     <ul class="toc_section">
       <li>- <a href="#entitiesFolder">Entities Folder</a></li>
       <li>- <a href="#entityLoader">Entity Loader</a></li>
+      <li>- <a href="#constants">Constants File</a></li>
     </ul>
     <a class="toc_title" href="#server">Server Api</a>
     <ul class="toc_section">
@@ -54,7 +55,7 @@
   <section id="content">
     <h1>CRYSTAL.JS</h1>
     <p>
-      Crystal is a real-time "twitch" game framework with server and browser side components, written entirely in Javascript.  It offers features normally found only in enterprise game engines, such as an authorative server, client side prediction, and position interpolation.  Crystal is powered by a great <a href="http://box2d-js.sourceforge.net/">2D Physics engine which is run both on the server and client, allowing for a "zero-lag" experience</a>.  You can read more about Crystal's features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
+      Crystal is a real-time "twitch" game framework with server and browser side components, written entirely in Javascript.  It offers features normally found only in enterprise game engines, such as an authorative server, client side prediction, and position interpolation.  Crystal is powered by a great <a href="http://box2d-js.sourceforge.net/">2D Physics engine</a> which is run both on the server and client, allowing for a "zero-lag" experience.  You can read more about Crystal's features in the <a href="#achievingTwichGameplay">Achieving Twitch Gameplay</a> section below.  Crystal utilizes the <a href="https://github.com/ajacksified/Mediator.js">mediator</a> pattern to communicate with your game, and the API is also described below.
     </p>
         <h2 id="achievingTwitchGameplay">Achieving Twitch Gameplay</h2>
     <p>
@@ -89,6 +90,11 @@
       <b class="header">Entity Loader</b>
       EntityLoader is a required module that you must write.  It tells Crystal about the entities in the game. It's location must be require.js_root_directory/common/entityLoader.js.  Your game can include a custom entity directly, but it is simpler to give access to all of your entities
       by including the EntityLoader module.  Todo: show example.
+    </p>
+    <p id="constants">
+      <b class="header">Constants File</b>
+      constants.js, also found in js_root_directory/common/ is a module returning a standard JS object with some important information.  See the 
+      example/common/constants.js file in the repo for an example
     </p>
     <h2 id="server">Server Side API</h2>
     <p id="socketConnected">

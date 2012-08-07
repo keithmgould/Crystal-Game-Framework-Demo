@@ -3,16 +3,18 @@
 */
 define({
 
-  // Server
+  // Required: Server URL
   server: "collabfighter.local:3000",
 
-  // Physics
+  // Required: Physics Simulation size and scale
   physics: {
     scale:  10,
     height: 700,
     width:  1000
   },
 
+
+  // You can also place constants needed for your game in this file!
   // Keystrokes
   keystrokes: {
     KEY_LEFT_ARROW:   37,

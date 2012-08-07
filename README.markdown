@@ -41,12 +41,11 @@ To learn more about mediator, check out: https://github.com/ajacksified/Mediator
 
 ### Example Calls
 
-CrystalApi.Publish("addEntity", entity);
-CrystalApi.Subscribe("update", function (data) { renderStuff(); });
+- CrystalApi.Publish("addEntity", entity);
+- CrystalApi.Subscribe("update", function (data) { renderStuff(); });
 
 ### Api Docs
 
-#### Publish("addEntity", entity)
+Crystal's Documentation is found in the repo's documentation dir :)
 
-This adds an entity to the physics engine.
 
