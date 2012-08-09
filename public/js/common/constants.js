@@ -4,7 +4,8 @@
 define({
 
   // Required: Server URL
-  server: "collabfighter.local:3000",
+  server: "keithmgould.cf2.nodejitsu.com",
+  // server: "collabfighter.local:3000",
 
   // Required: Physics Simulation size and scale
   physics: {

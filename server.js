@@ -18,7 +18,8 @@ requirejs.config({
   baseUrl: 'public/js',
   paths: {
     game: '../../game',
-    crystal: './lib/crystal'
+    crystal: './lib/crystal',
+    mediator: './lib/mediator_0.7.0'
   },
   nodeRequire: require
 });

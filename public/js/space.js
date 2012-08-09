@@ -3,7 +3,7 @@ define(['common/entityLoader', 'underscore', 'mediator', 'crystal/common/api'], 
   var entities = [],                  // holds all entities
       selfShip,                       // pointer to entity that is our own ship
       loopCallbacks = [],             // lets widgets etc have callbacks during the update method
-      mediator = new Mediator();      // mediator instance used for cross-talk by widgets etc..
+      mediator = new Mediator.Mediator();      // mediator instance used for cross-talk by widgets etc..
 
   
   /**

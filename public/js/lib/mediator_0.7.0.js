@@ -11,6 +11,8 @@
 * Last update: Sep 15 2011
 */
 
+define(function(require, exports, module) {
+
 (function(root){
 
   // We'll generate guids for class instances for easy referencing later on.
@@ -300,3 +302,4 @@
 
 })(typeof exports == "undefined" ? window : exports);
 
+});
