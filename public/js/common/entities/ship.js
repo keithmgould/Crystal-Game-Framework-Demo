@@ -44,19 +44,39 @@ define(['crystal/common/entity', 'common/constants', 'underscore'], function (En
     },
 
     rotateRight: function () {
+      var angularVel = this.get('body').GetAngularVelocity();
+      if( angularVel > 5){
+        console.log("max angular velocity exceeded");
+        return;
+      }
       this.get('body').ApplyTorque(10);
     },
     rotateLeft: function () {
+      var angularVel = this.get('body').GetAngularVelocity();
+      if(angularVel < -5){
+        console.log("max angular velocity exceeded");
+        return;
+      }
       this.get('body').ApplyTorque(-10);
     },
     thrust: function () {
+
       var body = this.get('body'),
           power = 1,
           x, 
           y, 
-          angle = body.GetAngle();
+          angle = body.GetAngle(),
+          linVel = body.GetLinearVelocity();
       y = -Math.cos(angle).toFixed(2);
       x = Math.sin(angle).toFixed(2);
+      if((linVel.x > 15 && x > 0) || (linVel.x < -15 && x < 0)){
+        console.log("max linear velocity exceeded");
+        return;
+      }
+      if((linVel.y > 15 && y > 0) || (linVel.y < -15 && y < 0)){
+        console.log("max linear velocity exceeded");
+        return;
+      }
       body.ApplyImpulse(
         { x: x * power, y: y * power},
         body.GetWorldCenter()

@@ -14,5 +14,23 @@
   <section id="devTools">
     <h2>Lab Tools</h2>
   </section>
+  <section id="info">
+    <h2>Information</h2>
+    This is a demo of the <a href="https://github.com/keithmgould/Crystal">Crystal game framework</a>.  Having a realtime authorative server is a pain, especially in the face of an inertial system with no friction.  So what better to demo with than ships flying through space?  You are the little triangle, and you move the ship with the up, right and left arrows.<br><br>
+    There are some knobs you can play with to the right:<br>
+    <ul>
+      <li><b>extra latency:</b> you can modify how much artificial latency the network encounters</li>
+      <li><b>interpolation delay:</b> how far behind "right now" do we delay for interpolation.</li>
+      <li><b>final checkbox:</b> shows the final results of Crystals algorithm.</li>
+      <li><b>server checkbox:</b> shows the position of the server's snapshot.</li>
+      <li><b>future checkbox:</b> fastforward of the server's snapshot</li>
+      <li><b>colorChange checkbox:</b> show green when in predict mode, white when in snapshot interpolation mode</li>
+    </ul>
+
+    Crystal is a real-time "twitch" game framework with server and browser side components, written entirely in Javascript. It offers features normally found only in enterprise game engines, such as an authorative server, client side prediction, and position interpolation. Crystal is powered by a great 2D Physics engine which is run both on the server and client, allowing for a "zero-lag" experience. You can read more about Crystal's features in the repo's documentation.
+
+Crystal allows you to focus on your game, not the details of realizing a realtime experience in the face of lag.
+
+  </section>
  </body>
 </html>
