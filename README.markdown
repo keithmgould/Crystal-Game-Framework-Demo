@@ -7,6 +7,10 @@ Crystal is a client/server "twitch" game platform with:
 - client-side interpolation (handles entity location inbetween snapshots)
 - coming soon: server-side lag compensation
 
+## Demo
+
+You can see a demo of the framework here: http://keithmgould.cf2.nodejitsu.com/
+
 ## Details
 
 When playing multiplayer real-time "twitch" games, there is a lot needed to make the experience fun.  Any sort of lag makes the user experience suck for a number of reasons, and lag is inevitable.  There are extensive solutions to these problems (see references below), but they are all locked inside of huge game engines such as Valve's Source Engine.
